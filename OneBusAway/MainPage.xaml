@@ -13,9 +13,9 @@
     Foreground="{StaticResource PhoneForegroundBrush}">
 
     <phoneNavigation:PhoneApplicationPage.Resources>
-        <oba:StopsMV x:Key="StopsList" />
-        <oba:RoutesMV x:Key="RoutesList" />
-        <oba:RoutesStopsMV x:Key="RouteStopsList" />
+        <oba:NearbyStopsMV x:Key="StopsList" />
+        <oba:NearbyRoutesMV x:Key="RoutesList" />
+        <oba:RouteDirectionsMV x:Key="RouteStopsList" />
 
         <oba:StopRoutesConverter x:Key="StopRoutesConverter"></oba:StopRoutesConverter>
         <oba:DistanceConverter x:Key="DistanceConverter"></oba:DistanceConverter>

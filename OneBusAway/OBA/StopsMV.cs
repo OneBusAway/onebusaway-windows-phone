@@ -13,180 +13,94 @@ using System.ComponentModel;
 using System.IO;
 using System.Xml.Serialization;
 using System.Windows.Data;
+using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Device.Location;
 
 namespace OBA
 {
-    public class StopsMV : ObservableCollection<Stop>
+    public class NearbyStopsMV : ObservableCollection<Stop>
     {
-        public static string OBAKey = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
-        Location Center;
+        private GeoCoordinate Center;
+        private IBusService BusService;
 
-        public StopsMV()
+        public NearbyStopsMV()
             : base()
         {
-            
-            Center = LocationExtensions.Location(47.6597381728812, -122.342648553848);
+            Center = new GeoCoordinate(47.6597381728812, -122.342648553848);
+            BusService = OneBusAwayService.Singleton;
 
-            string uriString = "http://api.onebusaway.org/api/where/stops-for-location.xml?"
-            + "key=" + OBAKey
-            + "&lat=" + Center.Latitude.ToString()
-            + "&lon=" + Center.Longitude.ToString()
-            + "&radius=" + "500";
-
-            WebClient downloader = new WebClient();
-            downloader.OpenReadCompleted += new OpenReadCompletedEventHandler(downloader_OpenReadCompleted);
-            downloader.OpenReadAsync(new Uri(uriString));
+            BusService.StopsForLocation(Center, 1000, routesForLocation_Completed);
         }
 
-        public void downloader_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
+        public void routesForLocation_Completed(List<Stop> stops, Exception e)
         {
-            if (e.Error == null)
+            if (e == null)
             {
-                Stream responseStream = e.Result;
-                XmlSerializer serializer = new XmlSerializer(typeof(Response));
-                Response root = (Response)serializer.Deserialize(responseStream);
-                string responseClassString = (string)root.data.Attribute("class");
+                //clear and add stops
+                ClearItems();
 
-                if (responseClassString.Equals("org.onebusaway.transit_data.model.StopsBean"))
-                {
-                    XmlSerializer s = new XmlSerializer(typeof(StopsForLocation));
-                    StopsForLocation stops = (StopsForLocation)s.Deserialize(root.data.CreateReader());
-
-                    //calc distance
-                    stops.stops.ForEach(delegate(Stop p) { p.distance = LocationExtensions.Distance(Center, p.latitude, p.longitude); });
-                    //sort
-                    stops.stops.Sort(delegate(Stop p1, Stop p2) { return p1.distance.CompareTo(p2.distance); });
-
-                    //limit to 20 results
-                    if (stops.stops.Count > 20)
-                        stops.stops.RemoveRange(20, stops.stops.Count - 20);
-
-                    //clear and add with index
-                    ClearItems();
-                    int i = 0;
-                    stops.stops.ForEach(stop => { Add(stop); stop.stopIndex = (++i).ToString(); });
-                }
+                stops.ForEach(stop => { Add(stop); });
             }
         }
     }
 
-    public class RoutesMV : ObservableCollection<Route>
+    public class NearbyRoutesMV : ObservableCollection<Route>
     {
-        //private LocationRect boundingRect;
-        public static string OBAKey = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
+        private GeoCoordinate Center;
+        private IBusService BusService;
+
+        public NearbyRoutesMV()
+            : base()
+        {
+            Center = new GeoCoordinate(47.6597381728812, -122.342648553848);
+            BusService = OneBusAwayService.Singleton;
+
+            BusService.RoutesForLocation(Center, 1000, downloader_OpenReadCompleted);
+        }
+
+        public void downloader_OpenReadCompleted(List<Route> routes, Exception e)
+        {
+            if (e == null)
+            {
+                //clear and add
+                ClearItems();
+
+                routes.ForEach(route => { Add(route); });
+            }
+        }
+    }
+
+    public class RouteDirectionsMV : ObservableCollection<Route>
+    {
         Location Center;
 
-        public RoutesMV()
+        public RouteDirectionsMV()
             : base()
         {
             //BoundingRect = new LocationRect(LocationExtensions.Location(47.6197381728812, -122.342648553848), 0.1, 0.1);
             Center = LocationExtensions.Location(47.6597381728812, -122.342648553848);
-
-
-            string uriString = "http://api.onebusaway.org/api/where/routes-for-location.xml?"
-            + "key=" + OBAKey
-            + "&lat=" + Center.Latitude.ToString()
-            + "&lon=" + Center.Longitude.ToString()
-            + "&radius=" + "500";
-
-            WebClient downloader = new WebClient();
-            downloader.OpenReadCompleted += new OpenReadCompletedEventHandler(downloader_OpenReadCompleted);
-            downloader.OpenReadAsync(new Uri(uriString));
         }
 
         public void downloader_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
         {
             if (e.Error == null)
             {
-                Stream responseStream = e.Result;
-                XmlSerializer serializer = new XmlSerializer(typeof(Response));
-                Response root = (Response)serializer.Deserialize(responseStream);
-                string responseClassString = (string)root.data.Attribute("class");
+                //Stream responseStream = e.Result;
+                //XmlSerializer serializer = new XmlSerializer(typeof(Response));
+                //Response root = (Response)serializer.Deserialize(responseStream);
+                //string responseClassString = (string)root.data.Attribute("class");
 
-                if (responseClassString.Equals("org.onebusaway.transit_data.model.RoutesBean"))
-                {
-                    XmlSerializer s = new XmlSerializer(typeof(RoutesForLocation));
-                    RoutesForLocation routes = (RoutesForLocation)s.Deserialize(root.data.CreateReader());
+                //XmlSerializer s = new XmlSerializer(typeof(RoutesForLocationResponse));
+                //RoutesForLocationResponse routes = (RoutesForLocationResponse)s.Deserialize(root.data.CreateReader());
 
-                    ////calc distance
-                    //stops.stops.ForEach(delegate(Stop p) { p.distance = LocationExtensions.Distance(Center, p.latitude, p.longitude); });
-                    ////sort
-                    routes.routes.Sort(delegate(Route p1, Route p2) { return p1.shortName.CompareTo(p2.shortName); });
-
-                    ////clear and add
-                    ClearItems();
-                    routes.routes.ForEach(route => { Add(route); });
-                }
-            }
-        }
-    }
-    public class RoutesStopsMV : ObservableCollection<RouteStop>
-    {
-        //private LocationRect boundingRect;
-        public static string OBAKey = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
-        Location Center;
-
-        public RoutesStopsMV()
-            : base()
-        {
-            if (DesignerProperties.IsInDesignTool)
-            {
-                Add(new RouteStop(new Route()));
-                Add(new RouteStop(new Route()));
-                Add(new RouteStop(new Route()));
-                Add(new RouteStop(new Route()));
-                Add(new RouteStop(new Route()));
-
-               Add(new RouteStop(new Route()));
-
-            }
-            else
-            {
-                //BoundingRect = new LocationRect(LocationExtensions.Location(47.6197381728812, -122.342648553848), 0.1, 0.1);
-                Center = LocationExtensions.Location(47.6597381728812, -122.342648553848);
-
-                string routeUriString = "http://api.onebusaway.org/api/where/routes-for-location.xml?"
-              + "key=" + OBAKey
-              + "&lat=" + Center.Latitude.ToString()
-              + "&lon=" + Center.Longitude.ToString()
-              + "&radius=" + "500";
-
-                string stopsUriString = "http://api.onebusaway.org/api/where/stops-for-location.xml?"
-              + "key=" + OBAKey
-              + "&lat=" + Center.Latitude.ToString()
-              + "&lon=" + Center.Longitude.ToString()
-              + "&radius=" + "500";
-
-                WebClient routeDownloader = new WebClient();
-                routeDownloader.OpenReadCompleted += new OpenReadCompletedEventHandler(downloader_OpenReadCompleted);
-                routeDownloader.OpenReadAsync(new Uri(routeUriString));
-
-                WebClient stopsDownloader = new WebClient();
-                stopsDownloader.OpenReadCompleted += new OpenReadCompletedEventHandler(downloader_OpenReadCompleted);
-                stopsDownloader.OpenReadAsync(new Uri(stopsUriString));
-            }
-        }
-
-        public void downloader_OpenReadCompleted(object sender, OpenReadCompletedEventArgs e)
-        {
-            if (e.Error == null)
-            {
-                Stream responseStream = e.Result;
-                XmlSerializer serializer = new XmlSerializer(typeof(Response));
-                Response root = (Response)serializer.Deserialize(responseStream);
-                string responseClassString = (string)root.data.Attribute("class");
-
-                if (responseClassString.Equals("org.onebusaway.transit_data.model.RoutesBean"))
-                {
-                    XmlSerializer s = new XmlSerializer(typeof(RoutesForLocation));
-                    RoutesForLocation routes = (RoutesForLocation)s.Deserialize(root.data.CreateReader());
-
-                    //sort
-                    routes.routes.Sort(delegate(Route p1, Route p2) { return p1.shortName.CompareTo(p2.shortName); });
+                ////sort
+                //routes.routes.Sort(delegate(Route p1, Route p2) { return p1.shortName.CompareTo(p2.shortName); });
                     
-                    //add to the observalble collection
-                    routes.routes.ForEach(route => { Add(new RouteStop(route)); });
-                }
+                ////add to the observalble collection
+                //routes.routes.ForEach(route => { Add(new RouteStop(route)); });
+                
             }
         }
     }
@@ -198,7 +112,7 @@ namespace OBA
         {
             Stop stop = (Stop)value;
 
-            return stop.RouteString();
+            return stop.name;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -212,7 +126,7 @@ namespace OBA
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             Stop stop = (Stop)value;
-            return "Distance: " + String.Format("{0:0.00}", stop.distance) + " mi ";
+            return "Distance mi ";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
