@@ -1,24 +1,26 @@
 ﻿<phoneNavigation:PhoneApplicationPage 
-    x:Class="OneBusAway.MainPage"
+    x:Class="OneBusAway.WP7.View.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:phoneNavigation="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:pivot="clr-namespace:Phone.Controls.Samples;assembly=Phone.Controls.Samples"    
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:oba="clr-namespace:OBA"    
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"   
+    xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
+    xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="800"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}">
 
     <phoneNavigation:PhoneApplicationPage.Resources>
-        <oba:NearbyStopsMV x:Key="StopsList" />
-        <oba:NearbyRoutesMV x:Key="RoutesList" />
-        <oba:RouteDirectionsMV x:Key="RouteStopsList" />
+        <data:MainPageVM x:Key="ViewModel" />
+        
+        <!--<viewModel:RouteDirectionsMV x:Key="RouteStopsList" />-->
 
-        <oba:StopRoutesConverter x:Key="StopRoutesConverter"></oba:StopRoutesConverter>
-        <oba:DistanceConverter x:Key="DistanceConverter"></oba:DistanceConverter>
+        <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
+        <view:DistanceConverter x:Key="DistanceConverter"></view:DistanceConverter>
+        
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
             <Setter Property="Margin" Value="20,20,0,0" />
@@ -51,7 +53,7 @@
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="{Binding description}" />
                     <!--<TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding description}" />-->
-                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding agency.name}" />
+                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
                 </StackPanel>
             </StackPanel>
         </DataTemplate>
@@ -91,14 +93,11 @@
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
         <pivot:PivotControl Name="PC">
-            <pivot:PivotItem Title="ONE BUS AWAY" Header="nearby">
-                <ListBox x:Name="RouteStopListBox" ItemsSource="{StaticResource RouteStopsList}" ItemTemplate="{StaticResource RouteStopsTemplate}" />
+            <pivot:PivotItem Title="ONE BUS AWAY" Header="routes">
+                <ListBox x:Name="RoutesListBox" ItemsSource="{Binding Path=RoutesForLocation, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
             </pivot:PivotItem>
-            <pivot:PivotItem Title="ONE BUS AWAY" Header="favorites">
-                <ListBox x:Name="RoutesListBox" ItemsSource="{StaticResource RoutesList}" ItemTemplate="{StaticResource RouteTemplate}" />
-            </pivot:PivotItem>
-            <pivot:PivotItem Title="ONE BUS AWAY" Header="recent">
-                <ListBox x:Name="StopsListBox" ItemsSource="{StaticResource StopsList}" ItemTemplate="{StaticResource StopTemplate}" />
+            <pivot:PivotItem Title="ONE BUS AWAY" Header="stops">
+                <ListBox x:Name="StopsListBox" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource StopTemplate}" />
             </pivot:PivotItem>
         </pivot:PivotControl>
     </Grid>

@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.View", "OneBusAway\OneBusAway.WP7.View.csproj", "{2A2050FF-53A2-49A6-9278-DA05E0060CE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.Model", "OneBusAway.WP7.Model\OneBusAway.WP7.Model.csproj", "{B74CFFBA-CCE9-4F9F-91A2-772708E18479}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.ViewModel", "OneBusAway.WP7.ViewModel\OneBusAway.WP7.ViewModel.csproj", "{D6F263F1-4036-4685-B5B3-79ECC3618FD7}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs02.codeplex.com/
+		SccProjectUniqueName0 = OneBusAway\\OneBusAway.WP7.View.csproj
+		SccProjectName0 = OneBusAway
+		SccLocalPath0 = OneBusAway
+		SccProjectUniqueName1 = OneBusAway.WP7.ViewModel\\OneBusAway.WP7.ViewModel.csproj
+		SccProjectName1 = OneBusAway.WP7.ViewModel
+		SccLocalPath1 = OneBusAway.WP7.ViewModel
+		SccProjectUniqueName2 = OneBusAway.WP7.Model\\OneBusAway.WP7.Model.csproj
+		SccProjectName2 = OneBusAway.WP7.Model
+		SccLocalPath2 = OneBusAway.WP7.Model
+		SccLocalPath3 = .
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A2050FF-53A2-49A6-9278-DA05E0060CE9}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B74CFFBA-CCE9-4F9F-91A2-772708E18479}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74CFFBA-CCE9-4F9F-91A2-772708E18479}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74CFFBA-CCE9-4F9F-91A2-772708E18479}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74CFFBA-CCE9-4F9F-91A2-772708E18479}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

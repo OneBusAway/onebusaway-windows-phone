@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace OneBusAway
+namespace OneBusAway.WP7.View
 {
     public partial class App : Application
     {
