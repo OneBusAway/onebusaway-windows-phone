@@ -36,7 +36,7 @@ namespace OneBusAway.WP7.Model
 
         public static BusServiceModel Singleton = new BusServiceModel();
 
-        public BusServiceModel()
+        private BusServiceModel()
         {
             webservice = OneBusAwayWebservice.Singleton;
         }
