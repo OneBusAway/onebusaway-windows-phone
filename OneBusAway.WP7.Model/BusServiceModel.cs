@@ -29,6 +29,7 @@ namespace OneBusAway.WP7.Model
         public event EventHandler<ViewModel.EventArgs.StopsForRouteEventArgs> StopsForRoute_Completed;
         public event EventHandler<ViewModel.EventArgs.ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
         public event EventHandler<ViewModel.EventArgs.ScheduleForStopEventArgs> ScheduleForStop_Completed;
+        public event EventHandler<ViewModel.EventArgs.TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
 
         #endregion
 
@@ -36,7 +37,7 @@ namespace OneBusAway.WP7.Model
 
         public static BusServiceModel Singleton = new BusServiceModel();
 
-        public BusServiceModel()
+        private BusServiceModel()
         {
             webservice = OneBusAwayWebservice.Singleton;
         }
@@ -96,7 +97,7 @@ namespace OneBusAway.WP7.Model
 
                     if (RoutesForLocation_Completed != null)
                     {
-                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(routes, error));
+                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(location, routes, error));
                     }
                 }
             );
@@ -110,7 +111,7 @@ namespace OneBusAway.WP7.Model
                 {
                     if (StopsForRoute_Completed != null)
                     {
-                        StopsForRoute_Completed(this, new ViewModel.EventArgs.StopsForRouteEventArgs(routeStops, error));
+                        StopsForRoute_Completed(this, new ViewModel.EventArgs.StopsForRouteEventArgs(route, routeStops, error));
                     }
                 }
             );
@@ -124,7 +125,7 @@ namespace OneBusAway.WP7.Model
                 {
                     if (ArrivalsForStop_Completed != null)
                     {
-                        ArrivalsForStop_Completed(this, new ViewModel.EventArgs.ArrivalsForStopEventArgs(arrivals, error));
+                        ArrivalsForStop_Completed(this, new ViewModel.EventArgs.ArrivalsForStopEventArgs(stop, arrivals, error));
                     }
                 }
             );
@@ -138,10 +139,43 @@ namespace OneBusAway.WP7.Model
                 {
                     if (ScheduleForStop_Completed != null)
                     {
-                        ScheduleForStop_Completed(this, new ViewModel.EventArgs.ScheduleForStopEventArgs(schedule, error));
+                        ScheduleForStop_Completed(this, new ViewModel.EventArgs.ScheduleForStopEventArgs(stop, schedule, error));
                     }
                 }
             );
+        }
+
+        public void TripDetailsForArrivals(List<ArrivalAndDeparture> arrivals)
+        {
+            int count = 0;
+            List<TripDetails> tripDetails = new List<TripDetails>(arrivals.Count);
+            Exception overallError = null;
+
+            arrivals.ForEach(arrival =>
+                webservice.TripDetailsForArrival(
+                    arrival,
+                    delegate(TripDetails tripDetail, Exception error)
+                    {
+                        if (error != null)
+                        {
+                            overallError = error;
+                        }
+                        else
+                        {
+                            tripDetails.Add(tripDetail);
+                        }
+
+                        // Is this code thread-safe?
+                        count++;
+                        if (count == arrivals.Count && TripDetailsForArrival_Completed != null)
+                        {
+                            TripDetailsForArrival_Completed(this, new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, error));
+                        }
+                    }
+                )
+            );
+
+
         }
 
         #endregion

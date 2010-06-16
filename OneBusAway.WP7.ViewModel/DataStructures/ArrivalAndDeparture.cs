@@ -17,5 +17,21 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
         public DateTime? predictedDepartureTime { get; set; }
         public DateTime scheduledDepartureTime { get; set; }
         public string status { get; set; }
+
+        public DateTime nextKnownArrival
+        {
+            get
+            {
+                return predictedArrivalTime != null ? (DateTime)predictedArrivalTime : scheduledArrivalTime;
+            }
+        }
+    }
+
+    public class ArrivalTimeComparer : IComparer<ArrivalAndDeparture>
+    {
+        public int Compare(ArrivalAndDeparture x, ArrivalAndDeparture y)
+        {
+            return x.nextKnownArrival.CompareTo(y.nextKnownArrival);
+        }
     }
 }

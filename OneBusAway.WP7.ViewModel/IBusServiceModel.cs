@@ -3,6 +3,7 @@ using System.Net;
 using System.Device.Location;
 using OneBusAway.WP7.ViewModel.DataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -22,5 +23,8 @@ namespace OneBusAway.WP7.ViewModel
 
         event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
         void ScheduleForStop(Stop stop);
+
+        event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
+        void TripDetailsForArrivals(List<ArrivalAndDeparture> arrivals);
     }
 }
