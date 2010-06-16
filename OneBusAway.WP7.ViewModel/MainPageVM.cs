@@ -19,9 +19,12 @@ namespace OneBusAway.WP7.ViewModel
         #region Constructors
 
         public MainPageVM()
-            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model").CreateInstance("OneBusAway.WP7.Model.BusServiceModel"))
+            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
+                .GetType("OneBusAway.WP7.Model.BusServiceModel")    
+                .GetField("Singleton")
+                .GetValue(null))
         {
-            
+
         }
 
         public MainPageVM(IBusServiceModel busServiceModel)
@@ -29,16 +32,11 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel = busServiceModel;
 
             StopsForLocation = new ObservableCollection<Stop>();
-            StopsForRoute = new ObservableCollection<RouteStops>();
-            ScheduleForStop = new ObservableCollection<RouteSchedule>();
             RoutesForLocation = new ObservableCollection<Route>();
-            ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
 
-            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.ScheduleForStop_Completed += new EventHandler<EventArgs.ScheduleForStopEventArgs>(busServiceModel_ScheduleForStop_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
-            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
         }
 
         #endregion
@@ -46,10 +44,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Properties
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
-        public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
-        public ObservableCollection<RouteSchedule> ScheduleForStop { get; private set; }
         public ObservableCollection<Route> RoutesForLocation { get; private set; }
-        public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
 
         #endregion
 
@@ -65,31 +60,13 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Event Handlers
 
-        void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
-        {
-            if (e.error == null)
-            {
-                StopsForRoute.Clear();
-                e.routeStops.ForEach(routeStop => StopsForRoute.Add(routeStop));
-            }
-        }
-
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
         {
             if (e.error == null)
             {
-                e.stops.Sort(new StopDistanceComparer(e.searchLocation));
+                e.stops.Sort(new StopDistanceComparer(e.location));
                 StopsForLocation.Clear();
                 e.stops.ForEach(stop => StopsForLocation.Add(stop));
-            }
-        }
-
-        void busServiceModel_ScheduleForStop_Completed(object sender, EventArgs.ScheduleForStopEventArgs e)
-        {
-            if (e.error == null)
-            {
-                ScheduleForStop.Clear();
-                e.schedules.ForEach(schedule => ScheduleForStop.Add(schedule));
             }
         }
 
@@ -99,6 +76,11 @@ namespace OneBusAway.WP7.ViewModel
             {
                 RoutesForLocation.Clear();
                 e.routes.ForEach(route => RoutesForLocation.Add(route));
+
+                foreach (Route route in RoutesForLocation)
+                {
+                    busServiceModel.ArrivalsForStop(route.closestStop);
+                }
             }
         }
 
@@ -106,8 +88,30 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (e.error == null)
             {
-                ArrivalsForStop.Clear();
-                e.arrivals.ForEach(arrival => ArrivalsForStop.Add(arrival));
+                // This should ensure the first arrival for a bus in the list is the first time-wise
+                e.arrivals.Sort(new ArrivalTimeComparer());
+
+                foreach (Route route in RoutesForLocation)
+                {
+                    // Find the route with the closest stop that these arrivals are for
+                    if (route.closestStop.Equals(e.stop))
+                    {
+                        foreach (ArrivalAndDeparture arrival in e.arrivals)
+                        {
+                            // Now that we have the correct route/closest stop pair, find the arrival
+                            // for the right bus
+                            if (arrival.routeId == route.id)
+                            {
+                                // Since there could be multiple arrivals for the bus at this stop only assign
+                                // the first one to nextArrival
+                                if (route.nextArrival == null)
+                                {
+                                    route.nextArrival = arrival.nextKnownArrival;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 

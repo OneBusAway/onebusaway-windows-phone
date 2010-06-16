@@ -9,11 +9,13 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
     {
         public Exception error { get; private set; }
         public List<RouteSchedule> schedules { get; private set; }
+        public Stop stop { get; private set; }
 
-        public ScheduleForStopEventArgs(List<RouteSchedule> schedules, Exception error)
+        public ScheduleForStopEventArgs(Stop stop, List<RouteSchedule> schedules, Exception error)
         {
             this.error = error;
             this.schedules = schedules;
+            this.stop = stop;
         }
     }
 }
