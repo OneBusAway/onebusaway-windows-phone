@@ -13,6 +13,7 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
         public string url { get; set; }
         public Agency agency { get; set; }
         public Stop closestStop { get; set; }
+        public DateTime? nextArrival { get; set; }
 
         public override bool Equals(object obj)
         {

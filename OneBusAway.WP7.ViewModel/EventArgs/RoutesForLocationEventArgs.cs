@@ -2,6 +2,7 @@
 using System.Net;
 using System.Collections.Generic;
 using OneBusAway.WP7.ViewModel.DataStructures;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
@@ -9,11 +10,13 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
     {
         public Exception error { get; private set; }
         public List<Route> routes { get; private set; }
+        public GeoCoordinate location { get; private set; }
 
-        public RoutesForLocationEventArgs(List<Route> routes, Exception error)
+        public RoutesForLocationEventArgs(GeoCoordinate location, List<Route> routes, Exception error)
         {
             this.error = error;
             this.routes = routes;
+            this.location = location;
         }
     }
 }

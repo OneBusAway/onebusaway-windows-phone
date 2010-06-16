@@ -14,7 +14,7 @@ namespace OneBusAway.WP7.Model
 
         #region Private Variables
 
-        private const string WEBSERViCE = "http://api.onebusaway.org/api/where";
+        private const string WEBSERVICE = "http://api.onebusaway.org/api/where";
         private const string KEY = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
         private const int APIVERSION = 2;
 
@@ -27,6 +27,7 @@ namespace OneBusAway.WP7.Model
         public delegate void StopsForRoute_Callback(List<RouteStops> routeStops, Exception error);
         public delegate void ArrivalsForStop_Callback(List<ArrivalAndDeparture> arrivals, Exception error);
         public delegate void ScheduleForStop_Callback(List<RouteSchedule> schedules, Exception error);
+        public delegate void TripDetailsForArrival_Callback(TripDetails tripDetail, Exception error);
 
         #endregion
 
@@ -45,7 +46,7 @@ namespace OneBusAway.WP7.Model
         {
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
-                WEBSERViCE,
+                WEBSERVICE,
                 "stops-for-location",
                 KEY,
                 location.Latitude,
@@ -128,7 +129,7 @@ namespace OneBusAway.WP7.Model
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&version={4}",
-                WEBSERViCE,
+                WEBSERVICE,
                 "stops-for-route",
                 route.id,
                 KEY,
@@ -220,7 +221,7 @@ namespace OneBusAway.WP7.Model
         {
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={2}&version={4}",
-                WEBSERViCE,
+                WEBSERVICE,
                 "arrivals-and-departures",
                 stop.id,
                 KEY,
@@ -276,19 +277,14 @@ namespace OneBusAway.WP7.Model
                 }
 
                 callback(arrivals, error);
-            }
-
-            private static DateTime UnixTimeToDateTime(long unixTime)
-            {
-                return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
-            }
+            }            
         }
 
         public void ScheduleForStop(Stop stop, ScheduleForStop_Callback callback)
         {
             string requestUrl = string.Format(
-                "{0}/{1}/{2}.xml?key={2}&version={4}",
-                WEBSERViCE,
+                "{0}/{1}/{2}.xml?key={3}&version={4}",
+                WEBSERVICE,
                 "schedule-for-stop",
                 stop.id,
                 KEY,
@@ -360,6 +356,78 @@ namespace OneBusAway.WP7.Model
 
                 callback(schedules, error);
             }
+        }
+
+        public void TripDetailsForArrival(ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
+        {
+            string requestUrl = string.Format(
+                "{0}/{1}/{2}.xml?key={3}&includeSchedule={4}",
+                WEBSERVICE,
+                "trip",
+                arrival.tripId,
+                KEY,
+                "false"
+                );
+            WebClient client = new WebClient();
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new TripDetailsForArrivalCompleted(callback).TripDetailsForArrival_Completed);
+            client.DownloadStringAsync(new Uri(requestUrl));
+        }
+
+        private class TripDetailsForArrivalCompleted
+        {
+            private TripDetailsForArrival_Callback callback;
+
+            public TripDetailsForArrivalCompleted(TripDetailsForArrival_Callback callback)
+            {
+                this.callback = callback;
+            }
+
+            public void TripDetailsForArrival_Completed(object sender, DownloadStringCompletedEventArgs e)
+            {
+                Exception error = e.Error;
+                TripDetails tripDetail = null;
+
+                try
+                {
+                    if (error == null)
+                    {
+                        XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
+
+                        tripDetail =
+                            (from trip in xmlDoc.Descendants("entry")
+                             select new TripDetails
+                             {
+                                 tripId = trip.Element("id").Value,
+                                 serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
+                                 scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
+                                 closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    trip.Element("status").Element("closestStop").Value : null,
+                                 closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
+                                 position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    new GeoCoordinate(
+                                        double.Parse(trip.Element("status").Element("position").Element("lat").Value),
+                                        double.Parse(trip.Element("status").Element("position").Element("lon").Value)
+                                        )
+                                    :
+                                    null
+
+                             }).First();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = ex;
+                }
+
+                callback(tripDetail, error);
+            }
+        }
+
+        private static DateTime UnixTimeToDateTime(long unixTime)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
         }
 
         //[XmlRoot("encodedPolyline")]

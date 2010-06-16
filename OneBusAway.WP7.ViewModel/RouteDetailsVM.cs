@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using OneBusAway.WP7.ViewModel.DataStructures;
 using System.Device.Location;
+using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -33,6 +34,7 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
+            this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
 
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
@@ -44,6 +46,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
+        public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }
 
         #endregion
 
@@ -57,6 +60,11 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadArrivalsForStop(Stop stop)
         {
             busServiceModel.ArrivalsForStop(stop);
+        }
+
+        public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
+        {
+            arrivals.ForEach(arrival => busServiceModel.TripDetailsForArrivals(arrivals));
         }
 
         #endregion
@@ -78,6 +86,15 @@ namespace OneBusAway.WP7.ViewModel
             {
                 ArrivalsForStop.Clear();
                 e.arrivals.ForEach(arrival => ArrivalsForStop.Add(arrival));
+            }
+        }
+
+        void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
+        {
+            if (e.error == null)
+            {
+                TripDetailsForArrivals.Clear();
+                e.tripDetails.ForEach(tripDetail => TripDetailsForArrivals.Add(tripDetail));
             }
         }
 

@@ -8,6 +8,6 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
     public class DirectionSchedule
     {
         public string tripHeadsign { get; set; }
-        public List<Trip> trips { get; set; }
+        public List<TripDetails> trips { get; set; }
     }
 }
