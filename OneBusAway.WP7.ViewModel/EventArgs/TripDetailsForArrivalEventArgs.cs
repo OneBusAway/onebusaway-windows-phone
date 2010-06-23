@@ -13,9 +13,8 @@ using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class TripDetailsForArrivalEventArgs : System.EventArgs
+    public class TripDetailsForArrivalEventArgs : ABusServiceEventArgs
     {
-        public Exception error { get; private set; }
         public List<TripDetails> tripDetails { get; private set; }
         public ArrivalAndDeparture arrival { get; private set; }
 

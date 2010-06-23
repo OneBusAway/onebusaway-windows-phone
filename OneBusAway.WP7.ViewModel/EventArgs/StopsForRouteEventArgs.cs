@@ -5,9 +5,8 @@ using OneBusAway.WP7.ViewModel.DataStructures;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class StopsForRouteEventArgs : System.EventArgs
+    public class StopsForRouteEventArgs : ABusServiceEventArgs
     {
-        public Exception error { get; private set; }
         public List<RouteStops> routeStops { get; private set; }
         public Route route { get; private set; }
 
