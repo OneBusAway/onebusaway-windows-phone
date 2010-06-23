@@ -7,9 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.Model", "One
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.ViewModel", "OneBusAway.WP7.ViewModel\OneBusAway.WP7.ViewModel.csproj", "{D6F263F1-4036-4685-B5B3-79ECC3618FD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneBusAway.WP7.Test", "OneBusAway.WP7.Test\OneBusAway.WP7.Test.csproj", "{A8C8631F-2535-495C-AE91-92850BE3BF0B}"
+EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
+		SccNumberOfProjects = 5
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccProjectUniqueName0 = OneBusAway\\OneBusAway.WP7.View.csproj
@@ -22,6 +24,9 @@ Global
 		SccProjectName2 = OneBusAway.WP7.Model
 		SccLocalPath2 = OneBusAway.WP7.Model
 		SccLocalPath3 = .
+		SccProjectUniqueName4 = OneBusAway.WP7.Test\\OneBusAway.WP7.Test.csproj
+		SccProjectName4 = OneBusAway.WP7.Test
+		SccLocalPath4 = OneBusAway.WP7.Test
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +47,12 @@ Global
 		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6F263F1-4036-4685-B5B3-79ECC3618FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8C8631F-2535-495C-AE91-92850BE3BF0B}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -161,16 +161,15 @@ namespace OneBusAway.WP7.Model
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         routeStops =
-                            (from stopGrouping in xmlDoc.Descendants("stopGroupings")
-                             from direction in stopGrouping.Descendants("stopGroup")
+                            (from stopGrouping in xmlDoc.Descendants("stopGrouping")
                              where stopGrouping.Element("type").Value == "direction"
                              select new RouteStops
                              {
-                                 name = direction.Descendants("names").First().Element("string").Value,
+                                 name = stopGrouping.Descendants("names").First().Element("string").Value,
 
                                  stops =
-                                     (from stopId in xmlDoc.Descendants("stopIds")
-                                      from stop in xmlDoc.Descendants("stops")
+                                     (from stopId in stopGrouping.Descendants("stopIds").First().Descendants("string")
+                                      from stop in xmlDoc.Descendants("stop")
                                       where stopId.Value == stop.Element("id").Value
                                       select new Stop
                                       {
@@ -220,9 +219,9 @@ namespace OneBusAway.WP7.Model
         public void ArrivalsForStop(Stop stop, ArrivalsForStop_Callback callback)
         {
             string requestUrl = string.Format(
-                "{0}/{1}/{2}.xml?key={2}&version={4}",
+                "{0}/{1}/{2}.xml?key={3}&version={4}",
                 WEBSERVICE,
-                "arrivals-and-departures",
+                "arrivals-and-departures-for-stop",
                 stop.id,
                 KEY,
                 APIVERSION
@@ -363,7 +362,7 @@ namespace OneBusAway.WP7.Model
             string requestUrl = string.Format(
                 "{0}/{1}/{2}.xml?key={3}&includeSchedule={4}",
                 WEBSERVICE,
-                "trip",
+                "trip-details",
                 arrival.tripId,
                 KEY,
                 "false"
@@ -397,21 +396,22 @@ namespace OneBusAway.WP7.Model
                             (from trip in xmlDoc.Descendants("entry")
                              select new TripDetails
                              {
-                                 tripId = trip.Element("id").Value,
-                                 serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
-                                 scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
-                                 closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    trip.Element("status").Element("closestStop").Value : null,
-                                 closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
-                                 position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    new GeoCoordinate(
-                                        double.Parse(trip.Element("status").Element("position").Element("lat").Value),
-                                        double.Parse(trip.Element("status").Element("position").Element("lon").Value)
-                                        )
-                                    :
-                                    null
+                                 tripId = trip.Element("tripId").Value,
+                                 closestStopId = trip.Element("status").Value
+                                 //serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value))
+                                 //scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                 //   int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
+                                 //closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                 //   trip.Element("status").Element("closestStop").Value : null,
+                                 //closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                 //   int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
+                                 //position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                 //   new GeoCoordinate(
+                                 //       double.Parse(trip.Element("status").Element("position").Element("lat").Value),
+                                 //       double.Parse(trip.Element("status").Element("position").Element("lon").Value)
+                                 //       )
+                                 //   :
+                                 //   null
 
                              }).First();
                     }

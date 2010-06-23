@@ -5,9 +5,8 @@ using OneBusAway.WP7.ViewModel.DataStructures;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class ArrivalsForStopEventArgs : System.EventArgs
+    public class ArrivalsForStopEventArgs : ABusServiceEventArgs
     {
-        public Exception error { get; private set; }
         public List<ArrivalAndDeparture> arrivals;
         public Stop stop { get; private set; }
 

@@ -7,9 +7,8 @@ using System.Device.Location;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class StopsForLocationEventArgs : System.EventArgs
+    public class StopsForLocationEventArgs : ABusServiceEventArgs
     {
-        public Exception error { get; private set; }
         public List<Stop> stops { get; private set; }
         public GeoCoordinate location { get; private set; }
 

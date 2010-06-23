@@ -151,29 +151,44 @@ namespace OneBusAway.WP7.Model
             List<TripDetails> tripDetails = new List<TripDetails>(arrivals.Count);
             Exception overallError = null;
 
-            arrivals.ForEach(arrival =>
-                webservice.TripDetailsForArrival(
-                    arrival,
-                    delegate(TripDetails tripDetail, Exception error)
+            if (arrivals.Count == 0)
+            {
+                if (TripDetailsForArrival_Completed != null)
+                {
+                    TripDetailsForArrival_Completed(
+                        this,
+                        new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, overallError)
+                        );
+                }
+            }
+            else
+            {
+                arrivals.ForEach(arrival =>
                     {
-                        if (error != null)
-                        {
-                            overallError = error;
-                        }
-                        else
-                        {
-                            tripDetails.Add(tripDetail);
-                        }
+                        webservice.TripDetailsForArrival(
+                            arrival,
+                            delegate(TripDetails tripDetail, Exception error)
+                            {
+                                if (error != null)
+                                {
+                                    overallError = error;
+                                }
+                                else
+                                {
+                                    tripDetails.Add(tripDetail);
+                                }
 
-                        // Is this code thread-safe?
-                        count++;
-                        if (count == arrivals.Count && TripDetailsForArrival_Completed != null)
-                        {
-                            TripDetailsForArrival_Completed(this, new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, error));
-                        }
+                                // Is this code thread-safe?
+                                count++;
+                                if (count == arrivals.Count && TripDetailsForArrival_Completed != null)
+                                {
+                                    TripDetailsForArrival_Completed(this, new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, error));
+                                }
+                            }
+                        );
                     }
-                )
-            );
+                );
+            }
 
 
         }
