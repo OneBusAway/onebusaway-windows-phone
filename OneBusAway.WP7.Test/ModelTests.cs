@@ -26,7 +26,8 @@ namespace OneBusAway.WP7.Test
         private GeoCoordinate OTC = new GeoCoordinate(47.644385, -122.135353);
         private GeoCoordinate HOME = new GeoCoordinate(47.67652682262796, -122.3183012008667);
 
-        private Stop STOP = new Stop();
+        private Stop STOP_RAVENNA = new Stop();
+        private Stop STOP_UDIST = new Stop();
         private Route ROUTE = new Route();
 
         #endregion
@@ -40,10 +41,15 @@ namespace OneBusAway.WP7.Test
 
         public ModelTests()
         {
-            STOP.direction = "W";
-            STOP.id = "1_10100";
-            STOP.location = new GeoCoordinate(47.6695671, -122.305412);
-            STOP.name = "NE Ravenna Blvd & Park Rd NE";
+            STOP_RAVENNA.direction = "W";
+            STOP_RAVENNA.id = "1_10100";
+            STOP_RAVENNA.location = new GeoCoordinate(47.6695671, -122.305412);
+            STOP_RAVENNA.name = "NE Ravenna Blvd & Park Rd NE";
+
+            STOP_UDIST.direction = "S";
+            STOP_UDIST.id = "1_10914";
+            STOP_UDIST.location = new GeoCoordinate(47.6564255, -122.312164);
+            STOP_UDIST.name = "15th Ave NE & NE Campus Pkwy";
 
             ROUTE.agency = null;
             ROUTE.closestStop = null;
@@ -75,7 +81,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void ArrivalsForStop()
         {
-            ModelTest(() => model.ArrivalsForStop(STOP));
+            ModelTest(() => model.ArrivalsForStop(STOP_RAVENNA));
         }
 
         [TestMethod]
@@ -89,7 +95,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void ScheduleForStop()
         {
-            ModelTest(() => model.ScheduleForStop(STOP));
+            ModelTest(() => model.ScheduleForStop(STOP_RAVENNA));
         }
 
         [TestMethod]
@@ -117,7 +123,7 @@ namespace OneBusAway.WP7.Test
                     model.ArrivalsForStop_Completed +=
                         (caller, args) => { arrivalsArgs = args; };
 
-                    model.ArrivalsForStop(STOP);
+                    model.ArrivalsForStop(STOP_UDIST);
 
                     // Wait for ArrivalsForStop to finish both callbacks
                     EnqueueConditional(() => arrivalsArgs != null && callback.finished);

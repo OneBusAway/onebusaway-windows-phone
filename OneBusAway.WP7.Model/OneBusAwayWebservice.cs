@@ -55,17 +55,20 @@ namespace OneBusAway.WP7.Model
                 APIVERSION
                 );
             WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetStopsForLocationCompleted(callback).StopsForLocation_Completed);
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
+                new GetStopsForLocationCompleted(requestUrl, callback).StopsForLocation_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetStopsForLocationCompleted
         {
             private StopsForLocation_Callback callback;
+            private string requestUrl;
 
-            public GetStopsForLocationCompleted(StopsForLocation_Callback callback)
+            public GetStopsForLocationCompleted(string requestUrl, StopsForLocation_Callback callback)
             {
                 this.callback = callback;
+                this.requestUrl = requestUrl;
             }
 
             public void StopsForLocation_Completed(object sender, DownloadStringCompletedEventArgs e)
@@ -118,7 +121,7 @@ namespace OneBusAway.WP7.Model
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
                 callback(stops, error);
@@ -136,17 +139,19 @@ namespace OneBusAway.WP7.Model
                 APIVERSION
                 );
             WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(callback).DirectionsForRoute_Completed);
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, callback).DirectionsForRoute_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetDirectionsForRouteCompleted
         {
             private StopsForRoute_Callback callback;
+            private string requestUrl;
 
-            public GetDirectionsForRouteCompleted(StopsForRoute_Callback callback)
+            public GetDirectionsForRouteCompleted(string requestUrl, StopsForRoute_Callback callback)
             {
                 this.callback = callback;
+                this.requestUrl = requestUrl;
             }
 
             public void DirectionsForRoute_Completed(object sender, DownloadStringCompletedEventArgs e)
@@ -209,7 +214,7 @@ namespace OneBusAway.WP7.Model
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
                 callback(routeStops, error);
@@ -227,17 +232,19 @@ namespace OneBusAway.WP7.Model
                 APIVERSION
                 );
             WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetArrivalsForStopCompleted(callback).ArrivalsForStop_Completed);
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetArrivalsForStopCompleted(requestUrl, callback).ArrivalsForStop_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetArrivalsForStopCompleted
         {
             private ArrivalsForStop_Callback callback;
+            private string requestUrl;
 
-            public GetArrivalsForStopCompleted(ArrivalsForStop_Callback callback)
+            public GetArrivalsForStopCompleted(string requestUrl, ArrivalsForStop_Callback callback)
             {
                 this.callback = callback;
+                this.requestUrl = requestUrl;
             }
 
             public void ArrivalsForStop_Completed(object sender, DownloadStringCompletedEventArgs e)
@@ -272,7 +279,7 @@ namespace OneBusAway.WP7.Model
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
                 callback(arrivals, error);
@@ -290,17 +297,19 @@ namespace OneBusAway.WP7.Model
                 APIVERSION
                 );
             WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetScheduleForStopCompleted(callback).ScheduleForStop_Completed);
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetScheduleForStopCompleted(requestUrl, callback).ScheduleForStop_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetScheduleForStopCompleted
         {
             private ScheduleForStop_Callback callback;
+            private string requestUrl;
 
-            public GetScheduleForStopCompleted(ScheduleForStop_Callback callback)
+            public GetScheduleForStopCompleted(string requestUrl, ScheduleForStop_Callback callback)
             {
                 this.callback = callback;
+                this.requestUrl = requestUrl;
             }
 
             public void ScheduleForStop_Completed(object sender, DownloadStringCompletedEventArgs e)
@@ -350,7 +359,7 @@ namespace OneBusAway.WP7.Model
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
                 callback(schedules, error);
@@ -368,17 +377,19 @@ namespace OneBusAway.WP7.Model
                 "false"
                 );
             WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new TripDetailsForArrivalCompleted(callback).TripDetailsForArrival_Completed);
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new TripDetailsForArrivalCompleted(requestUrl, callback).TripDetailsForArrival_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class TripDetailsForArrivalCompleted
         {
             private TripDetailsForArrival_Callback callback;
+            private string requestUrl;
 
-            public TripDetailsForArrivalCompleted(TripDetailsForArrival_Callback callback)
+            public TripDetailsForArrivalCompleted(string requestUrl, TripDetailsForArrival_Callback callback)
             {
                 this.callback = callback;
+                this.requestUrl = requestUrl;
             }
 
             public void TripDetailsForArrival_Completed(object sender, DownloadStringCompletedEventArgs e)
@@ -397,28 +408,27 @@ namespace OneBusAway.WP7.Model
                              select new TripDetails
                              {
                                  tripId = trip.Element("tripId").Value,
-                                 closestStopId = trip.Element("status").Value
-                                 //serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value))
-                                 //scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                 //   int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
-                                 //closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                 //   trip.Element("status").Element("closestStop").Value : null,
-                                 //closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                 //   int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
-                                 //position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                 //   new GeoCoordinate(
-                                 //       double.Parse(trip.Element("status").Element("position").Element("lat").Value),
-                                 //       double.Parse(trip.Element("status").Element("position").Element("lon").Value)
-                                 //       )
-                                 //   :
-                                 //   null
+                                 serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
+                                 scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
+                                 closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    trip.Element("status").Element("closestStop").Value : null,
+                                 closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
+                                 position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                                    new GeoCoordinate(
+                                        double.Parse(trip.Element("status").Element("position").Element("lat").Value),
+                                        double.Parse(trip.Element("status").Element("position").Element("lon").Value)
+                                        )
+                                    :
+                                    null
 
                              }).First();
                     }
                 }
                 catch (Exception ex)
                 {
-                    error = ex;
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
                 callback(tripDetail, error);
@@ -502,5 +512,28 @@ namespace OneBusAway.WP7.Model
         //        return dlat;
         //    }
         //}
+    }
+
+    public class WebserviceParsingException : Exception
+    {
+        private string requestUrl;
+        private string serverResponse;
+
+        public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
+            : base("There was an error parsing the server response", innerException)
+        {
+            this.requestUrl = requestUrl;
+            this.serverResponse = serverResponse;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
+                base.ToString(),
+                requestUrl,
+                serverResponse
+                );
+        }
     }
 }
