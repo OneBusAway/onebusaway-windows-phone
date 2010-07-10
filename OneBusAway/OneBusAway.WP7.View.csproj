@@ -53,9 +53,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
+    <Reference Include="Microsoft.Phone.Controls">
+      <HintPath>.\Microsoft.Phone.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Phone.Controls.Maps">
+      <HintPath>.\Microsoft.Phone.Controls.Maps.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Phone.Controls.Maps.Common">
+      <HintPath>.\Microsoft.Phone.Controls.Maps.Common.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
-    <Reference Include="Phone.Controls.Samples, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System.Device" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows" />
     <Reference Include="mscorlib" />
     <Reference Include="system" />
@@ -70,16 +79,24 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters.cs" />
+    <Compile Include="DetailsPage.xaml.cs">
+      <DependentUpon>DetailsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewState.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="DetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -98,6 +115,7 @@
     </Content>
     <Content Include="Binaries\Phone.Controls.Samples.dll" />
     <Content Include="Binaries\Phone.Controls.Samples.pdb" />
+    <Content Include="Images\center.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneBusAway.WP7.Model\OneBusAway.WP7.Model.csproj">

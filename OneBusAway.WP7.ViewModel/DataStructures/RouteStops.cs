@@ -9,5 +9,7 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
     {
         public string name { get; set; }
         public List<Stop> stops { get; set; }
+        public List<PolyLine> encodedPolylines { get; set; }
+
     }
 }

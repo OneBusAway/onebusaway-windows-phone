@@ -54,4 +54,44 @@ namespace OneBusAway.WP7.View
             throw new NotImplementedException();
         }
     }
+
+    public class DateTimeDeltaConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null)
+            {
+                DateTime date = (DateTime)value;
+
+                return (int)((date - DateTime.UtcNow).TotalMinutes) + " mins";
+            }
+            else
+                return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DateTimeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null)
+            {
+                DateTime date = (DateTime)value;
+
+                return date.ToLocalTime().ToShortTimeString();
+            }
+            else
+                return null;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

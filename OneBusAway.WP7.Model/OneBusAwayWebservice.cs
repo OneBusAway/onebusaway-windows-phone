@@ -164,14 +164,19 @@ namespace OneBusAway.WP7.Model
                     if (error == null)
                     {
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
-
+                        
                         routeStops =
                             (from stopGrouping in xmlDoc.Descendants("stopGrouping")
                              where stopGrouping.Element("type").Value == "direction"
                              select new RouteStops
                              {
                                  name = stopGrouping.Descendants("names").First().Element("string").Value,
-
+                                 encodedPolylines = (from poly in stopGrouping.Descendants("encodedPolyline")
+                                             select new PolyLine
+                                             {
+                                                 points = poly.Element("points").Value,
+                                                 length = poly.Element("length").Value
+                                             }).ToList<PolyLine>(),
                                  stops =
                                      (from stopId in stopGrouping.Descendants("stopIds").First().Descendants("string")
                                       from stop in xmlDoc.Descendants("stop")
@@ -193,9 +198,10 @@ namespace OneBusAway.WP7.Model
                                                select new Route
                                                {
                                                    id = route.Element("id").Value,
-                                                   description = route.Element("description").Value,
+                                                   description = route.Element("description") != null ? route.Element("description").Value: String.Empty,
                                                    shortName = route.Element("shortName").Value,
-                                                   url = route.Element("url").Value,
+                                                   url = route.Element("url") != null ? route.Element("url").Value : String.Empty,
+
 
                                                    agency =
                                                    (from agency in xmlDoc.Descendants("agency")
@@ -203,8 +209,8 @@ namespace OneBusAway.WP7.Model
                                                     select new Agency
                                                     {
                                                         id = agency.Element("id").Value,
-                                                        name = agency.Element("name").Value
                                                     }).First()
+
                                                }).ToList<Route>()
 
                                       }).ToList<Stop>()
