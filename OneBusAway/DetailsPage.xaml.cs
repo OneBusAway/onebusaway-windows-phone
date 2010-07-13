@@ -14,6 +14,7 @@ using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.DataStructures;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.View
 {
@@ -56,7 +57,7 @@ namespace OneBusAway.WP7.View
                 foreach (PolyLine pl in viewModel.StopsForRoute[0].encodedPolylines)
                 {
                     points = new LocationCollection();
-                    pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(LocationExtensions.Location(c.Latitude, c.Longitude)); });
+                    pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
 
                     MapPolyline shape = new MapPolyline();
                     shape.Locations = points;
@@ -76,15 +77,4 @@ namespace OneBusAway.WP7.View
 
         }
     }
- 
-    public static class LocationExtensions
-    {
-        public static Location Location(double lat, double lon)
-        {
-            Location loc = new Location();
-            loc.Longitude = lon;
-            loc.Latitude = lat;
-            return loc;
-        }
-    } 
 }
