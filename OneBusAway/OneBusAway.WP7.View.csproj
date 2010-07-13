@@ -59,9 +59,6 @@
     <Reference Include="Microsoft.Phone.Controls.Maps">
       <HintPath>.\Microsoft.Phone.Controls.Maps.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Phone.Controls.Maps.Common">
-      <HintPath>.\Microsoft.Phone.Controls.Maps.Common.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
     <Reference Include="System.Device" />
     <Reference Include="System.Runtime.Serialization" />
