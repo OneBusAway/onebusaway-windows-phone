@@ -16,6 +16,7 @@ namespace OneBusAway.WP7.View
     {
         public static Stop CurrentStop;
         public static Route CurrentRoute;
+        public static RouteStops CurrentRouteDirection;
         public static DateTime CurrentTime;
     }
 }

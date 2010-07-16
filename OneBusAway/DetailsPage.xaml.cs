@@ -34,47 +34,43 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
-            viewModel.LoadArrivalsForStop(ViewState.CurrentStop);
-            viewModel.LoadStopsForRoute(ViewState.CurrentRoute);
-            //
+            ViewState.CurrentStop = ViewState.CurrentRouteDirection.stops[0];
+            foreach (Stop stop in ViewState.CurrentRouteDirection.stops)
+            {
+                if (ViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
+                {
+                    ViewState.CurrentStop = stop;
+                }
+            }
 
             viewModel.ArrivalsForStop.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
-            viewModel.StopsForRoute.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(StopsForRoute_CollectionChanged);
 
-            RouteName.Text = ViewState.CurrentRoute.shortName;
-            RouteInfo.Text = ViewState.CurrentRoute.description;
-        }
+            viewModel.LoadArrivalsForStop(ViewState.CurrentStop);
 
-        void StopsForRoute_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
+            RouteName.Text = string.Format("{0}: {1}", ViewState.CurrentRoute.shortName, ViewState.CurrentRouteDirection.name);
+            RouteInfo.Text = ViewState.CurrentStop.name;
+
             DetailsMap.Children.Clear();
-            if (viewModel.StopsForRoute.Count > 0)
+            //PolyLine pl = new PolyLine();
+            //viewModel.StopsForRoute[0].encodedPolylines.ForEach(poly => pl.coordinates.AddRange(poly.coordinates)); ;
+
+            LocationCollection points = new LocationCollection();
+            foreach (PolyLine pl in ViewState.CurrentRouteDirection.encodedPolylines)
             {
-                //PolyLine pl = new PolyLine();
-                //viewModel.StopsForRoute[0].encodedPolylines.ForEach(poly => pl.coordinates.AddRange(poly.coordinates)); ;
+                points = new LocationCollection();
+                pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
 
-                LocationCollection points = new LocationCollection();
-                foreach (PolyLine pl in viewModel.StopsForRoute[0].encodedPolylines)
-                {
-                    points = new LocationCollection();
-                    pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
-
-                    MapPolyline shape = new MapPolyline();
-                    shape.Locations = points;
-                    shape.StrokeThickness = 5;
-                    shape.Stroke = new SolidColorBrush((Color)App.Current.Resources["PhoneAccentColor"]);
-                    DetailsMap.Children.Add(shape);
-
-                }
-
+                MapPolyline shape = new MapPolyline();
+                shape.Locations = points;
+                shape.StrokeThickness = 5;
+                shape.Stroke = new SolidColorBrush((Color)App.Current.Resources["PhoneAccentColor"]);
+                DetailsMap.Children.Add(shape);
             }
         }
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            //throw new NotImplementedException();
             viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
-
         }
     }
 }

@@ -61,12 +61,35 @@ namespace OneBusAway.WP7.View
         {
             if (value != null)
             {
-                DateTime date = (DateTime)value;
+                DateTime dateTimeToConvert;
 
-                return (int)((date - DateTime.UtcNow).TotalMinutes) + " mins";
+                if (value is DateTime)
+                {
+                    dateTimeToConvert = (DateTime)value;
+                }
+                else if (value is Route)
+                {
+                    Route route = (Route)value;
+                    if (route.nextArrival != null)
+                    {
+                        dateTimeToConvert = (DateTime)route.nextArrival;
+                    }
+                    else
+                    {
+                        return "None";
+                    }
+                }
+                else
+                {
+                    return string.Empty;
+                }
+
+                return (int)((dateTimeToConvert - DateTime.UtcNow).TotalMinutes) + " mins";
             }
             else
-                return null;
+            {
+                return string.Empty;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

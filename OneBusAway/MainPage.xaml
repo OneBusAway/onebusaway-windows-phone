@@ -21,7 +21,7 @@
 
         <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
         <view:DistanceConverter x:Key="DistanceConverter"></view:DistanceConverter>
-        
+        <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
             <Setter Property="Margin" Value="20,20,0,0" />
@@ -30,8 +30,6 @@
         <Style x:Key="PhoneTextPageTitle2Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextTitle1Style}">
             <Setter Property="Margin" Value="20,43,0,0" />
         </Style>
-
-
 
         <DataTemplate x:Key="StopTemplate">
             <StackPanel Orientation="Horizontal">
@@ -48,17 +46,24 @@
         </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Canvas Width="44" Height="62" Margin="3" >
-                    <Polygon Grid.Row="1" Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
-                    <TextBlock Text="{Binding shortName}" Margin="5" Foreground="{StaticResource PhoneBackgroundBrush}" />
-                </Canvas>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{Binding description}" />
-                    <!--<TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding description}" />-->
-                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
-                </StackPanel>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
+                
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding description}" />
+               
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="RouteStopsTemplate">
@@ -92,6 +97,7 @@
             </StackPanel>
 
         </DataTemplate>
+
     </phoneNavigation:PhoneApplicationPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">

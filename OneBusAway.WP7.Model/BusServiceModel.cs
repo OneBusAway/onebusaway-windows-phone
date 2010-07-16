@@ -15,6 +15,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.IO;
 using OneBusAway.WP7.ViewModel.DataStructures;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.Model
 {
@@ -92,6 +93,8 @@ namespace OneBusAway.WP7.Model
                     }
                     catch (Exception ex)
                     {
+                        Debug.Assert(false);
+
                         error = ex;
                     }
 

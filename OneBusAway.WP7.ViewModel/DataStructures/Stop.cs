@@ -40,6 +40,16 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
         {
             return (Math.PI / 180) * val;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Stop == false)
+            {
+                return false;
+            }
+
+            return ((Stop)obj).id == this.id;
+        }
     }
 
     public class StopDistanceComparer : IComparer<Stop>
@@ -55,7 +65,6 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
         {
             return x.CalculateDistanceInMiles(center).CompareTo(y.CalculateDistanceInMiles(center));
         }
-
         
     }
 }
