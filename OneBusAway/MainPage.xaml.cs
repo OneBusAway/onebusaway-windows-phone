@@ -23,6 +23,7 @@ namespace OneBusAway.WP7.View
         public static GeoCoordinateWatcher locationWatcher = new GeoCoordinateWatcher();
 
         private MainPageVM viewModel;
+        private bool informationLoaded;
 
         public static GeoCoordinate CurrentLocation
         {
@@ -61,26 +62,29 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
 
             viewModel = Resources["ViewModel"] as MainPageVM;
+            informationLoaded = false;
 
             locationWatcher.Start();
+            locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
+
             SupportedOrientations = SupportedPageOrientation.Portrait;
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
         }
 
+        void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
+        {
+            if (LocationStatus == GeoPositionStatus.Ready && informationLoaded == false)
+            {
+                viewModel.LoadInfoForLocation(CurrentLocation, 1000);
+                informationLoaded = true;
+            }
+        }
+
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.LoadInfoForLocation(CurrentLocation, 1000);
-
-            //if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-            //{
-            //    locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(GeoPositionStatus.Ready));
-            //}
-            //else
-            //{
-            //    locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(locationWatcher.Status));
-            //}
-            
+            // Ensure the location changed method is called each time this page is loaded
+            locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
         }
 
         private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -91,7 +95,7 @@ namespace OneBusAway.WP7.View
                 ViewState.CurrentStop = ViewState.CurrentRoute.closestStop;
 
 
-                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
             }
         }
 
@@ -99,14 +103,6 @@ namespace OneBusAway.WP7.View
         {
             viewModel.LoadInfoForLocation(CurrentLocation, 1000);
         }
-
-        //void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
-        //{
-        //    if (e.Status == GeoPositionStatus.Ready)
-        //    {
-        //        NearbyStopsMV
-        //    }
-        //}
 
     }
 }

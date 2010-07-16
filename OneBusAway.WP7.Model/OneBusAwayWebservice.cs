@@ -6,6 +6,7 @@ using OneBusAway.WP7.ViewModel.DataStructures;
 using System.Xml.Linq;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.Model
 {
@@ -124,6 +125,8 @@ namespace OneBusAway.WP7.Model
                     error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
+                Debug.Assert(error == null);
+
                 callback(stops, error);
             }
         }
@@ -166,19 +169,19 @@ namespace OneBusAway.WP7.Model
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
                         
                         routeStops =
-                            (from stopGrouping in xmlDoc.Descendants("stopGrouping")
-                             where stopGrouping.Element("type").Value == "direction"
+                            (from stopGroup in xmlDoc.Descendants("stopGroup")
+                             where stopGroup.Element("name").Element("type").Value == "destination"
                              select new RouteStops
                              {
-                                 name = stopGrouping.Descendants("names").First().Element("string").Value,
-                                 encodedPolylines = (from poly in stopGrouping.Descendants("encodedPolyline")
-                                             select new PolyLine
-                                             {
-                                                 points = poly.Element("points").Value,
-                                                 length = poly.Element("length").Value
-                                             }).ToList<PolyLine>(),
+                                 name = stopGroup.Descendants("names").First().Element("string").Value,
+                                 encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
+                                                     select new PolyLine
+                                                     {
+                                                         points = poly.Element("points").Value,
+                                                         length = poly.Element("length").Value
+                                                     }).ToList<PolyLine>(),
                                  stops =
-                                     (from stopId in stopGrouping.Descendants("stopIds").First().Descendants("string")
+                                     (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                                       from stop in xmlDoc.Descendants("stop")
                                       where stopId.Value == stop.Element("id").Value
                                       select new Stop
@@ -198,7 +201,7 @@ namespace OneBusAway.WP7.Model
                                                select new Route
                                                {
                                                    id = route.Element("id").Value,
-                                                   description = route.Element("description") != null ? route.Element("description").Value: String.Empty,
+                                                   description = route.Element("description") != null ? route.Element("description").Value : String.Empty,
                                                    shortName = route.Element("shortName").Value,
                                                    url = route.Element("url") != null ? route.Element("url").Value : String.Empty,
 
@@ -222,6 +225,8 @@ namespace OneBusAway.WP7.Model
                 {
                     error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
+
+                Debug.Assert(error == null);
 
                 callback(routeStops, error);
             }
@@ -287,6 +292,8 @@ namespace OneBusAway.WP7.Model
                 {
                     error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
+
+                Debug.Assert(error == null);
 
                 callback(arrivals, error);
             }            
@@ -368,6 +375,8 @@ namespace OneBusAway.WP7.Model
                     error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
 
+                Debug.Assert(error == null);
+
                 callback(schedules, error);
             }
         }
@@ -436,6 +445,8 @@ namespace OneBusAway.WP7.Model
                 {
                     error = new WebserviceParsingException(requestUrl, e.Result, ex);
                 }
+
+                Debug.Assert(error == null);
 
                 callback(tripDetail, error);
             }

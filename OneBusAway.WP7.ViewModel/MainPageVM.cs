@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using OneBusAway.WP7.ViewModel.DataStructures;
 using System.Device.Location;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -62,6 +63,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 e.stops.Sort(new StopDistanceComparer(e.location));
@@ -72,20 +75,19 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_RoutesForLocation_Completed(object sender, EventArgs.RoutesForLocationEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 RoutesForLocation.Clear();
                 e.routes.ForEach(route => RoutesForLocation.Add(route));
-
-                foreach (Route route in RoutesForLocation)
-                {
-                    busServiceModel.ArrivalsForStop(route.closestStop);
-                }
             }
         }
 
         void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 // This should ensure the first arrival for a bus in the list is the first time-wise

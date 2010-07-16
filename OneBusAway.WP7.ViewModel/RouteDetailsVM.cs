@@ -5,6 +5,7 @@ using System.Reflection;
 using OneBusAway.WP7.ViewModel.DataStructures;
 using System.Device.Location;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -73,6 +74,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 StopsForRoute.Clear();
@@ -82,6 +85,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 ArrivalsForStop.Clear();
@@ -91,6 +96,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
         {
+            Debug.Assert(e.error == null);
+
             if (e.error == null)
             {
                 TripDetailsForArrivals.Clear();

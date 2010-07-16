@@ -54,6 +54,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusDirectionVM.cs" />
     <Compile Include="DataStructures\Agency.cs" />
     <Compile Include="DataStructures\ArrivalAndDeparture.cs" />
     <Compile Include="DataStructures\PolyLine.cs" />
