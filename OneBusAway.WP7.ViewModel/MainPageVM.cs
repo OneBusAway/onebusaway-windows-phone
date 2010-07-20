@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Device.Location;
 using System.Reflection;
 using System.Diagnostics;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -14,6 +16,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Private Variables
 
         private IBusServiceModel busServiceModel;
+        private IAppDataModel appDataModel;
 
         #endregion
 
@@ -21,23 +24,32 @@ namespace OneBusAway.WP7.ViewModel
 
         public MainPageVM()
             : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")    
+                .GetType("OneBusAway.WP7.Model.BusServiceModel")
                 .GetField("Singleton")
-                .GetValue(null))
+                .GetValue(null),
+                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                .GetType("OneBusAway.WP7.Model.AppDataModel")
+                .GetField("Singleton")
+                .GetValue(null)
+            )
         {
 
         }
 
-        public MainPageVM(IBusServiceModel busServiceModel)
+        public MainPageVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
         {
             this.busServiceModel = busServiceModel;
+            this.appDataModel = appDataModel;
 
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
+            Favorites = new ObservableCollection<FavoriteRouteAndStop>();
 
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
+
+            this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
         }
 
         #endregion
@@ -46,6 +58,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
         public ObservableCollection<Route> RoutesForLocation { get; private set; }
+        public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
 
         #endregion
 
@@ -55,6 +68,13 @@ namespace OneBusAway.WP7.ViewModel
         {
             busServiceModel.StopsForLocation(location, radiusInMeters);
             busServiceModel.RoutesForLocation(location, radiusInMeters);
+        }
+
+        public void LoadFavorites()
+        {
+            Favorites.Clear();
+            List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites();
+            favorites.ForEach(favorite => Favorites.Add(favorite));
         }
 
         #endregion
@@ -114,6 +134,17 @@ namespace OneBusAway.WP7.ViewModel
                         }
                     }
                 }
+            }
+        }
+
+        void appDataModel_Favorites_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
+        {
+            Debug.Assert(e.error == null);
+
+            if (e.error == null)
+            {
+                Favorites.Clear();
+                e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
             }
         }
 

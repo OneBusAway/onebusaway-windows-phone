@@ -10,14 +10,20 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.Generic;
 using System.Device.Location;
+using System.Runtime.Serialization;
 
-namespace OneBusAway.WP7.ViewModel.DataStructures
+namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 {
+    [DataContract()]
     public class Stop
     {
+        [DataMember]
         public string id { get; set; }
+        [DataMember]
         public GeoCoordinate location { get; set; }
+        [DataMember]
         public string direction { get; set; }
+        [DataMember]
         public string name { get; set; }
         public List<Route> routes { get; set; }
 
@@ -49,6 +55,11 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
             }
 
             return ((Stop)obj).id == this.id;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Stop: name='{0}'", name);
         }
     }
 

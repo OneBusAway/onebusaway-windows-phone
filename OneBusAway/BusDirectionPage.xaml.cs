@@ -11,7 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using OneBusAway.WP7.ViewModel;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.View
 {
@@ -38,6 +38,15 @@ namespace OneBusAway.WP7.View
             if (e.AddedItems.Count > 0)
             {
                 ViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
+
+                ViewState.CurrentStop = ViewState.CurrentRouteDirection.stops[0];
+                foreach (Stop stop in ViewState.CurrentRouteDirection.stops)
+                {
+                    if (ViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
+                    {
+                        ViewState.CurrentStop = stop;
+                    }
+                }
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }

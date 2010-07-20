@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.Model;
 using System.Device.Location;
 using OneBusAway.WP7.ViewModel.EventArgs;
@@ -21,45 +21,19 @@ namespace OneBusAway.WP7.Test
     [TestClass]
     public class ModelTests : SilverlightTest
     {
-        #region Fake Test Data
-
-        private GeoCoordinate OTC = new GeoCoordinate(47.644385, -122.135353);
-        private GeoCoordinate HOME = new GeoCoordinate(47.67652682262796, -122.3183012008667);
-
-        private Stop STOP_RAVENNA = new Stop();
-        private Stop STOP_UDIST = new Stop();
-        private Route ROUTE = new Route();
-
-        #endregion
 
         #region Private Variables
 
         private BusServiceModel model = null;
         private Callback callback = null;
+        private FakeData fakeData = null;
 
         #endregion
 
         public ModelTests()
         {
-            STOP_RAVENNA.direction = "W";
-            STOP_RAVENNA.id = "1_10100";
-            STOP_RAVENNA.location = new GeoCoordinate(47.6695671, -122.305412);
-            STOP_RAVENNA.name = "NE Ravenna Blvd & Park Rd NE";
-
-            STOP_UDIST.direction = "S";
-            STOP_UDIST.id = "1_10914";
-            STOP_UDIST.location = new GeoCoordinate(47.6564255, -122.312164);
-            STOP_UDIST.name = "15th Ave NE & NE Campus Pkwy";
-
-            ROUTE.agency = null;
-            ROUTE.closestStop = null;
-            ROUTE.description = "Sandpoint/U-Dist/Seattle Center";
-            ROUTE.id = "1_30";
-            ROUTE.nextArrival = null;
-            ROUTE.shortName = "30";
-            ROUTE.url = "http://metro.kingcounty.gov/tops/bus/schedules/s030_0_.html";
-
             model = BusServiceModel.Singleton;
+            fakeData = FakeData.Singleton;
             callback = new Callback();
 
             model.StopsForLocation_Completed += new EventHandler<StopsForLocationEventArgs>(callback.callback_Completed);
@@ -81,35 +55,35 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void ArrivalsForStop()
         {
-            ModelTest(() => model.ArrivalsForStop(STOP_RAVENNA));
+            ModelTest(() => model.ArrivalsForStop(fakeData.STOP_RAVENNA));
         }
 
         [TestMethod]
         [Asynchronous]
         public void RoutesForLocation()
         {
-            ModelTest(() => model.RoutesForLocation(HOME, 1000));
+            ModelTest(() => model.RoutesForLocation(fakeData.HOME, 1000));
         }
 
         [TestMethod]
         [Asynchronous]
         public void ScheduleForStop()
         {
-            ModelTest(() => model.ScheduleForStop(STOP_RAVENNA));
+            ModelTest(() => model.ScheduleForStop(fakeData.STOP_RAVENNA));
         }
 
         [TestMethod]
         [Asynchronous]
         public void StopsForLocation()
         {
-            ModelTest(() => model.StopsForLocation(HOME, 1000));
+            ModelTest(() => model.StopsForLocation(fakeData.HOME, 1000));
         }
 
         [TestMethod]
         [Asynchronous]
         public void StopsForRoute()
         {
-            ModelTest(() => model.StopsForRoute(ROUTE));
+            ModelTest(() => model.StopsForRoute(fakeData.ROUTE));
         }
 
         [TestMethod]
@@ -123,7 +97,7 @@ namespace OneBusAway.WP7.Test
                     model.ArrivalsForStop_Completed +=
                         (caller, args) => { arrivalsArgs = args; };
 
-                    model.ArrivalsForStop(STOP_UDIST);
+                    model.ArrivalsForStop(fakeData.STOP_UDIST);
 
                     // Wait for ArrivalsForStop to finish both callbacks
                     EnqueueConditional(() => arrivalsArgs != null && callback.finished);
@@ -175,7 +149,7 @@ namespace OneBusAway.WP7.Test
                 finished = false;
             }
 
-            public void callback_Completed(object sender, ABusServiceEventArgs e)
+            public void callback_Completed(object sender, AModelEventArgs e)
             {
                 Assert.AreEqual(e.error, null);
                 finished = true;

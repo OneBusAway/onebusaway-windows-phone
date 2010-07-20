@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Data;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.View
 {

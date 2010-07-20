@@ -11,7 +11,7 @@ using System.Windows.Shapes;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class ABusServiceEventArgs : System.EventArgs
+    public class AModelEventArgs : System.EventArgs
     {
         public Exception error { get; protected set; }
     }

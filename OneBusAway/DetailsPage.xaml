@@ -8,8 +8,10 @@
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
     xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
     xmlns:view="clr-namespace:OneBusAway.WP7.View"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:shapes="clr-namespace:System.Windows.Shapes;assembly=System.Windows"
     SupportedOrientations="Portrait"
-    mc:Ignorable="d" d:DesignHeight="800" d:DesignWidth="480">
+    mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480">
 
     <navigation:PhoneApplicationPage.Resources>
         <m:ApplicationIdCredentialsProvider ApplicationId="ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm" x:Key="MyCredentials" />
@@ -17,7 +19,6 @@
 
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
         <view:DateTimeConverter x:Key="DateTimeConverter"></view:DateTimeConverter>
-
 
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
@@ -66,4 +67,15 @@
             <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource ArrivalTemplate}" />
         </Grid>
     </Grid>
+
+    <navigation:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+            <shell:ApplicationBarIconButton x:Name="appbar_button1" IconUri="/Images/appbar_button1.png" Text="Button 1"></shell:ApplicationBarIconButton>
+            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/center.png" Text="Center" Click="appbar_center_Click"></shell:ApplicationBarIconButton>
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem x:Name="menuItem1" Text="MenuItem 1"></shell:ApplicationBarMenuItem>
+                <shell:ApplicationBarMenuItem x:Name="menuItem2" Text="MenuItem 2"></shell:ApplicationBarMenuItem>
+            </shell:ApplicationBar.MenuItems>
+        </shell:ApplicationBar>
+    </navigation:PhoneApplicationPage.ApplicationBar>
 </navigation:PhoneApplicationPage>

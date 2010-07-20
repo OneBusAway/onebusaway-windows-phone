@@ -9,20 +9,27 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
-namespace OneBusAway.WP7.ViewModel.DataStructures
+namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 {
+    [DataContract()]
     public class Coordinate
     {
+        [DataMember()]
         public double Latitude { get; set; }
+        [DataMember()]
         public double Longitude { get; set; }
     }
 
+    [DataContract()]
     public class PolyLine
     {
+        [DataMember()]
         public List<Coordinate> coordinates = new List<Coordinate>();
 
         private string pointsString;
+        [DataMember()]
         public string points
         {
             get { return pointsString; }
@@ -33,9 +40,9 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
             }
         }
 
-
+        [DataMember()]
         public string length { get; set; }
-
+        [DataMember()]
         public string levels { get; set; }
 
         public static List<Coordinate> DecodeLatLongList(string encoded)
@@ -62,7 +69,6 @@ namespace OneBusAway.WP7.ViewModel.DataStructures
 
             return locs;
         }
-
 
         private static int decodePoint(string encoded, int startindex, out int finishindex)
         {

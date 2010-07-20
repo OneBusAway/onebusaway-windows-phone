@@ -2,10 +2,11 @@
 using System.Net;
 using System.Collections.ObjectModel;
 using System.Reflection;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Device.Location;
 using System.Collections.Generic;
 using System.Diagnostics;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -15,6 +16,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Private Variables
 
         private IBusServiceModel busServiceModel;
+        private IAppDataModel appDataModel;
 
         #endregion
 
@@ -22,16 +24,22 @@ namespace OneBusAway.WP7.ViewModel
 
         public RouteDetailsVM()
             : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")
+                .GetType("OneBusAway.WP7.Model.BusServiceModel")    
                 .GetField("Singleton")
-                .GetValue(null))
+                .GetValue(null),
+                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                .GetType("OneBusAway.WP7.Model.AppDataModel")
+                .GetField("Singleton")
+                .GetValue(null)
+            )
         {
             
         }
 
-        public RouteDetailsVM(IBusServiceModel busServiceModel)
+        public RouteDetailsVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
         {
             this.busServiceModel = busServiceModel;
+            this.appDataModel = appDataModel;
 
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
@@ -66,6 +74,11 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
         {
             arrivals.ForEach(arrival => busServiceModel.TripDetailsForArrivals(arrivals));
+        }
+
+        public void AddFavorite(FavoriteRouteAndStop favorite)
+        {
+            appDataModel.AddFavorite(favorite);
         }
 
         #endregion
