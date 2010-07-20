@@ -66,11 +66,30 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
 
         public int Compare(FavoriteRouteAndStop x, FavoriteRouteAndStop y)
         {
+            if (x == null && y == null)
+            {
+                return 0;
+            }
+
+            if (y == null)
+            {
+                return -1;
+            }
+
+            if (x == null)
+            {
+                return 1;
+            }
+
             int result = x.stop.location.GetDistanceTo(center).CompareTo(y.stop.location.GetDistanceTo(center));
 
             if (result == 0)
             {
-                if (y.route == null)
+                if (x.route == null && y.route == null)
+                {
+                    result = 0;
+                }
+                else if (y.route == null)
                 {
                     result = -1;
                 }
