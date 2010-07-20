@@ -10,6 +10,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Runtime.Serialization;
+using System.Collections.Generic;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
 {
@@ -51,5 +53,39 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
         {
             return string.Format("Favorite: Route='{0}', Stop='{1}', Direction{2}", route, stop, routeStops);
         }
+    }
+
+    public class FavoriteDistanceComparer : IComparer<FavoriteRouteAndStop>
+    {
+        private GeoCoordinate center;
+
+        public FavoriteDistanceComparer(GeoCoordinate center)
+        {
+            this.center = center;
+        }
+
+        public int Compare(FavoriteRouteAndStop x, FavoriteRouteAndStop y)
+        {
+            int result = x.stop.location.GetDistanceTo(center).CompareTo(y.stop.location.GetDistanceTo(center));
+
+            if (result == 0)
+            {
+                if (y.route == null)
+                {
+                    result = -1;
+                }
+                else if (x.route == null)
+                {
+                    result = 1;
+                }
+                else
+                {
+                    result = x.route.shortName.CompareTo(y.route.shortName);
+                }
+            }
+
+            return result;
+        }
+
     }
 }

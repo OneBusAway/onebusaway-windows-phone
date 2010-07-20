@@ -86,7 +86,7 @@ namespace OneBusAway.WP7.View
         {
             // Ensure the location changed method is called each time this page is loaded
             locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
-            viewModel.LoadFavorites();
+            viewModel.LoadFavorites(CurrentLocation);
         }
 
         private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
