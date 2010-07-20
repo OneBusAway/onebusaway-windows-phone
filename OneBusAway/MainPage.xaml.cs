@@ -100,7 +100,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void appbar_center_Click(object sender, EventArgs e)
+        private void appbar_refresh_Click(object sender, EventArgs e)
         {
             viewModel.LoadInfoForLocation(CurrentLocation, 1000);
         }

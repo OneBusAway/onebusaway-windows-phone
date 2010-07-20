@@ -94,6 +94,7 @@ namespace OneBusAway.WP7.View
 
                 //appbar_allroutes.IconUri = filterRoutesIcon;
 
+                RouteNumber.Text = string.Empty;
                 RouteName.Text = ViewState.CurrentStop.name;
                 RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
             }

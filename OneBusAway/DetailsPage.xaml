@@ -54,21 +54,19 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" x:Name="TitleGrid">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="5" />
                 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
+                    </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="5" />
-                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="RouteName" Text="ONE BUS AWAY" FontSize="{StaticResource PhoneFontSizeMedium}"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="RouteInfo" Text="More Route Info" FontSize="{StaticResource PhoneFontSizeMedium}"/>
-            </Grid>
+                    <TextBlock Grid.Row="0" x:Name="RouteName" Text="ONE BUS AWAY" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Text="More Route Info" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                </Grid>
+            </StackPanel>
         </Grid>
 
         <Grid Grid.Row="1" x:Name="ContentGrid">

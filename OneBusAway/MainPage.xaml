@@ -90,15 +90,16 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Center" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
 
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding  Path=route.description}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=route.description}" />
 
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding  Path=route, Converter={StaticResource DistanceConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=route, Converter={StaticResource DistanceConverter}}" />
 
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding  Path=stop.name}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=stop.name}" />
                 <!--<TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
                 <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />-->
 
@@ -143,7 +144,7 @@
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Center" Click="appbar_center_Click"></shell:ApplicationBarIconButton>
+            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
         </shell:ApplicationBar>
     </phoneNavigation:PhoneApplicationPage.ApplicationBar>
 </phoneNavigation:PhoneApplicationPage>
