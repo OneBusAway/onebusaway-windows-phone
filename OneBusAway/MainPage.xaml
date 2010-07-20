@@ -22,6 +22,8 @@
         <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
         <view:DistanceConverter x:Key="DistanceConverter"></view:DistanceConverter>
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
+        <view:StopDirectionConverter x:Key="StopDirectionConverter"></view:StopDirectionConverter>
+        
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
             <Setter Property="Margin" Value="20,20,0,0" />
@@ -36,9 +38,8 @@
             <Grid Margin="5">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20" />
                     <ColumnDefinition Width="240" />
-                    <ColumnDefinition Width="180" />
+                    <ColumnDefinition Width="240" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -50,9 +51,10 @@
                 <!--<Polygon Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>-->
                 <!--<TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />-->
 
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
-                <TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
+                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
+                <TextBlock Grid.Column="0" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
             </Grid>
         </DataTemplate>
 

@@ -19,7 +19,7 @@
         <data:BusDirectionVM x:Key="ViewModel" />
 
         <DataTemplate x:Key="RouteDirectionTemplate">
-            <Grid>
+            <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="400" />

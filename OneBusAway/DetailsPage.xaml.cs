@@ -24,20 +24,22 @@ namespace OneBusAway.WP7.View
     {
         private RouteDetailsVM viewModel;
 
+        private Uri unfilterRoutesIcon = new Uri("/Images/appbar.add.rest.png", UriKind.Relative);
+        private Uri filterRoutesIcon = new Uri("/Images/appbar.minus.rest.png", UriKind.Relative);
+
         public DetailsPage()
         {
             InitializeComponent();
 
+            this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
         }
 
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            base.OnNavigatedTo(e);
-
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
 
-            viewModel.LoadArrivalsForStop(ViewState.CurrentStop);
+            viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
 
             DetailsMap.Children.Clear();
             DetailsMap.Center = MainPage.CurrentLocation;
@@ -69,6 +71,8 @@ namespace OneBusAway.WP7.View
                 RouteName.Text = ViewState.CurrentRouteDirection.name;
                 RouteInfo.Text = ViewState.CurrentStop.name;
 
+                //appbar_allroutes.IconUri = unfilterRoutesIcon;
+
                 LocationCollection points = new LocationCollection();
                 foreach (PolyLine pl in ViewState.CurrentRouteDirection.encodedPolylines)
                 {
@@ -85,6 +89,8 @@ namespace OneBusAway.WP7.View
             else
             {
                 // There isn't a specific route, just load up info on this bus stop
+
+                //appbar_allroutes.IconUri = filterRoutesIcon;
 
                 RouteName.Text = ViewState.CurrentStop.name;
                 RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
@@ -104,6 +110,27 @@ namespace OneBusAway.WP7.View
             favorite.routeStops = ViewState.CurrentRouteDirection;
 
             viewModel.AddFavorite(favorite);
+        }
+
+        private void appbar_allroutes_Click(object sender, EventArgs e)
+        {
+            // TODO: Figure out why appbar_allroutes is always null
+            // so I can re-enable this code
+
+            //if (appbar_allroutes.IconUri == unfilterRoutesIcon)
+            //{
+                viewModel.ChangeFilterForArrivals(null, null);
+            //    appbar_allroutes.IconUri = filterRoutesIcon;
+            //}
+            //else if (appbar_allroutes.IconUri == filterRoutesIcon)
+            //{
+            //    viewModel.ChangeFilterForArrivals(ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
+            //    appbar_allroutes.IconUri = unfilterRoutesIcon;
+            //}
+            //else
+            //{
+            //    throw new NotImplementedException();
+            //}
         }
     }
 }
