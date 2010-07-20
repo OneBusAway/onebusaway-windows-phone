@@ -69,18 +69,6 @@ namespace OneBusAway.WP7.View
                 {
                     dateTimeToConvert = (DateTime)value;
                 }
-                else if (value is Route)
-                {
-                    Route route = (Route)value;
-                    if (route.nextArrival != null)
-                    {
-                        dateTimeToConvert = (DateTime)route.nextArrival;
-                    }
-                    else
-                    {
-                        return "None";
-                    }
-                }
                 else
                 {
                     return string.Empty;

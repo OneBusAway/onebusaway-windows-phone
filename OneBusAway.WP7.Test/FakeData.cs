@@ -46,7 +46,6 @@ namespace OneBusAway.WP7.Test
             ROUTE.closestStop = null;
             ROUTE.description = "Sandpoint/U-Dist/Seattle Center";
             ROUTE.id = "1_30";
-            ROUTE.nextArrival = null;
             ROUTE.shortName = "30";
             ROUTE.url = "http://metro.kingcounty.gov/tops/bus/schedules/s030_0_.html";
 

@@ -74,7 +74,15 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 
         public int Compare(Stop x, Stop y)
         {
-            return x.CalculateDistanceInMiles(center).CompareTo(y.CalculateDistanceInMiles(center));
+            int result = x.CalculateDistanceInMiles(center).CompareTo(y.CalculateDistanceInMiles(center));
+
+            // If stops are the same distance sort alphabetically
+            if (result == 0)
+            {
+                result = x.name.CompareTo(y.name);
+            }
+
+            return result;
         }
         
     }
