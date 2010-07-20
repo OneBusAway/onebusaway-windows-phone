@@ -32,21 +32,32 @@
         </Style>
 
         <DataTemplate x:Key="StopTemplate">
-            <StackPanel Orientation="Horizontal">
-                <Canvas Width="44" Height="62" Margin="3" >
-                    <Polygon Grid.Row="1" Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
-                    <TextBlock Text="{Binding stopIndex}" Margin="5" Foreground="{StaticResource PhoneBackgroundBrush}" />
-                </Canvas>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{Binding name}" />
-                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
-                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                </StackPanel>
-            </StackPanel>
+
+            <Grid Margin="5">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="180" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <!--<Polygon Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>-->
+                <!--<TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />-->
+
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
+                <TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
+                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+            </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
-            <Grid>
+            <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="200" />
@@ -66,36 +77,30 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="RouteStopsTemplate">
-            <StackPanel Orientation="Horizontal" Height="150">
-                <Canvas Width="64" Height="140" Margin="3" >
-                    <Polygon Grid.Row="1" Points="0,0 48,0 48,64 0,120" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
-                    <TextBlock Text="{Binding route.shortName}" Margin="5" Foreground="{StaticResource PhoneBackgroundBrush}" />
-                </Canvas>
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Width="300">
-                            <TextBlock Text="Redmond" />
-                            <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="Stone Way N &amp; N 43rd St (0.06 mi)" />
-                        </StackPanel>
-                        <TextBlock>
-                            <Run FontWeight="Bold" FontSize="50" Text="3" />
-                            <Run FontSize="18" Text="min" />
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Width="300">
-                            <TextBlock Text="Seattle" />
-                            <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="N 45th St &amp; Stone Way N (0.12 mi)" />
-                        </StackPanel>
-                        <TextBlock>
-                            <Run FontWeight="Bold" FontSize="50" Text="12" />
-                            <Run FontSize="18" Text="min" />
-                        </TextBlock>
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
+        <DataTemplate x:Key="FavTemplate">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
 
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
+
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding  Path=route.description}" />
+
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding  Path=route, Converter={StaticResource DistanceConverter}}" />
+
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding  Path=stop.name}" />
+                <!--<TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
+                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />-->
+
+            </Grid>
         </DataTemplate>
 
     </phoneNavigation:PhoneApplicationPage.Resources>
@@ -122,6 +127,7 @@
                 <ListBox 
                     x:Name="FavoritesListBox" 
                     ItemsSource="{Binding Path=Favorites, Source={StaticResource ViewModel}}" 
+                    ItemTemplate="{StaticResource FavTemplate}" 
                     SelectionChanged="FavoritesListBox_SelectionChanged" 
                     />
             </pivot:PivotItem>
@@ -135,12 +141,7 @@
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton x:Name="appbar_button1" IconUri="/Images/appbar_button1.png" Text="Button 1"></shell:ApplicationBarIconButton>
-            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/center.png" Text="Center" Click="appbar_center_Click"></shell:ApplicationBarIconButton>
-            <shell:ApplicationBar.MenuItems>
-                <shell:ApplicationBarMenuItem x:Name="menuItem1" Text="MenuItem 1"></shell:ApplicationBarMenuItem>
-                <shell:ApplicationBarMenuItem x:Name="menuItem2" Text="MenuItem 2"></shell:ApplicationBarMenuItem>
-            </shell:ApplicationBar.MenuItems>
+            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Center" Click="appbar_center_Click"></shell:ApplicationBarIconButton>
         </shell:ApplicationBar>
     </phoneNavigation:PhoneApplicationPage.ApplicationBar>
 </phoneNavigation:PhoneApplicationPage>

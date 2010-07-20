@@ -35,6 +35,8 @@ namespace OneBusAway.WP7.View
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            if (value == null) return String.Empty;
+
             Stop stop;
             if (value is Stop)
             {
@@ -46,7 +48,7 @@ namespace OneBusAway.WP7.View
             }
 
             double distance = stop.CalculateDistanceInMiles(MainPage.CurrentLocation);
-            return string.Format("Distance: {0:0.00} miles", distance);
+            return string.Format("Distance: {0:0.00} mi", distance);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

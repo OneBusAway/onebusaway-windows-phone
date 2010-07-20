@@ -65,8 +65,8 @@ namespace OneBusAway.WP7.View
             {
                 // CurrentRouteDirection isn't null so we've been called for a specific route
                 // Load all of the route details
-
-                RouteName.Text = string.Format("{0}: {1}", ViewState.CurrentRoute.shortName, ViewState.CurrentRouteDirection.name);
+                RouteNumber.Text = ViewState.CurrentRoute.shortName;
+                RouteName.Text = ViewState.CurrentRouteDirection.name;
                 RouteInfo.Text = ViewState.CurrentStop.name;
 
                 LocationCollection points = new LocationCollection();
