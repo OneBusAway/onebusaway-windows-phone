@@ -44,6 +44,27 @@
                 <TextBlock Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeDeltaConverter}}" />
             </StackPanel>
         </DataTemplate>
+
+        <DataTemplate x:Key="RouteTemplate">
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="80" />
+                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="150" />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding routeShortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding tripHeadsign}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeConverter}}" />
+                <TextBlock Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeDeltaConverter}}" />
+
+            </Grid>
+        </DataTemplate>
     </navigation:PhoneApplicationPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
@@ -72,20 +93,10 @@
         <Grid Grid.Row="1" x:Name="ContentGrid">
             <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MyCredentials}"
                    Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" >
-                <m:MapLayer x:Name="DetailsMapLayer">
-                    <m:MapLayer.Children>
-
-                        <Canvas x:Name="CenterIcon" Width="32" Height="32">
-                            <Path Width="28" Height="28" Canvas.Left="2" Canvas.Top="2" Stretch="Fill" Fill="#FFFFFFFF" Data="F1 M 16,1.85787L 30.1421,16L 16,30.1421L 1.85787,16L 16,1.85787 Z "/>
-                            <Path Width="25" Height="25" Canvas.Left="3" Canvas.Top="3" Stretch="Fill" Fill="#FF000000" Data="F1 M 16,3.27207L 28.7279,16L 16,28.7279L 3.27208,16L 16,3.27207 Z "/>
-                            <Ellipse Width="12" Height="12" Canvas.Left="10" Canvas.Top="10" Stretch="Fill" Fill="#FFFFFF00"/>
-                        </Canvas>
-                    </m:MapLayer.Children>
-                </m:MapLayer>
             </m:Map>
         </Grid>
         <Grid Grid.Row="2" x:Name="StopGrid">
-            <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource ArrivalTemplate}" />
+            <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
         </Grid>
     </Grid>
 
