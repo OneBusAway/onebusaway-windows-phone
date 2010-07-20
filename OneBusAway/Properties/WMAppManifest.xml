@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.0">
-  <App xmlns="" ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" Title="OneBusAway" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="OneBusAway author" Description="Sample description" Publisher="OneBusAway">
-    <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
+  <App xmlns="" ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" Title="OneBusAway" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal"  Author="OneBusAway" Description="OneBusAway" Publisher="OneBusAway">
+    <IconPath IsRelative="true" IsResource="false">Bus_Icon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
       <Capability Name="ID_CAP_LOCATION" />
@@ -20,8 +20,7 @@
     <Tokens>
       <PrimaryToken TokenID="OneBusAwayToken" TaskName="_default">
         <TemplateType5>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Background.png</BackgroundImageURI>
-          <Count>0</Count>
+          <BackgroundImageURI IsRelative="true" IsResource="false">Bus_Token.png</BackgroundImageURI>
           <Title>OneBusAway</Title>
         </TemplateType5>
       </PrimaryToken>

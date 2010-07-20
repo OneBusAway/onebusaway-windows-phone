@@ -53,10 +53,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
-    <Reference Include="Microsoft.Phone.Controls">
+    <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Microsoft.Phone.Controls.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Phone.Controls.Maps">
+    <Reference Include="Microsoft.Phone.Controls.Maps, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Microsoft.Phone.Controls.Maps.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Phone.Interop" />
@@ -119,7 +121,12 @@
     </Content>
     <Content Include="Binaries\Phone.Controls.Samples.dll" />
     <Content Include="Binaries\Phone.Controls.Samples.pdb" />
+    <Content Include="Bus_Icon.png" />
+    <Content Include="Bus_Token.png" />
+    <Content Include="Images\appbar.favs.addto.rest.png" />
+    <Content Include="Images\appbar.refresh.rest.png" />
     <Content Include="Images\center.png" />
+    <Content Include="SplashScreenImage.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneBusAway.WP7.Model\OneBusAway.WP7.Model.csproj">
