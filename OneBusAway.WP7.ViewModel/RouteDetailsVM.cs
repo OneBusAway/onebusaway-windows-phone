@@ -17,10 +17,16 @@ namespace OneBusAway.WP7.ViewModel
 
         private IBusServiceModel busServiceModel;
         private IAppDataModel appDataModel;
+        private ArrivalsForStopHandler arrivalsForStopHandler;
 
         #endregion
 
         #region Constructors
+
+        // TODO: We need to convert the VM's to a Singleton, or add a Dispose method
+        // currently a new VM is created every time a new route details page is opened
+        // and the old event hanlders keep getting called, wasting perf
+        public static RouteDetailsVM Singleton = new RouteDetailsVM();
 
         public RouteDetailsVM()
             : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
@@ -41,12 +47,14 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel = busServiceModel;
             this.appDataModel = appDataModel;
 
-            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
-            //this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
-
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
+
+            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+
+            arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop);
+            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
+            //this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
         }
 
         #endregion
@@ -68,7 +76,20 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop)
         {
+            LoadArrivalsForStop(stop, null, null);
+        }
+
+        public void LoadArrivalsForStop(Stop stop, Route routeFilter, RouteStops routeDirectionFilter)
+        {
+            arrivalsForStopHandler.routeFilter = routeFilter;
+            arrivalsForStopHandler.routeDirectionFilter = routeDirectionFilter;
+
             busServiceModel.ArrivalsForStop(stop);
+        }
+
+        public void ChangeFilterForArrivals(Route routeFilter, RouteStops routeDirectionFilter)
+        {
+            arrivalsForStopHandler.UpdateFilter(routeFilter, routeDirectionFilter);
         }
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
@@ -96,14 +117,59 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
+        private class ArrivalsForStopHandler
         {
-            Debug.Assert(e.error == null);
+            public Route routeFilter;
+            public RouteStops routeDirectionFilter;
 
-            if (e.error == null)
+            private ObservableCollection<ArrivalAndDeparture> arrivalsForStop;
+            private List<ArrivalAndDeparture> unfilteredArrivals;
+
+            public ArrivalsForStopHandler(ObservableCollection<ArrivalAndDeparture> arrivalsForStop)
             {
-                ArrivalsForStop.Clear();
-                e.arrivals.ForEach(arrival => ArrivalsForStop.Add(arrival));
+                routeFilter = null;
+                routeDirectionFilter = null;
+                this.arrivalsForStop = arrivalsForStop;
+                unfilteredArrivals = new List<ArrivalAndDeparture>();
+            }
+
+            public void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
+            {
+                Debug.Assert(e.error == null);
+
+                if (e.error == null)
+                {
+                    unfilteredArrivals = e.arrivals;
+                    FilterArrivals();
+                }
+            }
+
+            public void UpdateFilter(Route routeFilter, RouteStops routeDirectionFilter)
+            {
+                this.routeFilter = routeFilter;
+                this.routeDirectionFilter = routeDirectionFilter;
+
+                FilterArrivals();
+            }
+
+            private void FilterArrivals()
+            {
+                arrivalsForStop.Clear();
+
+                foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+                {
+                    if (routeFilter != null && routeFilter.id != arrival.routeId)
+                    {
+                        continue;
+                    }
+
+                    if (routeDirectionFilter != null && routeDirectionFilter.name != arrival.tripHeadsign)
+                    {
+                        continue;
+                    }
+
+                    arrivalsForStop.Add(arrival);
+                }
             }
         }
 

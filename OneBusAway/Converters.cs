@@ -99,12 +99,68 @@ namespace OneBusAway.WP7.View
                 return date.ToLocalTime().ToShortTimeString();
             }
             else
+            {
                 return null;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class StopDirectionConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is Stop)
+            {
+                Stop stop = (Stop)value;
+
+                string direction = string.Empty;
+                switch (stop.direction)
+                {
+                    case "S":
+                        direction = "south";
+                        break;
+                    case "SW":
+                        direction = "southwest";
+                        break;
+                    case "W":
+                        direction = "west";
+                        break;
+                    case "NW":
+                        direction = "northwest";
+                        break;
+                    case "N":
+                        direction = "north";
+                        break;
+                    case "NE":
+                        direction = "northeast";
+                        break;
+                    case "E":
+                        direction = "east";
+                        break;
+                    case "SE":
+                        direction = "southeast";
+                        break;
+                    default:
+                        direction = stop.direction;
+                        break;
+                }
+
+                return string.Format("Direction: {0}", direction);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
         }
     }
 }

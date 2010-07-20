@@ -30,7 +30,7 @@
         </Style>
 
         <DataTemplate x:Key="ArrivalTemplate">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="5">
                 <Canvas Width="44" Height="62" Margin="3" >
                     <Polygon Grid.Row="1" Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
                     <TextBlock Text="{Binding routeShortName}" Margin="5" Foreground="{StaticResource PhoneBackgroundBrush}" />
@@ -48,15 +48,27 @@
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="70"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" x:Name="TitleGrid">
-            <TextBlock x:Name="RouteName" VerticalAlignment="Top" Text="ONE BUS AWAY" Style="{StaticResource PhoneTextPageTitle1Style}"/>
-            <TextBlock x:Name="RouteNumber" Text="Route Number" Style="{StaticResource PhoneTextPageTitle2Style}"/>
-            <TextBlock x:Name="RouteInfo" VerticalAlignment="Bottom" Text="More Route Info" Style="{StaticResource PhoneTextPageTitle1Style}"/>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="5" />
+                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="RouteName" Text="ONE BUS AWAY" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="RouteInfo" Text="More Route Info" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+            </Grid>
         </Grid>
 
         <Grid Grid.Row="1" x:Name="ContentGrid">
@@ -81,7 +93,8 @@
 
     <navigation:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
-            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.favs.addto.rest.png" Text="Center" Click="appbar_center_Click"></shell:ApplicationBarIconButton>
+            <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.favs.addto.rest.png" Text="Center" Click="appbar_center_Click" />
+            <shell:ApplicationBarIconButton x:Name="appbar_allroutes" IconUri="/Images/appbar.add.rest.png" Text="All Routes" Click="appbar_allroutes_Click" />
         </shell:ApplicationBar>
     </navigation:PhoneApplicationPage.ApplicationBar>
 </navigation:PhoneApplicationPage>

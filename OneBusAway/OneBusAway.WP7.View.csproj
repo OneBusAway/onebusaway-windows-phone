@@ -123,7 +123,9 @@
     <Content Include="Binaries\Phone.Controls.Samples.pdb" />
     <Content Include="Bus_Icon.png" />
     <Content Include="Bus_Token.png" />
+    <Content Include="Images\appbar.add.rest.png" />
     <Content Include="Images\appbar.favs.addto.rest.png" />
+    <Content Include="Images\appbar.minus.rest.png" />
     <Content Include="Images\appbar.refresh.rest.png" />
     <Content Include="Images\center.png" />
     <Content Include="SplashScreenImage.jpg" />
