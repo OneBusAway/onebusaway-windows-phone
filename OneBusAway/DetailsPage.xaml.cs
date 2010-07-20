@@ -47,23 +47,10 @@ namespace OneBusAway.WP7.View
             DetailsMap.Center = MainPage.CurrentLocation;
             DetailsMap.ZoomLevel = 15;
 
-            // TODO: Fix the my location icon
-            Ellipse yellow = new Ellipse();
-            yellow.Height = 7;
-            yellow.Width = 7;
-            SolidColorBrush y = new SolidColorBrush();
-            y.Color = Colors.Yellow;
-            yellow.Fill = y;
-
-            Pushpin myLocationPin = new Pushpin();
-            myLocationPin.Height = 18;
-            myLocationPin.Width = 18;
-            RotateTransform rotate = new RotateTransform();
-            rotate.Angle = 45;
-            myLocationPin.RenderTransform = rotate;
-            myLocationPin.Location = MainPage.CurrentLocation;
-
-            DetailsMap.Children.Add(myLocationPin);
+            MapLayer mapLayer = new MapLayer();
+            DetailsMap.Children.Add(mapLayer);
+            mapLayer.AddChild(new Pushpin(), ViewState.CurrentStop.location);
+            mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
 
             if (ViewState.CurrentRouteDirection != null)
             {
