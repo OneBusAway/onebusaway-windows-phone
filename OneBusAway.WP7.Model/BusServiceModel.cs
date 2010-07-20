@@ -14,8 +14,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using System.IO;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
+using OneBusAway.WP7.ViewModel.EventArgs;
 
 namespace OneBusAway.WP7.Model
 {
@@ -25,12 +26,12 @@ namespace OneBusAway.WP7.Model
 
         #region Events
 
-        public event EventHandler<ViewModel.EventArgs.StopsForLocationEventArgs> StopsForLocation_Completed;
-        public event EventHandler<ViewModel.EventArgs.RoutesForLocationEventArgs> RoutesForLocation_Completed;
-        public event EventHandler<ViewModel.EventArgs.StopsForRouteEventArgs> StopsForRoute_Completed;
-        public event EventHandler<ViewModel.EventArgs.ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
-        public event EventHandler<ViewModel.EventArgs.ScheduleForStopEventArgs> ScheduleForStop_Completed;
-        public event EventHandler<ViewModel.EventArgs.TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
+        public event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
+        public event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
+        public event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
+        public event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
+        public event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
+        public event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
 
         #endregion
 
@@ -94,7 +95,6 @@ namespace OneBusAway.WP7.Model
                     catch (Exception ex)
                     {
                         Debug.Assert(false);
-
                         error = ex;
                     }
 

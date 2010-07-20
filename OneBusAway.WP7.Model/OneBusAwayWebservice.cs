@@ -2,7 +2,7 @@
 using System.Net;
 using System.Device.Location;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Xml.Linq;
 using System.IO;
 using System.Linq;

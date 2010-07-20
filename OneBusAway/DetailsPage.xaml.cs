@@ -11,10 +11,12 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using OneBusAway.WP7.ViewModel;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
 using System.Device.Location;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using System.Collections.Specialized;
 
 namespace OneBusAway.WP7.View
 {
@@ -27,50 +29,81 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
-
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            ViewState.CurrentStop = ViewState.CurrentRouteDirection.stops[0];
-            foreach (Stop stop in ViewState.CurrentRouteDirection.stops)
-            {
-                if (ViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
-                {
-                    ViewState.CurrentStop = stop;
-                }
-            }
-
-            viewModel.ArrivalsForStop.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
+            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
 
             viewModel.LoadArrivalsForStop(ViewState.CurrentStop);
 
-            RouteName.Text = string.Format("{0}: {1}", ViewState.CurrentRoute.shortName, ViewState.CurrentRouteDirection.name);
-            RouteInfo.Text = ViewState.CurrentStop.name;
-
             DetailsMap.Children.Clear();
-            //PolyLine pl = new PolyLine();
-            //viewModel.StopsForRoute[0].encodedPolylines.ForEach(poly => pl.coordinates.AddRange(poly.coordinates)); ;
+            DetailsMap.Center = MainPage.CurrentLocation;
+            DetailsMap.ZoomLevel = 15;
 
-            LocationCollection points = new LocationCollection();
-            foreach (PolyLine pl in ViewState.CurrentRouteDirection.encodedPolylines)
+            // TODO: Fix the my location icon
+            Ellipse yellow = new Ellipse();
+            yellow.Height = 7;
+            yellow.Width = 7;
+            SolidColorBrush y = new SolidColorBrush();
+            y.Color = Colors.Yellow;
+            yellow.Fill = y;
+
+            Pushpin myLocationPin = new Pushpin();
+            myLocationPin.Height = 18;
+            myLocationPin.Width = 18;
+            RotateTransform rotate = new RotateTransform();
+            rotate.Angle = 45;
+            myLocationPin.RenderTransform = rotate;
+            myLocationPin.Location = MainPage.CurrentLocation;
+
+            DetailsMap.Children.Add(myLocationPin);
+
+            if (ViewState.CurrentRouteDirection != null)
             {
-                points = new LocationCollection();
-                pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
+                // CurrentRouteDirection isn't null so we've been called for a specific route
+                // Load all of the route details
 
-                MapPolyline shape = new MapPolyline();
-                shape.Locations = points;
-                shape.StrokeThickness = 5;
-                shape.Stroke = new SolidColorBrush((Color)App.Current.Resources["PhoneAccentColor"]);
-                DetailsMap.Children.Add(shape);
+                RouteName.Text = string.Format("{0}: {1}", ViewState.CurrentRoute.shortName, ViewState.CurrentRouteDirection.name);
+                RouteInfo.Text = ViewState.CurrentStop.name;
+
+                LocationCollection points = new LocationCollection();
+                foreach (PolyLine pl in ViewState.CurrentRouteDirection.encodedPolylines)
+                {
+                    points = new LocationCollection();
+                    pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
+
+                    MapPolyline shape = new MapPolyline();
+                    shape.Locations = points;
+                    shape.StrokeThickness = 5;
+                    shape.Stroke = new SolidColorBrush((Color)Resources["PhoneAccentColor"]);
+                    DetailsMap.Children.Add(shape);
+                }
+            }
+            else
+            {
+                // There isn't a specific route, just load up info on this bus stop
+
+                RouteName.Text = ViewState.CurrentStop.name;
+                RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
             }
         }
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
+        }
+
+        private void appbar_center_Click(object sender, EventArgs e)
+        {
+            FavoriteRouteAndStop favorite = new FavoriteRouteAndStop();
+            favorite.route = ViewState.CurrentRoute;
+            favorite.stop = ViewState.CurrentStop;
+            favorite.routeStops = ViewState.CurrentRouteDirection;
+
+            viewModel.AddFavorite(favorite);
         }
     }
 }

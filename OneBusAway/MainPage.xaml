@@ -103,18 +103,33 @@
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
         <pivot:Pivot Name="PC">
             <pivot:PivotItem Header="routes">
-                <ListBox x:Name="RoutesListBox" ItemsSource="{Binding Path=RoutesForLocation, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}"
-                         SelectionChanged="RoutesListBox_SelectionChanged"/>
+                <ListBox 
+                    x:Name="RoutesListBox" 
+                    ItemsSource="{Binding Path=RoutesForLocation, Source={StaticResource ViewModel}}" 
+                    ItemTemplate="{StaticResource RouteTemplate}"
+                    SelectionChanged="RoutesListBox_SelectionChanged" 
+                    />
             </pivot:PivotItem>
             <pivot:PivotItem Header="stops">
-                <ListBox x:Name="StopsListBox" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource StopTemplate}" />
+                <ListBox 
+                    x:Name="StopsListBox" 
+                    ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" 
+                    ItemTemplate="{StaticResource StopTemplate}" 
+                    SelectionChanged="StopsListBox_SelectionChanged"
+                    />
             </pivot:PivotItem>
             <pivot:PivotItem Header="favorites">
-                
+                <ListBox 
+                    x:Name="FavoritesListBox" 
+                    ItemsSource="{Binding Path=Favorites, Source={StaticResource ViewModel}}" 
+                    SelectionChanged="FavoritesListBox_SelectionChanged" 
+                    />
             </pivot:PivotItem>
+            <!--
             <pivot:PivotItem Header="recent">
 
             </pivot:PivotItem>
+            -->
         </pivot:Pivot>
     </Grid>
 

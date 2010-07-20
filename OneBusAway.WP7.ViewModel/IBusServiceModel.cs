@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Device.Location;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.Collections.Generic;
 

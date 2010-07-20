@@ -14,7 +14,7 @@ using System.Device.Location;
 using OneBusAway.WP7.Model;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.Threading;
-using OneBusAway.WP7.ViewModel.DataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using Microsoft.Silverlight.Testing;
 
 namespace OneBusAway.WP7.Test
