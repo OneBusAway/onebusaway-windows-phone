@@ -102,6 +102,16 @@ namespace OneBusAway.WP7.ViewModel
             appDataModel.AddFavorite(favorite);
         }
 
+        public bool IsFavorite(FavoriteRouteAndStop favorite)
+        {
+            return appDataModel.IsFavorite(favorite);
+        }
+
+        public void DeleteFavorite(FavoriteRouteAndStop favorite)
+        {
+            appDataModel.DeleteFavorite(favorite);
+        }
+
         #endregion
 
         #region Event Handlers

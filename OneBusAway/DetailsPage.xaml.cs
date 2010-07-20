@@ -26,17 +26,19 @@ namespace OneBusAway.WP7.View
 
         private Uri unfilterRoutesIcon = new Uri("/Images/appbar.add.rest.png", UriKind.Relative);
         private Uri filterRoutesIcon = new Uri("/Images/appbar.minus.rest.png", UriKind.Relative);
+        private bool isFavorite;
 
         public DetailsPage()
         {
             InitializeComponent();
 
-            this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
         }
 
-        void DetailsPage_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
+            base.OnNavigatedTo(e);
+
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
 
             viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
@@ -95,6 +97,13 @@ namespace OneBusAway.WP7.View
                 RouteName.Text = ViewState.CurrentStop.name;
                 RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
             }
+
+            FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
+            currentInfo.route = ViewState.CurrentRoute;
+            currentInfo.routeStops = ViewState.CurrentRouteDirection;
+            currentInfo.stop = ViewState.CurrentStop;
+
+            isFavorite = viewModel.IsFavorite(currentInfo);
         }
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -102,14 +111,23 @@ namespace OneBusAway.WP7.View
             viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
         }
 
-        private void appbar_center_Click(object sender, EventArgs e)
+        private void appbar_favorite_Click(object sender, EventArgs e)
         {
             FavoriteRouteAndStop favorite = new FavoriteRouteAndStop();
             favorite.route = ViewState.CurrentRoute;
             favorite.stop = ViewState.CurrentStop;
             favorite.routeStops = ViewState.CurrentRouteDirection;
 
-            viewModel.AddFavorite(favorite);
+            if (isFavorite == false)
+            {
+                viewModel.AddFavorite(favorite);
+                isFavorite = true;
+            }
+            else
+            {
+                viewModel.DeleteFavorite(favorite);
+                isFavorite = false;
+            }
         }
 
         private void appbar_allroutes_Click(object sender, EventArgs e)
