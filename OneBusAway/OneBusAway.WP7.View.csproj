@@ -83,6 +83,9 @@
     <Compile Include="BusDirectionPage.xaml.cs">
       <DependentUpon>BusDirectionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BusStopControl.xaml.cs">
+      <DependentUpon>BusStopControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CenterControl.xaml.cs">
       <DependentUpon>CenterControl.xaml</DependentUpon>
     </Compile>
@@ -102,6 +105,10 @@
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
     <Page Include="BusDirectionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BusStopControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

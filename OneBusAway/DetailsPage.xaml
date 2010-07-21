@@ -76,7 +76,7 @@
 
         <Grid Grid.Row="0" x:Name="TitleGrid">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="5" />
+                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="15" />
                 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -98,6 +98,7 @@
         <Grid Grid.Row="2" x:Name="StopGrid">
             <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
         </Grid>
+        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
     </Grid>
 
     <navigation:PhoneApplicationPage.ApplicationBar>

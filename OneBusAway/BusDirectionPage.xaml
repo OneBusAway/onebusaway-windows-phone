@@ -55,6 +55,8 @@
                 SelectionChanged="BusDirectionListBox_SelectionChanged" 
                 />
         </Grid>
+        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
+
     </Grid>
 
 </phone:PhoneApplicationPage>
