@@ -39,6 +39,11 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
+            ProgressBar.Visibility = Visibility.Visible;
+
+            viewModel.ArrivalsForStop.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.StopsForRoute.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
 
             viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
@@ -49,7 +54,7 @@ namespace OneBusAway.WP7.View
 
             MapLayer mapLayer = new MapLayer();
             DetailsMap.Children.Add(mapLayer);
-            mapLayer.AddChild(new Pushpin(), ViewState.CurrentStop.location);
+            mapLayer.AddChild(new BusStopControl(), ViewState.CurrentStop.location);
             mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
 
             if (ViewState.CurrentRouteDirection != null)
@@ -92,6 +97,14 @@ namespace OneBusAway.WP7.View
             currentInfo.stop = ViewState.CurrentStop;
 
             isFavorite = viewModel.IsFavorite(currentInfo);
+        }
+
+        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                ProgressBar.Visibility = Visibility.Collapsed;
+            }
         }
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

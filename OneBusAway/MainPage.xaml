@@ -38,8 +38,10 @@
             <Grid Margin="5">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="240" />
-                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="50" />
+
+                    <ColumnDefinition Width="215" />
+                    <ColumnDefinition Width="215" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -48,13 +50,31 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <!--<Polygon Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>-->
+                <Polygon HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
+                <Canvas Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  x:Name="BusIcon" Margin="12">
+                    <Canvas.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.85" ScaleY="0.85" />
+                        </TransformGroup>
+                    </Canvas.RenderTransform>
+                    <Rectangle Width="26" Height="22" Canvas.Left="1" Canvas.Top="2" Fill="{StaticResource PhoneBackgroundBrush}" Stroke="{StaticResource PhoneBackgroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="19" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource PhoneBackgroundBrush}" Fill="{StaticResource PhoneBackgroundBrush}"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="3" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource PhoneBackgroundBrush}" Fill="{StaticResource PhoneBackgroundBrush}"/>
+
+                    <Rectangle Width="22" Height="10" Canvas.Left="3" Canvas.Top="7" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="3" Canvas.Top="19" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="19" Canvas.Top="19" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="22" Height="3" Canvas.Left="3" Canvas.Top="3" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+
+                    <Path Fill="{StaticResource PhoneBackgroundBrush}" Stretch="Fill" Stroke="{StaticResource PhoneBackgroundBrush}" StrokeLineJoin="Round" Height="12" Width="1" UseLayoutRounding="False" Canvas.Left="13.5" Canvas.Top="6.5" Data="M16,8 L16,17"/>
+                </Canvas>
+
                 <!--<TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />-->
 
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
-                <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                <TextBlock Grid.Column="0" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
-                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
+                <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
             </Grid>
         </DataTemplate>
 
@@ -140,6 +160,8 @@
             </pivot:PivotItem>
             -->
         </pivot:Pivot>
+        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
+
     </Grid>
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>

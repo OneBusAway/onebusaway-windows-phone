@@ -75,8 +75,11 @@ namespace OneBusAway.WP7.View
 
         void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
         {
+
             if (LocationStatus == GeoPositionStatus.Ready && informationLoaded == false)
             {
+                ProgressBar.Visibility = Visibility.Visible;
+
                 viewModel.LoadInfoForLocation(CurrentLocation, 1000);
                 informationLoaded = true;
             }
@@ -84,9 +87,24 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+
+            viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+
+
             // Ensure the location changed method is called each time this page is loaded
             locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
             viewModel.LoadFavorites(CurrentLocation);
+
+        }
+
+        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                ProgressBar.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -102,6 +120,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
+            ProgressBar.Visibility = Visibility.Visible;
             viewModel.LoadInfoForLocation(CurrentLocation, 1000);
         }
 
