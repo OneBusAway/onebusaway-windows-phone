@@ -18,6 +18,7 @@ using System.Device.Location;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Specialized;
 using Microsoft.Phone.Shell;
+using System.Windows.Navigation;
 
 namespace OneBusAway.WP7.View
 {
@@ -44,15 +45,16 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
 
-            viewModel.ArrivalsForStop.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.StopsForRoute.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-
+            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.StopsForRoute.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
         }
 
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            viewModel.RegisterEventHandlers();
 
             ProgressBar.Visibility = Visibility.Visible;
 
@@ -113,6 +115,13 @@ namespace OneBusAway.WP7.View
             SetFavoriteIcon();
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            viewModel.UnregisterEventHandlers();
+        }
+
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
@@ -123,7 +132,8 @@ namespace OneBusAway.WP7.View
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
+            // This call is disabled because we don't use this data currently
+            //viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
         }
 
         private void appbar_favorite_Click(object sender, EventArgs e)

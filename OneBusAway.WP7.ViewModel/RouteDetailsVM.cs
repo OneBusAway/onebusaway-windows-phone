@@ -10,7 +10,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class RouteDetailsVM
+    public class RouteDetailsVM : IViewModel
     {
 
         #region Private Variables
@@ -49,12 +49,6 @@ namespace OneBusAway.WP7.ViewModel
 
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
-
-            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-
-            arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop);
-            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
-            //this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
         }
 
         #endregion
@@ -64,8 +58,6 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
         public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }
-
-
 
         #endregion
 
@@ -198,5 +190,22 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
+        public void RegisterEventHandlers()
+        {
+            this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
+            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+
+            arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop);
+            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
+        }
+
+        public void UnregisterEventHandlers()
+        {
+            this.busServiceModel.TripDetailsForArrival_Completed -= new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
+            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+
+            this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
+            arrivalsForStopHandler = null;
+        }
     }
 }

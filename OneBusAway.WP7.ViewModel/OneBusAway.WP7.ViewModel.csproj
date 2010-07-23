@@ -76,6 +76,7 @@
     <Compile Include="BusServiceDataStructures\RouteSchedule.cs" />
     <Compile Include="BusServiceDataStructures\Stop.cs" />
     <Compile Include="BusServiceDataStructures\TripDetails.cs" />
+    <Compile Include="IViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainPageVM.cs" />
     <Compile Include="RouteDetailsVM.cs" />
