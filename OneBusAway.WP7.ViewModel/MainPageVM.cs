@@ -18,6 +18,9 @@ namespace OneBusAway.WP7.ViewModel
         private IBusServiceModel busServiceModel;
         private IAppDataModel appDataModel;
 
+        private int maxRoutes = 30;
+        private int maxStops = 30;
+
         #endregion
 
         #region Constructors
@@ -93,7 +96,18 @@ namespace OneBusAway.WP7.ViewModel
             {
                 e.stops.Sort(new StopDistanceComparer(e.location));
                 StopsForLocation.Clear();
-                e.stops.ForEach(stop => StopsForLocation.Add(stop));
+
+                int count = 0;
+                foreach(Stop stop in e.stops)
+                {
+                    if (count > maxStops)
+                    {
+                        break;
+                    }
+
+                    StopsForLocation.Add(stop);
+                    count++;
+                }
             }
         }
 
@@ -105,7 +119,18 @@ namespace OneBusAway.WP7.ViewModel
             {
                 e.routes.Sort(new RouteDistanceComparer(e.location));
                 RoutesForLocation.Clear();
-                e.routes.ForEach(route => RoutesForLocation.Add(route));
+
+                int count = 0;
+                foreach (Route route in e.routes)
+                {
+                    if (count > maxRoutes)
+                    {
+                        break;
+                    }
+
+                    RoutesForLocation.Add(route);
+                    count++;
+                }
             }
         }
 

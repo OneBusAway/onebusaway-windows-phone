@@ -11,9 +11,11 @@ namespace OneBusAway.WP7.ViewModel
     {
         event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
         void StopsForLocation(GeoCoordinate location, int radiusInMeters);
+        void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
 
         event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
         void RoutesForLocation(GeoCoordinate location, int radiusInMeters);
+        void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
 
         event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
         void StopsForRoute(Route route);
