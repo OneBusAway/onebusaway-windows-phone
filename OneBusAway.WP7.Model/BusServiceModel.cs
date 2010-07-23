@@ -50,9 +50,15 @@ namespace OneBusAway.WP7.Model
 
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters)
         {
+            StopsForLocation(location, radiusInMeters, -1);
+        }
+
+        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        {
             webservice.StopsForLocation(
                 location,
                 radiusInMeters,
+                maxCount,
                 delegate(List<Stop> stops, Exception error)
                 {
                     if (StopsForLocation_Completed != null)
@@ -65,9 +71,15 @@ namespace OneBusAway.WP7.Model
 
         public void RoutesForLocation(GeoCoordinate location, int radiusInMeters)
         {
+            RoutesForLocation(location, radiusInMeters, -1);
+        }
+
+        public void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        {
             webservice.StopsForLocation(
                 location,
                 radiusInMeters,
+                maxCount,
                 delegate(List<Stop> stops, Exception e)
                 {
                     Exception error = e;

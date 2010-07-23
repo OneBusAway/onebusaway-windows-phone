@@ -43,7 +43,7 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, StopsForLocation_Callback callback)
+        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
         {
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
@@ -55,6 +55,12 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 APIVERSION
                 );
+
+            if (maxCount > 0)
+            {
+                requestUrl += string.Format("&maxCount={0}", maxCount);
+            }
+
             WebClient client = new WebClient();
             client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
                 new GetStopsForLocationCompleted(requestUrl, callback).StopsForLocation_Completed);
@@ -456,79 +462,6 @@ namespace OneBusAway.WP7.Model
         {
             return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
         }
-
-        //[XmlRoot("encodedPolyline")]
-        //public class PolyLine
-        //{
-        //    public List<Coordinate> coordinates = new List<Coordinate>();
-
-        //    private string pointsString;
-        //    [XmlElement]
-        //    public string points
-        //    {
-        //        get { return pointsString; }
-        //        set
-        //        {
-        //            pointsString = value;
-        //            coordinates = DecodeLatLongList(value);
-        //        }
-        //    }
-
-
-        //    [XmlElement]
-        //    public string length { get; set; }
-
-        //    [XmlElement]
-        //    public string levels { get; set; }
-
-        //    public static List<Coordinate> DecodeLatLongList(string encoded)
-        //    {
-
-        //        int index = 0;
-        //        int lat = 0;
-        //        int lng = 0;
-
-        //        int len = encoded.Length;
-        //        List<Coordinate> locs = new List<Coordinate>();
-
-        //        while (index < len)
-        //        {
-        //            lat += decodePoint(encoded, index, out index);
-        //            lng += decodePoint(encoded, index, out index);
-
-        //            Coordinate loc = new Coordinate();
-        //            loc.Latitude = (lat * 1e-5);
-        //            loc.Longitude = (lng * 1e-5);
-
-        //            locs.Add(loc);
-        //        }
-
-        //        return locs;
-        //    }
-
-
-        //    private static int decodePoint(string encoded, int startindex, out int finishindex)
-        //    {
-        //        int b;
-        //        int shift = 0;
-        //        int result = 0;
-
-        //        //magic google algorithm, see http://code.google.com/apis/maps/documentation/polylinealgorithm.html
-        //        do
-        //        {
-        //            b = Convert.ToInt32(encoded[startindex++]) - 63;
-        //            result |= (b & 0x1f) << shift;
-        //            shift += 5;
-        //        } while (b >= 0x20);
-        //        //if negative flip
-        //        int dlat = (((result & 1) > 0) ? ~(result >> 1) : (result >> 1));
-
-        //        //set output index
-        //        finishindex = startindex;
-
-        //        return dlat;
-        //    }
-        //}
     }
 
     public class WebserviceParsingException : Exception
