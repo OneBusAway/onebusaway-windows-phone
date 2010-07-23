@@ -29,7 +29,7 @@
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <TokenBackgroundImageFilePath>D:\Visual Studio Projects\OneBusAway-Main\OneBusAway\Bus_Token.png</TokenBackgroundImageFilePath>
+    <TokenBackgroundImageFilePath>C:\Users\rob\Documents\Visual Studio 2010\Projects\onebusawaywp7\OneBusAway\Bus_Token.png</TokenBackgroundImageFilePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -142,6 +142,7 @@
     <Content Include="Bus_Token.png" />
     <Content Include="Images\appbar.add.rest.png" />
     <Content Include="Images\appbar.favs.addto.rest.png" />
+    <Content Include="Images\appbar.favs.del.rest.png" />
     <Content Include="Images\appbar.minus.rest.png" />
     <Content Include="Images\appbar.refresh.rest.png" />
     <Content Include="Images\center.png" />

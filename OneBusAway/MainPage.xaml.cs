@@ -68,14 +68,15 @@ namespace OneBusAway.WP7.View
             locationWatcher.Start();
             locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
 
-            SupportedOrientations = SupportedPageOrientation.Portrait;
+            viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
 
-            this.Loaded += new RoutedEventHandler(MainPage_Loaded);
+            SupportedOrientations = SupportedPageOrientation.Portrait;
         }
 
         void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
         {
-
             if (LocationStatus == GeoPositionStatus.Ready && informationLoaded == false)
             {
                 ProgressBar.Visibility = Visibility.Visible;
@@ -85,18 +86,14 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        void MainPage_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
-
-            viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-
+            base.OnNavigatedTo(e);
 
             // Ensure the location changed method is called each time this page is loaded
+            informationLoaded = false;
             locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
             viewModel.LoadFavorites(CurrentLocation);
-
         }
 
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

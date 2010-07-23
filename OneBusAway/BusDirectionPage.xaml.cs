@@ -25,17 +25,12 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 
-            this.Loaded += new RoutedEventHandler(BusDirectionPage_Loaded);
-        }
-
-        void BusDirectionPage_Loaded(object sender, RoutedEventArgs e)
-        {
             ProgressBar.Visibility = Visibility.Visible;
 
             viewModel.LoadRouteDirections(ViewState.CurrentRoute);
             viewModel.RouteDirections.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-
         }
+
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
