@@ -15,7 +15,7 @@ using System.Diagnostics;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class BusDirectionVM
+    public class BusDirectionVM : IViewModel
     {
         private IBusServiceModel busServiceModel;
 
@@ -35,8 +35,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             RouteDirections = new ObservableCollection<RouteStops>();
             this.busServiceModel = busServiceModel;
-
-            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
 
         public void LoadRouteDirections(Route route)
@@ -56,5 +54,14 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        public void RegisterEventHandlers()
+        {
+            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+        }
+
+        public void UnregisterEventHandlers()
+        {
+            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+        }
     }
 }

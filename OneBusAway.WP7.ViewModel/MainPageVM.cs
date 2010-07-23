@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class MainPageVM
+    public class MainPageVM : IViewModel
     {
 
         #region Private Variables
@@ -47,11 +47,6 @@ namespace OneBusAway.WP7.ViewModel
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
-
-            this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
-
-            this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
         }
 
         #endregion
@@ -149,5 +144,20 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
+        public void RegisterEventHandlers()
+        {
+            this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
+            this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+
+            this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+        }
+
+        public void UnregisterEventHandlers()
+        {
+            this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
+            this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+
+            this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+        }
     }
 }

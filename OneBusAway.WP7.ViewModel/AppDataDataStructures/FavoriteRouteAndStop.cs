@@ -25,6 +25,40 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
         [DataMember]
         public Stop stop { get; set; }
 
+        public string Title
+        {
+            get
+            {
+                if (routeStops != null)
+                {
+                    return routeStops.name;
+                }
+                else
+                {
+                    return stop.name;
+                }
+            }
+        }
+
+        public string Detail
+        {
+            get
+            {
+                if (routeStops != null)
+                {
+                    return stop.name;
+                }
+                else
+                {
+                    //string routes = "Routes: ";
+                    //stop.routes.ForEach(route => routes += route.shortName + ", ");
+
+                    //return routes.Substring(0, routes.Length - 2); // remove the trailing ", "
+                    return null;
+                }
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is FavoriteRouteAndStop)

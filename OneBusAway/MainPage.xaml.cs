@@ -90,10 +90,19 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
+            viewModel.RegisterEventHandlers();
+
             // Ensure the location changed method is called each time this page is loaded
             informationLoaded = false;
             locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
             viewModel.LoadFavorites(CurrentLocation);
+        }
+
+        protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            viewModel.UnregisterEventHandlers();
         }
 
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

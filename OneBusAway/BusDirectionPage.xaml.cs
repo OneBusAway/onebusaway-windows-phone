@@ -12,12 +12,15 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Windows.Navigation;
+using System.Collections.Specialized;
 
 namespace OneBusAway.WP7.View
 {
     public partial class BusDirectionPage : PhoneApplicationPage
     {
         private BusDirectionVM viewModel;
+        private bool informationLoaded;
 
         public BusDirectionPage()
         {
@@ -26,9 +29,31 @@ namespace OneBusAway.WP7.View
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 
             ProgressBar.Visibility = Visibility.Visible;
+            informationLoaded = false;
 
-            viewModel.LoadRouteDirections(ViewState.CurrentRoute);
-            viewModel.RouteDirections.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.RouteDirections.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
+            viewModel.RegisterEventHandlers();
+
+            // This prevents us from refreshing the data when someone comes back to this page
+            // since the bus directions aren't going to change
+            if (informationLoaded == false)
+            {
+                viewModel.LoadRouteDirections(ViewState.CurrentRoute);
+                informationLoaded = true;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            viewModel.UnregisterEventHandlers();
         }
 
         void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -38,7 +63,6 @@ namespace OneBusAway.WP7.View
                 ProgressBar.Visibility = Visibility.Collapsed;
             }
         }
-
 
         private void BusDirectionListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
