@@ -65,7 +65,10 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadInfoForLocation(GeoCoordinate location, int radiusInMeters)
         {
+            StopsForLocation.Clear();
             busServiceModel.StopsForLocation(location, radiusInMeters);
+
+            RoutesForLocation.Clear();
             busServiceModel.RoutesForLocation(location, radiusInMeters);
         }
 
