@@ -19,6 +19,7 @@
 
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
         <view:DateTimeConverter x:Key="DateTimeConverter"></view:DateTimeConverter>
+        <view:VisibilityConverter x:Key="VisibilityConverter" />
 
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
@@ -98,7 +99,7 @@
         <Grid Grid.Row="2" x:Name="StopGrid">
             <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
         </Grid>
-        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
+        <ProgressBar Visibility="{Binding Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"  IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
     </Grid>
 
     <navigation:PhoneApplicationPage.ApplicationBar>

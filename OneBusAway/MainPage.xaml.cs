@@ -16,6 +16,7 @@ using System.Windows.Data;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -25,6 +26,7 @@ namespace OneBusAway.WP7.View
 
         private MainPageVM viewModel;
         private bool informationLoaded;
+        private int selectedPivotIndex = 0;
 
         public static GeoCoordinate CurrentLocation
         {
@@ -72,7 +74,14 @@ namespace OneBusAway.WP7.View
             viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
             viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
 
+            this.Loaded += new RoutedEventHandler(MainPage_Loaded);
+
             SupportedOrientations = SupportedPageOrientation.Portrait;
+        }
+
+        void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            PC.SelectedIndex = selectedPivotIndex;
         }
 
         void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
@@ -96,6 +105,15 @@ namespace OneBusAway.WP7.View
             informationLoaded = false;
             locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
             viewModel.LoadFavorites(CurrentLocation);
+
+            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
+            {
+                selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
+            }
+            else
+            {
+                selectedPivotIndex = 0;
+            }
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -153,6 +171,12 @@ namespace OneBusAway.WP7.View
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }
+        }
+
+        private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Pivot pivot = sender as Pivot;
+            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = pivot.SelectedIndex.ToString();
         }
 
     }

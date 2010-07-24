@@ -50,8 +50,8 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <Polygon HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
-                <Canvas Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  x:Name="BusIcon" Margin="12">
+                <Polygon CacheMode="BitmapCache" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
+                <Canvas CacheMode="BitmapCache" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  x:Name="BusIcon" Margin="12">
                     <Canvas.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleX="0.85" ScaleY="0.85" />
@@ -129,7 +129,7 @@
     </phoneNavigation:PhoneApplicationPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
-        <pivot:Pivot Name="PC">
+        <pivot:Pivot Name="PC" SelectionChanged="PC_SelectionChanged" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
