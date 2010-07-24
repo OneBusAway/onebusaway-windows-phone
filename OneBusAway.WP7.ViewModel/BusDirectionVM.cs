@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Reflection;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -62,6 +63,13 @@ namespace OneBusAway.WP7.ViewModel
         public void UnregisterEventHandlers()
         {
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

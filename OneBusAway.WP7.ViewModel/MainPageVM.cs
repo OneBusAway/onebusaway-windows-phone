@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -56,6 +57,7 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
         public ObservableCollection<Route> RoutesForLocation { get; private set; }
         public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
+        public bool Loading { get; set; }  
 
         #endregion
 
@@ -158,6 +160,13 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

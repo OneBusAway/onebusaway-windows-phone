@@ -7,6 +7,7 @@ using System.Device.Location;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -18,6 +19,21 @@ namespace OneBusAway.WP7.ViewModel
         private IBusServiceModel busServiceModel;
         private IAppDataModel appDataModel;
         private ArrivalsForStopHandler arrivalsForStopHandler;
+        private int _loadingCount;
+        private bool _loading;
+        public int loadingCount
+        {
+            get
+            {
+                return _loadingCount;
+            }
+            set
+            {
+                _loadingCount = value;
+                Loading = loadingCount != 0;
+            }
+        } 
+
 
         #endregion
 
@@ -58,13 +74,25 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
         public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }
+        public bool Loading { 
+            get { return loadingCount != 0; }
+            set        
+            {
+                if (_loading == value)
+                    return;
 
+                _loading = value;
+                OnPropertyChanged("Loading");        
+            }
+        } 
+ 
         #endregion
 
         #region Public Methods
 
         public void LoadStopsForRoute(Route route)
         {
+            ++loadingCount;
             busServiceModel.StopsForRoute(route);
         }
 
@@ -78,6 +106,7 @@ namespace OneBusAway.WP7.ViewModel
             arrivalsForStopHandler.routeFilter = routeFilter;
             arrivalsForStopHandler.routeDirectionFilter = routeDirectionFilter;
 
+            ++loadingCount;
             busServiceModel.ArrivalsForStop(stop);
         }
 
@@ -88,6 +117,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
         {
+            ++loadingCount;
             arrivals.ForEach(arrival => busServiceModel.TripDetailsForArrivals(arrivals));
         }
 
@@ -112,6 +142,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
+            
+
             Debug.Assert(e.error == null);
 
             if (e.error == null)
@@ -119,6 +151,14 @@ namespace OneBusAway.WP7.ViewModel
                 StopsForRoute.Clear();
                 e.routeStops.ForEach(routeStop => StopsForRoute.Add(routeStop));
             }
+        }
+
+
+        void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
+        {
+            --loadingCount;
+
+            Debug.Assert(e.error == null);
         }
 
         private class ArrivalsForStopHandler
@@ -139,6 +179,7 @@ namespace OneBusAway.WP7.ViewModel
 
             public void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
             {
+
                 Debug.Assert(e.error == null);
 
                 if (e.error == null)
@@ -179,6 +220,8 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
         {
+            --loadingCount;
+
             Debug.Assert(e.error == null);
 
             if (e.error == null)
@@ -197,7 +240,10 @@ namespace OneBusAway.WP7.ViewModel
 
             arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
+            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
+
         }
+
 
         public void UnregisterEventHandlers()
         {
@@ -206,6 +252,14 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
             arrivalsForStopHandler = null;
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

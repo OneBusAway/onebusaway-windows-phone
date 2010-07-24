@@ -45,10 +45,9 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
 
-            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.StopsForRoute.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
         }
+
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -56,7 +55,6 @@ namespace OneBusAway.WP7.View
 
             viewModel.RegisterEventHandlers();
 
-            ProgressBar.Visibility = Visibility.Visible;
 
             appbar_allroutes = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
@@ -67,10 +65,7 @@ namespace OneBusAway.WP7.View
             DetailsMap.Center = MainPage.CurrentLocation;
             DetailsMap.ZoomLevel = 15;
 
-            MapLayer mapLayer = new MapLayer();
-            DetailsMap.Children.Add(mapLayer);
-            mapLayer.AddChild(new BusStopControl(), ViewState.CurrentStop.location);
-            mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
+            
 
             if (ViewState.CurrentRouteDirection != null)
             {
@@ -104,6 +99,13 @@ namespace OneBusAway.WP7.View
                 RouteName.Text = ViewState.CurrentStop.name;
                 RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
             }
+
+            //Add current location and nearest stop
+            MapLayer mapLayer = new MapLayer();
+            DetailsMap.Children.Add(mapLayer);
+            mapLayer.AddChild(new BusStopControl(), ViewState.CurrentStop.location);
+            mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
+
             SetFilterRoutesIcon();
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
@@ -120,14 +122,6 @@ namespace OneBusAway.WP7.View
             base.OnNavigatedFrom(e);
 
             viewModel.UnregisterEventHandlers();
-        }
-
-        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                ProgressBar.Visibility = Visibility.Collapsed;
-            }
         }
 
         void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

@@ -8,10 +8,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public interface IViewModel
+    public interface IViewModel : INotifyPropertyChanged
     {
         /// <summary>
         /// Registers all event handlers with the model.  Call this when 
