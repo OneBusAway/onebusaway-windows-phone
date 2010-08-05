@@ -21,6 +21,7 @@
       <PrimaryToken TokenID="OneBusAwayToken" TaskName="_default">
         <TemplateType5>
           <BackgroundImageURI IsRelative="true" IsResource="false">Bus_Token.png</BackgroundImageURI>
+          <Count>0</Count>
           <Title>OneBusAway</Title>
         </TemplateType5>
       </PrimaryToken>
