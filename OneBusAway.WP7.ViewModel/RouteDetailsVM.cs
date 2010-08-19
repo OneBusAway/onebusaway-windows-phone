@@ -71,6 +71,13 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Properties
 
+        public ViewState CurrentViewState
+        {
+            get
+            {
+                return ViewState.Instance;
+            }
+        }
         public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
         public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }

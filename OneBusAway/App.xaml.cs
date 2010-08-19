@@ -11,11 +11,14 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Shell;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.View
 {
     public partial class App : Application
     {
+        private ViewState viewState = ViewState.Instance;
+
         public App()
         {
             UnhandledException += new EventHandler<ApplicationUnhandledExceptionEventArgs>(Application_UnhandledException);
@@ -31,9 +34,9 @@ namespace OneBusAway.WP7.View
 
         void Current_Activated(object sender, ActivatedEventArgs e)
         {
-            ViewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute");
-            ViewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection");
-            ViewState.CurrentStop = (Stop)GetStateHelper("CurrentStop");
+            viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute");
+            viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection");
+            viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop");
         }
 
         private object GetStateHelper(string key)
@@ -50,9 +53,9 @@ namespace OneBusAway.WP7.View
 
         void Current_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            PhoneApplicationService.Current.State["CurrentRoute"] = ViewState.CurrentRoute;
-            PhoneApplicationService.Current.State["CurrentRouteDirection"] = ViewState.CurrentRouteDirection;
-            PhoneApplicationService.Current.State["CurrentStop"] = ViewState.CurrentStop;
+            PhoneApplicationService.Current.State["CurrentRoute"] = viewState.CurrentRoute;
+            PhoneApplicationService.Current.State["CurrentRouteDirection"] = viewState.CurrentRouteDirection;
+            PhoneApplicationService.Current.State["CurrentStop"] = viewState.CurrentStop;
         }
 
         // Code to execute on Unhandled Exceptions

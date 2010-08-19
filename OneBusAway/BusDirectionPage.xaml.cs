@@ -44,7 +44,7 @@ namespace OneBusAway.WP7.View
             // since the bus directions aren't going to change
             if (informationLoaded == false)
             {
-                viewModel.LoadRouteDirections(ViewState.CurrentRoute);
+                viewModel.LoadRouteDirections(viewModel.CurrentViewState.CurrentRoute);
                 informationLoaded = true;
             }
         }
@@ -68,14 +68,14 @@ namespace OneBusAway.WP7.View
         {
             if (e.AddedItems.Count > 0)
             {
-                ViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
+                viewModel.CurrentViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
 
-                ViewState.CurrentStop = ViewState.CurrentRouteDirection.stops[0];
-                foreach (Stop stop in ViewState.CurrentRouteDirection.stops)
+                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];
+                foreach (Stop stop in viewModel.CurrentViewState.CurrentRouteDirection.stops)
                 {
-                    if (ViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
+                    if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
                     {
-                        ViewState.CurrentStop = stop;
+                        viewModel.CurrentViewState.CurrentStop = stop;
                     }
                 }
 

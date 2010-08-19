@@ -59,26 +59,24 @@ namespace OneBusAway.WP7.View
             appbar_allroutes = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
-            viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
+            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute, viewModel.CurrentViewState.CurrentRouteDirection);
 
             DetailsMap.Children.Clear();
             DetailsMap.Center = MainPage.CurrentLocation;
             DetailsMap.ZoomLevel = 15;
 
-            
-
-            if (ViewState.CurrentRouteDirection != null)
+            if (viewModel.CurrentViewState.CurrentRouteDirection != null)
             {
                 // CurrentRouteDirection isn't null so we've been called for a specific route
                 // Load all of the route details
-                RouteNumber.Text = ViewState.CurrentRoute.shortName;
-                RouteName.Text = ViewState.CurrentRouteDirection.name;
-                RouteInfo.Text = ViewState.CurrentStop.name;
+                RouteNumber.Text = viewModel.CurrentViewState.CurrentRoute.shortName;
+                RouteName.Text = viewModel.CurrentViewState.CurrentRouteDirection.name;
+                RouteInfo.Text = viewModel.CurrentViewState.CurrentStop.name;
 
                 isFiltered = true;
 
                 LocationCollection points = new LocationCollection();
-                foreach (PolyLine pl in ViewState.CurrentRouteDirection.encodedPolylines)
+                foreach (PolyLine pl in viewModel.CurrentViewState.CurrentRouteDirection.encodedPolylines)
                 {
                     points = new LocationCollection();
                     pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
@@ -96,22 +94,22 @@ namespace OneBusAway.WP7.View
                 isFiltered = false;
 
                 RouteNumber.Text = string.Empty;
-                RouteName.Text = ViewState.CurrentStop.name;
-                RouteInfo.Text = string.Format("Direction: '{0}'", ViewState.CurrentStop.direction);
+                RouteName.Text = viewModel.CurrentViewState.CurrentStop.name;
+                RouteInfo.Text = string.Format("Direction: '{0}'", viewModel.CurrentViewState.CurrentStop.direction);
             }
 
             //Add current location and nearest stop
             MapLayer mapLayer = new MapLayer();
             DetailsMap.Children.Add(mapLayer);
-            mapLayer.AddChild(new BusStopControl(), ViewState.CurrentStop.location);
+            mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location);
             mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
 
             SetFilterRoutesIcon();
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
-            currentInfo.route = ViewState.CurrentRoute;
-            currentInfo.routeStops = ViewState.CurrentRouteDirection;
-            currentInfo.stop = ViewState.CurrentStop;
+            currentInfo.route = viewModel.CurrentViewState.CurrentRoute;
+            currentInfo.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
+            currentInfo.stop = viewModel.CurrentViewState.CurrentStop;
 
             isFavorite = viewModel.IsFavorite(currentInfo);
             SetFavoriteIcon();
@@ -133,9 +131,9 @@ namespace OneBusAway.WP7.View
         private void appbar_favorite_Click(object sender, EventArgs e)
         {
             FavoriteRouteAndStop favorite = new FavoriteRouteAndStop();
-            favorite.route = ViewState.CurrentRoute;
-            favorite.stop = ViewState.CurrentStop;
-            favorite.routeStops = ViewState.CurrentRouteDirection;
+            favorite.route = viewModel.CurrentViewState.CurrentRoute;
+            favorite.stop = viewModel.CurrentViewState.CurrentStop;
+            favorite.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
 
             if (isFavorite == false)
             {
@@ -160,7 +158,7 @@ namespace OneBusAway.WP7.View
             }
             else
             {
-                viewModel.ChangeFilterForArrivals(ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
+                viewModel.ChangeFilterForArrivals(viewModel.CurrentViewState.CurrentRoute, viewModel.CurrentViewState.CurrentRouteDirection);
                 isFiltered = true;
             }
 
