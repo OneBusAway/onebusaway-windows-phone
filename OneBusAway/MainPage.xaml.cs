@@ -22,7 +22,7 @@ namespace OneBusAway.WP7.View
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        public static GeoCoordinateWatcher locationWatcher = new GeoCoordinateWatcher();
+        private static GeoCoordinateWatcher locationWatcher = new GeoCoordinateWatcher();
 
         private MainPageVM viewModel;
         private bool informationLoaded;
@@ -47,7 +47,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        public static GeoPositionStatus LocationStatus
+        private static GeoPositionStatus LocationStatus
         {
             get
             {
@@ -135,8 +135,8 @@ namespace OneBusAway.WP7.View
         {
             if (e.AddedItems.Count > 0)
             {
-                ViewState.CurrentRoute = (Route)e.AddedItems[0];
-                ViewState.CurrentStop = ViewState.CurrentRoute.closestStop;
+                viewModel.CurrentViewState.CurrentRoute = (Route)e.AddedItems[0];
+                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;
 
                 NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
             }
@@ -153,9 +153,9 @@ namespace OneBusAway.WP7.View
             if (e.AddedItems.Count > 0)
             {
                 FavoriteRouteAndStop favorite = (FavoriteRouteAndStop)e.AddedItems[0];
-                ViewState.CurrentRoute = favorite.route;
-                ViewState.CurrentStop = favorite.stop;
-                ViewState.CurrentRouteDirection = favorite.routeStops;
+                viewModel.CurrentViewState.CurrentRoute = favorite.route;
+                viewModel.CurrentViewState.CurrentStop = favorite.stop;
+                viewModel.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }
@@ -165,9 +165,9 @@ namespace OneBusAway.WP7.View
         {
             if (e.AddedItems.Count > 0)
             {
-                ViewState.CurrentRoute = null;
-                ViewState.CurrentRouteDirection = null;
-                ViewState.CurrentStop = (Stop)e.AddedItems[0];
+                viewModel.CurrentViewState.CurrentRoute = null;
+                viewModel.CurrentViewState.CurrentRouteDirection = null;
+                viewModel.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }
