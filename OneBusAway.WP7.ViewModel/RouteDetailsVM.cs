@@ -98,21 +98,20 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop)
         {
-            LoadArrivalsForStop(stop, null, null);
+            LoadArrivalsForStop(stop, null);
         }
 
-        public void LoadArrivalsForStop(Stop stop, Route routeFilter, RouteStops routeDirectionFilter)
+        public void LoadArrivalsForStop(Stop stop, Route routeFilter)
         {
             arrivalsForStopHandler.routeFilter = routeFilter;
-            arrivalsForStopHandler.routeDirectionFilter = routeDirectionFilter;
 
             ++loadingCount;
             busServiceModel.ArrivalsForStop(stop);
         }
 
-        public void ChangeFilterForArrivals(Route routeFilter, RouteStops routeDirectionFilter)
+        public void ChangeFilterForArrivals(Route routeFilter)
         {
-            arrivalsForStopHandler.UpdateFilter(routeFilter, routeDirectionFilter);
+            arrivalsForStopHandler.UpdateFilter(routeFilter);
         }
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
@@ -164,7 +163,6 @@ namespace OneBusAway.WP7.ViewModel
         private class ArrivalsForStopHandler
         {
             public Route routeFilter;
-            public RouteStops routeDirectionFilter;
 
             private ObservableCollection<ArrivalAndDeparture> arrivalsForStop;
             private List<ArrivalAndDeparture> unfilteredArrivals;
@@ -172,7 +170,6 @@ namespace OneBusAway.WP7.ViewModel
             public ArrivalsForStopHandler(ObservableCollection<ArrivalAndDeparture> arrivalsForStop)
             {
                 routeFilter = null;
-                routeDirectionFilter = null;
                 this.arrivalsForStop = arrivalsForStop;
                 unfilteredArrivals = new List<ArrivalAndDeparture>();
             }
@@ -189,10 +186,9 @@ namespace OneBusAway.WP7.ViewModel
                 }
             }
 
-            public void UpdateFilter(Route routeFilter, RouteStops routeDirectionFilter)
+            public void UpdateFilter(Route routeFilter)
             {
                 this.routeFilter = routeFilter;
-                this.routeDirectionFilter = routeDirectionFilter;
 
                 FilterArrivals();
             }
@@ -204,11 +200,6 @@ namespace OneBusAway.WP7.ViewModel
                 foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
                 {
                     if (routeFilter != null && routeFilter.id != arrival.routeId)
-                    {
-                        continue;
-                    }
-
-                    if (routeDirectionFilter != null && routeDirectionFilter.name != arrival.tripHeadsign)
                     {
                         continue;
                     }
