@@ -40,7 +40,7 @@
                     <TextBlock Text="{Binding tripHeadsign}" />
                     <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" 
                                FontSize="{StaticResource PhoneFontSizeSmall}" 
-                               Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeConverter}}" />
+                               Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" />
                 </StackPanel>
                 <TextBlock Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeDeltaConverter}}" />
             </StackPanel>
@@ -61,8 +61,8 @@
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding routeShortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding tripHeadsign}" />
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeConverter}}" />
-                <TextBlock Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeDeltaConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" />
+                <TextBlock Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" />
 
             </Grid>
         </DataTemplate>
