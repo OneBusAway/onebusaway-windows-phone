@@ -59,7 +59,7 @@ namespace OneBusAway.WP7.View
             appbar_allroutes = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
-            viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
+            viewModel.LoadArrivalsForStop(ViewState.CurrentStop, ViewState.CurrentRoute);
 
             DetailsMap.Children.Clear();
             DetailsMap.Center = MainPage.CurrentLocation;
@@ -155,12 +155,12 @@ namespace OneBusAway.WP7.View
         {
             if (isFiltered == true)
             {
-                viewModel.ChangeFilterForArrivals(null, null);
+                viewModel.ChangeFilterForArrivals(null);
                 isFiltered = false;
             }
             else
             {
-                viewModel.ChangeFilterForArrivals(ViewState.CurrentRoute, ViewState.CurrentRouteDirection);
+                viewModel.ChangeFilterForArrivals(ViewState.CurrentRoute);
                 isFiltered = true;
             }
 
