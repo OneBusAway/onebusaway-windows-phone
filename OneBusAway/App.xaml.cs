@@ -11,6 +11,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Shell;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Runtime.Serialization;
+using System.IO;
+using System.Text;
 
 namespace OneBusAway.WP7.View
 {
@@ -31,16 +34,16 @@ namespace OneBusAway.WP7.View
 
         void Current_Activated(object sender, ActivatedEventArgs e)
         {
-            ViewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute");
-            ViewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection");
-            ViewState.CurrentStop = (Stop)GetStateHelper("CurrentStop");
+            ViewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
+            ViewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
+            ViewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
         }
 
-        private object GetStateHelper(string key)
+        private object GetStateHelper(string key, Type type)
         {
             if (PhoneApplicationService.Current.State.ContainsKey(key) == true)
             {
-                return PhoneApplicationService.Current.State[key];
+                return Deserialize((string)PhoneApplicationService.Current.State[key], type);
             }
             else
             {
@@ -50,9 +53,45 @@ namespace OneBusAway.WP7.View
 
         void Current_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            PhoneApplicationService.Current.State["CurrentRoute"] = ViewState.CurrentRoute;
-            PhoneApplicationService.Current.State["CurrentRouteDirection"] = ViewState.CurrentRouteDirection;
-            PhoneApplicationService.Current.State["CurrentStop"] = ViewState.CurrentStop;
+            PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(ViewState.CurrentRoute);
+            PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(ViewState.CurrentRouteDirection);
+            PhoneApplicationService.Current.State["CurrentStop"] = Serialize(ViewState.CurrentStop);
+        }
+
+        private string Serialize(Object obj)
+        {
+            if (obj != null)
+            {
+                Stream stream = new MemoryStream();
+                DataContractSerializer serializer = new DataContractSerializer(obj.GetType());
+                serializer.WriteObject(stream, obj);
+
+                // Reset the stream to the begining
+                stream.Position = 0;
+                return new StreamReader(stream, Encoding.UTF8).ReadToEnd();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private Object Deserialize(string data, Type type)
+        {
+            if (string.IsNullOrEmpty(data) == false)
+            {
+                byte[] byteArray = Encoding.UTF8.GetBytes(data);
+                Stream stream = new MemoryStream(byteArray);
+                DataContractSerializer serializer = new DataContractSerializer(type);
+
+                // Reset the stream to teh begining
+                stream.Position = 0;
+                return serializer.ReadObject(stream);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         // Code to execute on Unhandled Exceptions
