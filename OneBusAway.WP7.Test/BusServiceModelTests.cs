@@ -83,7 +83,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void StopsForRoute()
         {
-            ModelTest(() => model.StopsForRoute(fakeData.ROUTE));
+            ModelTest(() => model.StopsForRoute(fakeData.ROUTE_30));
         }
 
         [TestMethod]

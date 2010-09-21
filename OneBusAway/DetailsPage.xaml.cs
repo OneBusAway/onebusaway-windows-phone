@@ -43,11 +43,12 @@ namespace OneBusAway.WP7.View
         {
             InitializeComponent();
 
+            this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
 
             viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
         }
-
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -115,6 +116,16 @@ namespace OneBusAway.WP7.View
 
             isFavorite = viewModel.IsFavorite(currentInfo);
             SetFavoriteIcon();
+        }
+
+        void DetailsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            RecentRouteAndStop recent = new RecentRouteAndStop();
+            recent.route = ViewState.CurrentRoute;
+            recent.routeStops = ViewState.CurrentRouteDirection;
+            recent.stop = ViewState.CurrentStop;
+
+            viewModel.AddRecent(recent);
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
