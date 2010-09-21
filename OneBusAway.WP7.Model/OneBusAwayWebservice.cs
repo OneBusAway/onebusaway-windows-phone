@@ -241,10 +241,11 @@ namespace OneBusAway.WP7.Model
         public void ArrivalsForStop(Stop stop, ArrivalsForStop_Callback callback)
         {
             string requestUrl = string.Format(
-                "{0}/{1}/{2}.xml?key={3}&version={4}",
+                "{0}/{1}/{2}.xml?minutesAfter={3}&key={4}&version={5}",
                 WEBSERVICE,
                 "arrivals-and-departures-for-stop",
                 stop.id,
+                60,
                 KEY,
                 APIVERSION
                 );
