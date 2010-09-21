@@ -70,11 +70,6 @@ namespace OneBusAway.WP7.View
             locationWatcher.Start();
             locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
 
-            viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.Recents.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
@@ -89,8 +84,6 @@ namespace OneBusAway.WP7.View
         {
             if (LocationStatus == GeoPositionStatus.Ready && informationLoaded == false)
             {
-                ProgressBar.Visibility = Visibility.Visible;
-
                 viewModel.LoadInfoForLocation(CurrentLocation, 1000);
                 informationLoaded = true;
             }
@@ -124,14 +117,6 @@ namespace OneBusAway.WP7.View
             viewModel.UnregisterEventHandlers();
         }
 
-        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                ProgressBar.Visibility = Visibility.Collapsed;
-            }
-        }
-
         private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -145,7 +130,6 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            ProgressBar.Visibility = Visibility.Visible;
             viewModel.LoadInfoForLocation(CurrentLocation, 1000);
         }
 

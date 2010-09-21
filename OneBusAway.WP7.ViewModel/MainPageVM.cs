@@ -8,10 +8,11 @@ using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class MainPageVM : IViewModel
+    public class MainPageVM : AViewModel
     {
 
         #region Private Variables
@@ -44,6 +45,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.busServiceModel = busServiceModel;
             this.appDataModel = appDataModel;
+            pendingOperations = 0;
 
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
@@ -59,7 +61,6 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<Route> RoutesForLocation { get; private set; }
         public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
         public ObservableCollection<FavoriteRouteAndStop> Recents { get; private set; }
-        public bool Loading { get; set; }  
 
         #endregion
 
@@ -68,9 +69,11 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadInfoForLocation(GeoCoordinate location, int radiusInMeters)
         {
             StopsForLocation.Clear();
+            pendingOperations++;
             busServiceModel.StopsForLocation(location, radiusInMeters);
 
             RoutesForLocation.Clear();
+            pendingOperations++;
             busServiceModel.RoutesForLocation(location, radiusInMeters);
         }
 
@@ -113,6 +116,8 @@ namespace OneBusAway.WP7.ViewModel
                     count++;
                 }
             }
+
+            pendingOperations--;
         }
 
         void busServiceModel_RoutesForLocation_Completed(object sender, EventArgs.RoutesForLocationEventArgs e)
@@ -136,6 +141,8 @@ namespace OneBusAway.WP7.ViewModel
                     count++;
                 }
             }
+
+            pendingOperations--;
         }
 
         void appDataModel_Favorites_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
@@ -166,7 +173,7 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
-        public void RegisterEventHandlers()
+        public override void RegisterEventHandlers()
         {
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
@@ -175,20 +182,17 @@ namespace OneBusAway.WP7.ViewModel
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
         }
 
-        public void UnregisterEventHandlers()
+        public override void UnregisterEventHandlers()
         {
             this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
+
+            // Reset loading to 0 since event handlers have been unregistered
+            pendingOperations = 0;
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

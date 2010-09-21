@@ -56,7 +56,6 @@ namespace OneBusAway.WP7.View
 
             viewModel.RegisterEventHandlers();
 
-
             appbar_allroutes = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
@@ -65,8 +64,6 @@ namespace OneBusAway.WP7.View
             DetailsMap.Children.Clear();
             DetailsMap.Center = MainPage.CurrentLocation;
             DetailsMap.ZoomLevel = 15;
-
-            
 
             if (ViewState.CurrentRouteDirection != null)
             {

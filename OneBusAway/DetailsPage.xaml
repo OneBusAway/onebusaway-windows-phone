@@ -99,7 +99,17 @@
         <Grid Grid.Row="2" x:Name="StopGrid">
             <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
         </Grid>
-        <ProgressBar Visibility="{Binding Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"  IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
+
+        <ProgressBar 
+            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            IsIndeterminate="True" 
+            Height="4" 
+            HorizontalAlignment="Left" 
+            Name="ProgressBar" 
+            VerticalAlignment="Top" 
+            Width="480" 
+            />
+        
     </Grid>
 
     <navigation:PhoneApplicationPage.ApplicationBar>

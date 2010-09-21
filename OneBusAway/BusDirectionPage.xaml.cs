@@ -28,10 +28,7 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 
-            ProgressBar.Visibility = Visibility.Visible;
             informationLoaded = false;
-
-            viewModel.RouteDirections.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -47,6 +44,13 @@ namespace OneBusAway.WP7.View
                 viewModel.LoadRouteDirections(ViewState.CurrentRoute);
                 informationLoaded = true;
             }
+            else
+            {
+                // If the information was already loaded clear the selection
+                // This way if they navigated back to this page one entry
+                // won't already be selected
+                BusDirectionListBox.SelectedIndex = -1;
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -54,14 +58,6 @@ namespace OneBusAway.WP7.View
             base.OnNavigatedFrom(e);
 
             viewModel.UnregisterEventHandlers();
-        }
-
-        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                ProgressBar.Visibility = Visibility.Collapsed;
-            }
         }
 
         private void BusDirectionListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

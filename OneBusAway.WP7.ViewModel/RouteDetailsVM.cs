@@ -11,7 +11,7 @@ using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class RouteDetailsVM : IViewModel
+    public class RouteDetailsVM : AViewModel
     {
 
         #region Private Variables
@@ -19,21 +19,6 @@ namespace OneBusAway.WP7.ViewModel
         private IBusServiceModel busServiceModel;
         private IAppDataModel appDataModel;
         private ArrivalsForStopHandler arrivalsForStopHandler;
-        private int _loadingCount;
-        private bool _loading;
-        public int loadingCount
-        {
-            get
-            {
-                return _loadingCount;
-            }
-            set
-            {
-                _loadingCount = value;
-                Loading = loadingCount != 0;
-            }
-        } 
-
 
         #endregion
 
@@ -74,17 +59,6 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<RouteStops> StopsForRoute { get; private set; }
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
         public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }
-        public bool Loading { 
-            get { return loadingCount != 0; }
-            set        
-            {
-                if (_loading == value)
-                    return;
-
-                _loading = value;
-                OnPropertyChanged("Loading");        
-            }
-        } 
  
         #endregion
 
@@ -92,12 +66,13 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadStopsForRoute(Route route)
         {
-            ++loadingCount;
+            pendingOperations++;
             busServiceModel.StopsForRoute(route);
         }
 
         public void LoadArrivalsForStop(Stop stop)
         {
+            pendingOperations++;
             LoadArrivalsForStop(stop, null);
         }
 
@@ -105,7 +80,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             arrivalsForStopHandler.routeFilter = routeFilter;
 
-            ++loadingCount;
+            pendingOperations++;
             busServiceModel.ArrivalsForStop(stop);
         }
 
@@ -116,8 +91,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
         {
-            ++loadingCount;
-            arrivals.ForEach(arrival => busServiceModel.TripDetailsForArrivals(arrivals));
+            pendingOperations++;
+            busServiceModel.TripDetailsForArrivals(arrivals);
         }
 
         public void AddFavorite(FavoriteRouteAndStop favorite)
@@ -146,8 +121,6 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
-            
-
             Debug.Assert(e.error == null);
 
             if (e.error == null)
@@ -155,14 +128,14 @@ namespace OneBusAway.WP7.ViewModel
                 StopsForRoute.Clear();
                 e.routeStops.ForEach(routeStop => StopsForRoute.Add(routeStop));
             }
+
+            pendingOperations--;
         }
 
 
         void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
         {
-            --loadingCount;
-
-            Debug.Assert(e.error == null);
+            pendingOperations--;
         }
 
         private class ArrivalsForStopHandler
@@ -181,7 +154,6 @@ namespace OneBusAway.WP7.ViewModel
 
             public void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
             {
-
                 Debug.Assert(e.error == null);
 
                 if (e.error == null)
@@ -216,8 +188,6 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
         {
-            --loadingCount;
-
             Debug.Assert(e.error == null);
 
             if (e.error == null)
@@ -225,11 +195,13 @@ namespace OneBusAway.WP7.ViewModel
                 TripDetailsForArrivals.Clear();
                 e.tripDetails.ForEach(tripDetail => TripDetailsForArrivals.Add(tripDetail));
             }
+
+            pendingOperations--;
         }
 
         #endregion
 
-        public void RegisterEventHandlers()
+        public override void RegisterEventHandlers()
         {
             this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
@@ -237,25 +209,17 @@ namespace OneBusAway.WP7.ViewModel
             arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
-
         }
 
-
-        public void UnregisterEventHandlers()
+        public override void UnregisterEventHandlers()
         {
             this.busServiceModel.TripDetailsForArrival_Completed -= new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
             this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
             arrivalsForStopHandler = null;
-        }
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            pendingOperations = 0;
         }
     }
 }
