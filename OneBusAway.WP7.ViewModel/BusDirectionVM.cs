@@ -16,7 +16,7 @@ using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class BusDirectionVM : IViewModel
+    public class BusDirectionVM : AViewModel
     {
         private IBusServiceModel busServiceModel;
 
@@ -41,6 +41,7 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadRouteDirections(Route route)
         {
             RouteDirections.Clear();
+            pendingOperations++;
             busServiceModel.StopsForRoute(route);
             CurrentRoute = route;
         }
@@ -53,23 +54,20 @@ namespace OneBusAway.WP7.ViewModel
             {
                 e.routeStops.ForEach(routeStop => RouteDirections.Add(routeStop));
             }
+
+            pendingOperations--;
         }
 
-        public void RegisterEventHandlers()
+        public override void RegisterEventHandlers()
         {
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
 
-        public void UnregisterEventHandlers()
+        public override void UnregisterEventHandlers()
         {
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            pendingOperations = 0;
         }
     }
 }

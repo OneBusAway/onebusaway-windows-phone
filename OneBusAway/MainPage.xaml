@@ -23,6 +23,7 @@
         <view:DistanceConverter x:Key="DistanceConverter"></view:DistanceConverter>
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
         <view:StopDirectionConverter x:Key="StopDirectionConverter"></view:StopDirectionConverter>
+        <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
@@ -163,7 +164,16 @@
                     />
             </pivot:PivotItem>
         </pivot:Pivot>
-        <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
+        
+        <ProgressBar 
+            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            IsIndeterminate="True" 
+            Height="4" 
+            HorizontalAlignment="Left" 
+            Name="ProgressBar" 
+            VerticalAlignment="Top" 
+            Width="480" 
+            />
 
     </Grid>
 
