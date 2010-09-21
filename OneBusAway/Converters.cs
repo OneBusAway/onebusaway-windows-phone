@@ -175,8 +175,15 @@ namespace OneBusAway.WP7.View
             object parameter,
             System.Globalization.CultureInfo culture)
         {
-            bool visibility = (bool)value;
-            return visibility ? Visibility.Visible : Visibility.Collapsed;
+            if (value is bool)
+            {
+                bool visibility = (bool)value;
+                return visibility ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public object ConvertBack(
@@ -185,8 +192,62 @@ namespace OneBusAway.WP7.View
             object parameter,
             System.Globalization.CultureInfo culture)
         {
-            Visibility visibility = (Visibility)value;
-            return (visibility == Visibility.Visible);
+            if (value is Visibility)
+            {
+                Visibility visibility = (Visibility)value;
+                return (visibility == Visibility.Visible);
+            }
+            else
+            {
+                return null;
+            }
         }
-    }  
+    }
+
+    public class DelayColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is ArrivalAndDeparture)
+            {
+                ArrivalAndDeparture arrival = (ArrivalAndDeparture)value;
+
+                if (arrival.predictedArrivalTime == null)
+                {
+                    // There is no predicted arrival time
+                    return new SolidColorBrush(Colors.Gray);
+                }
+
+                TimeSpan delay = arrival.scheduledArrivalTime - (DateTime)arrival.predictedArrivalTime;
+
+                // Intentionally use Minutes instead of TotalMinutes so that we round
+                // to the nearest minute
+                if (delay.Minutes < 0)
+                {
+                    // Bus is running late
+                    return new SolidColorBrush(Colors.Red);
+                }
+                else if (delay.Minutes == 0)
+                {
+                    // Bus is on time
+                    return new SolidColorBrush(Colors.Green);
+                }
+                else
+                {
+                    // Bus is running early
+                    return new SolidColorBrush(Colors.Blue);
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+
+    }
 }

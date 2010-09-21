@@ -17,9 +17,10 @@
         <m:ApplicationIdCredentialsProvider ApplicationId="ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm" x:Key="MyCredentials" />
         <data:RouteDetailsVM x:Key="ViewModel" />
 
-        <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter"></view:DateTimeDeltaConverter>
-        <view:DateTimeConverter x:Key="DateTimeConverter"></view:DateTimeConverter>
+        <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />
+        <view:DateTimeConverter x:Key="DateTimeConverter" />
         <view:VisibilityConverter x:Key="VisibilityConverter" />
+        <view:DelayColorConverter x:Key="DelayColorConverter" />
 
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
@@ -29,22 +30,6 @@
         <Style x:Key="PhoneTextPageTitle2Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextTitle1Style}">
             <Setter Property="Margin" Value="20,43,0,0" />
         </Style>
-
-        <DataTemplate x:Key="ArrivalTemplate">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <Canvas Width="44" Height="62" Margin="3" >
-                    <Polygon Grid.Row="1" Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
-                    <TextBlock Text="{Binding routeShortName}" Margin="5" Foreground="{StaticResource PhoneBackgroundBrush}" />
-                </Canvas>
-                <StackPanel Orientation="Vertical" Width="300">
-                    <TextBlock Text="{Binding tripHeadsign}" />
-                    <TextBlock Foreground="{StaticResource PhoneSubtleBrush}" 
-                               FontSize="{StaticResource PhoneFontSizeSmall}" 
-                               Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" />
-                </StackPanel>
-                <TextBlock Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=predictedArrivalTime, Converter={StaticResource DateTimeDeltaConverter}}" />
-            </StackPanel>
-        </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
             <Grid Margin="5">
@@ -59,10 +44,37 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding routeShortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding tripHeadsign}" />
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" />
-                <TextBlock Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource PhoneTextLargeStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" />
+                <TextBlock 
+                    Grid.Column="0" 
+                    Grid.Row="0" 
+                    Grid.RowSpan="2" 
+                    Text="{Binding routeShortName}" 
+                    FontSize="{StaticResource PhoneFontSizeLarge}" 
+                    Margin="5" 
+                    />
+                <TextBlock 
+                    Grid.Column="1" 
+                    Grid.ColumnSpan="2" 
+                    Grid.Row="0" 
+                    Text="{Binding tripHeadsign}" 
+                    />
+                <TextBlock 
+                    Grid.Column="1" 
+                    Grid.Row="1" 
+                    Foreground="{StaticResource PhoneSubtleBrush}" 
+                    FontSize="{StaticResource PhoneFontSizeSmall}" 
+                    Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" 
+                    />
+                <TextBlock 
+                    Grid.Column="2" 
+                    Grid.Row="0" 
+                    Grid.RowSpan="2" 
+                    Style="{StaticResource PhoneTextLargeStyle}" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" 
+                    Foreground="{Binding Converter={StaticResource DelayColorConverter}}"
+                    />
 
             </Grid>
         </DataTemplate>
