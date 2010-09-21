@@ -14,18 +14,28 @@ using OneBusAway.WP7.ViewModel.EventArgs;
 
 namespace OneBusAway.WP7.ViewModel
 {
+    public enum FavoriteType
+    {
+        Favorite,
+        Recent
+    };
+
     public interface IAppDataModel
     {
+
         event EventHandler<FavoritesChangedEventArgs> Favorites_Changed;
 
-        void AddFavorite(FavoriteRouteAndStop favorite);
+        event EventHandler<FavoritesChangedEventArgs> Recents_Changed;
 
-        List<FavoriteRouteAndStop> GetFavorites();
+        void AddFavorite(FavoriteRouteAndStop favorite, FavoriteType type);
 
-        void DeleteFavorite(FavoriteRouteAndStop favorite);
+        List<FavoriteRouteAndStop> GetFavorites(FavoriteType type);
 
-        void DeleteAllFavorites();
+        void DeleteFavorite(FavoriteRouteAndStop favorite, FavoriteType type);
 
-        bool IsFavorite(FavoriteRouteAndStop favorite);
+        void DeleteAllFavorites(FavoriteType type);
+
+        bool IsFavorite(FavoriteRouteAndStop favorite, FavoriteType type);
+
     }
 }

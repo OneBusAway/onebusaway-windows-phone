@@ -146,6 +146,14 @@
                     SelectionChanged="StopsListBox_SelectionChanged"
                     />
             </pivot:PivotItem>
+            <pivot:PivotItem Header="recent">
+                <ListBox 
+                    x:Name="RecentsListBox" 
+                    ItemsSource="{Binding Path=Recents, Source={StaticResource ViewModel}}" 
+                    ItemTemplate="{StaticResource FavTemplate}" 
+                    SelectionChanged="RecentsListBox_SelectionChanged" 
+                    />
+            </pivot:PivotItem>
             <pivot:PivotItem Header="favorites">
                 <ListBox 
                     x:Name="FavoritesListBox" 
@@ -154,11 +162,6 @@
                     SelectionChanged="FavoritesListBox_SelectionChanged" 
                     />
             </pivot:PivotItem>
-            <!--
-            <pivot:PivotItem Header="recent">
-
-            </pivot:PivotItem>
-            -->
         </pivot:Pivot>
         <ProgressBar Visibility="Collapsed" IsIndeterminate="True" Height="4" HorizontalAlignment="Left" Name="ProgressBar" VerticalAlignment="Top" Width="480" />
 

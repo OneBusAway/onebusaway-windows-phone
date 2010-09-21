@@ -48,6 +48,7 @@ namespace OneBusAway.WP7.ViewModel
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
+            Recents = new ObservableCollection<FavoriteRouteAndStop>();
         }
 
         #endregion
@@ -57,6 +58,7 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
         public ObservableCollection<Route> RoutesForLocation { get; private set; }
         public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
+        public ObservableCollection<FavoriteRouteAndStop> Recents { get; private set; }
         public bool Loading { get; set; }  
 
         #endregion
@@ -76,9 +78,14 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadFavorites(GeoCoordinate location)
         {
             Favorites.Clear();
-            List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites();
+            List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites(FavoriteType.Favorite);
             favorites.Sort(new FavoriteDistanceComparer(location));
             favorites.ForEach(favorite => Favorites.Add(favorite));
+
+            Recents.Clear();
+            List<FavoriteRouteAndStop> recents = appDataModel.GetFavorites(FavoriteType.Recent);
+            recents.Sort(new RecentLastAccessComparer());
+            recents.ForEach(recent => Recents.Add(recent));
         }
 
         #endregion
@@ -144,6 +151,19 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        void appDataModel_Recent_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
+        {
+            Debug.Assert(e.error == null);
+
+            if (e.error == null)
+            {
+                // Can't sort here right now because we don't have access to the current location
+                //e.newFavorites.Sort(new FavoriteDistanceComparer());
+                Recents.Clear();
+                e.newFavorites.ForEach(recent => Recents.Add(recent));
+            }
+        }
+
         #endregion
 
         public void RegisterEventHandlers()
@@ -152,6 +172,7 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+            this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
         }
 
         public void UnregisterEventHandlers()
@@ -160,6 +181,7 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+            this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

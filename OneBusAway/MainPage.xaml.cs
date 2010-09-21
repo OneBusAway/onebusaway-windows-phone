@@ -73,6 +73,7 @@ namespace OneBusAway.WP7.View
             viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
             viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
             viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel.Recents.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
@@ -159,6 +160,11 @@ namespace OneBusAway.WP7.View
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }
+        }
+
+        private void RecentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FavoritesListBox_SelectionChanged(sender, e);
         }
 
         private void StopsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
