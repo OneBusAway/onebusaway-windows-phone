@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="AppDataModel.cs" />
     <Compile Include="BusServiceModel.cs" />
+    <Compile Include="HttpCache.cs" />
     <Compile Include="OneBusAwayWebservice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

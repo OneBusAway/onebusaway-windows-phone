@@ -38,7 +38,7 @@ namespace OneBusAway.WP7.Model
 
         private OneBusAwayWebservice()
         {
-
+            
         }
 
         #endregion
@@ -147,9 +147,9 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, callback).DirectionsForRoute_Completed);
-            client.DownloadStringAsync(new Uri(requestUrl));
+            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds);
+            directionCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, callback).DirectionsForRoute_Completed);
+            directionCache.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetDirectionsForRouteCompleted
@@ -163,7 +163,7 @@ namespace OneBusAway.WP7.Model
                 this.requestUrl = requestUrl;
             }
 
-            public void DirectionsForRoute_Completed(object sender, DownloadStringCompletedEventArgs e)
+            public void DirectionsForRoute_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
             {
                 Exception error = e.Error;
                 List<RouteStops> routeStops = null;
