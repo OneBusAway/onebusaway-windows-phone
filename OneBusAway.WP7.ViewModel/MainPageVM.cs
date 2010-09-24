@@ -154,18 +154,17 @@ namespace OneBusAway.WP7.ViewModel
                 // Can't sort here right now because we don't have access to the current location
                 //e.newFavorites.Sort(new FavoriteDistanceComparer());
                 Favorites.Clear();
+                e.newFavorites.Sort(new RecentLastAccessComparer());
                 e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
             }
         }
 
-        void appDataModel_Recent_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
+        void appDataModel_Recents_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
         {
             Debug.Assert(e.error == null);
 
             if (e.error == null)
             {
-                // Can't sort here right now because we don't have access to the current location
-                //e.newFavorites.Sort(new FavoriteDistanceComparer());
                 Recents.Clear();
                 e.newFavorites.ForEach(recent => Recents.Add(recent));
             }
@@ -179,7 +178,7 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
-            this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
+            this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
         }
 
         public override void UnregisterEventHandlers()
@@ -188,7 +187,7 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
-            this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recent_Changed);
+            this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
 
             // Reset loading to 0 since event handlers have been unregistered
             pendingOperations = 0;
