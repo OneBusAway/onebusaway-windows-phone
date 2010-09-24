@@ -73,6 +73,13 @@ namespace OneBusAway.WP7.Model
                     favorites[type].Remove(favorite);
                 }
 
+                // Remove the oldest favorite if 15 entires already exist
+                if (type == FavoriteType.Recent && favorites[type].Count >= 15)
+                {
+                    favorites[type].Sort(new RecentLastAccessComparer());
+                    favorites[type].RemoveAt(favorites[type].Count - 1);
+                }
+
                 favorites[type].Add(favorite);
                 WriteFavoritesToDisk(favorites[type], fileNames[type]);
             }
