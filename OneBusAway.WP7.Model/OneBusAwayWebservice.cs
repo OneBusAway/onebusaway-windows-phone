@@ -43,6 +43,93 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
+        public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
+        {
+            string requestUrl = string.Format(
+                "{0}/{1}.xml?key={2}&lat={3}&lon={4}&version={5}",
+                WEBSERVICE,
+                "routes-for-location",
+                KEY,
+                location.Latitude,
+                location.Longitude,
+                APIVERSION
+                );
+
+            if (radiusInMeters > 0)
+            {
+                requestUrl += string.Format("&radius={0}", radiusInMeters);
+            }
+
+            if (string.IsNullOrEmpty(query) == false)
+            {
+                requestUrl += string.Format("&query={0}", query);
+            }
+
+            if (maxCount > 0)
+            {
+                requestUrl += string.Format("&maxCount={0}", maxCount);
+            }
+
+            WebClient client = new WebClient();
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
+                new GetRoutesForLocationCompleted(requestUrl, callback).RoutesForLocation_Completed);
+            client.DownloadStringAsync(new Uri(requestUrl));
+        }
+
+        private class GetRoutesForLocationCompleted
+        {
+            private RoutesForLocation_Callback callback;
+            private string requestUrl;
+
+            public GetRoutesForLocationCompleted(string requestUrl, RoutesForLocation_Callback callback)
+            {
+                this.callback = callback;
+                this.requestUrl = requestUrl;
+            }
+
+            public void RoutesForLocation_Completed(object sender, DownloadStringCompletedEventArgs e)
+            {
+                Exception error = e.Error;
+                List<Route> routes = null;
+
+                try
+                {
+                    if (error == null)
+                    {
+                        XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
+
+                        routes =
+                            (from route in xmlDoc.Descendants("route")
+                             select new Route
+                             {
+                                 id = route.Element("id").Value,
+                                 description = route.Element("description").Value,
+                                 shortName = route.Element("shortName").Value,
+                                 url = route.Element("url").Value,
+
+                                 agency =
+                                 (from agency in xmlDoc.Descendants("agency")
+                                  where route.Element("agencyId").Value == agency.Element("id").Value
+                                  select new Agency
+                                  {
+                                      id = agency.Element("id").Value,
+                                      name = agency.Element("name").Value
+                                  }).First()
+
+                             }).ToList<Route>();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
+                }
+
+                Debug.Assert(error == null);
+
+                callback(routes, error);
+            }
+        }
+
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
         {
             string requestUrl = string.Format(

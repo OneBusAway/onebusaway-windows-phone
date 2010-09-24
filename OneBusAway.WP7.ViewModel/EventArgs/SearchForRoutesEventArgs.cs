@@ -6,15 +6,17 @@ using System.Device.Location;
 
 namespace OneBusAway.WP7.ViewModel.EventArgs
 {
-    public class RoutesForLocationEventArgs : AModelEventArgs
+    public class SearchForRoutesEventArgs : AModelEventArgs
     {
         public List<Route> routes { get; private set; }
         public GeoCoordinate location { get; private set; }
+        public string query { get; private set; }
 
-        public RoutesForLocationEventArgs(List<Route> routes, GeoCoordinate location, Exception error)
+        public SearchForRoutesEventArgs(List<Route> routes, GeoCoordinate location, string query, Exception error)
         {
             this.error = error;
             this.routes = routes;
+            this.query = query;
             this.location = location;
         }
     }

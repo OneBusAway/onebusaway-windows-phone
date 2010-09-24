@@ -9,6 +9,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
+using OneBusAway.WP7.ViewModel.EventArgs;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -91,9 +92,57 @@ namespace OneBusAway.WP7.ViewModel
             recents.ForEach(recent => Recents.Add(recent));
         }
 
+        public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
+        public void SearchByRoute(string routeNumber, GeoCoordinate location, SearchByRoute_Callback callback)
+        {
+            busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel).SearchByRoute_Completed;
+            busServiceModel.SearchForRoutes(location, routeNumber);
+        }
+
+        public override void RegisterEventHandlers()
+        {
+            this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
+            this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+
+            this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+            this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
+        }
+
+        public override void UnregisterEventHandlers()
+        {
+            this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
+            this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+
+            this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
+            this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
+
+            // Reset loading to 0 since event handlers have been unregistered
+            pendingOperations = 0;
+        }
+
         #endregion
 
         #region Event Handlers
+
+        private class SearchByRouteCompleted
+        {
+            private SearchByRoute_Callback callback;
+            private IBusServiceModel busServiceModel;
+
+            public SearchByRouteCompleted(SearchByRoute_Callback callback, IBusServiceModel busServiceModel)
+            {
+                this.callback = callback;
+                this.busServiceModel = busServiceModel;
+            }
+
+            public void SearchByRoute_Completed(object sender, SearchForRoutesEventArgs e)
+            {
+                callback(e.routes, e.error);
+
+                busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
+            }
+
+        }
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
         {
@@ -171,27 +220,6 @@ namespace OneBusAway.WP7.ViewModel
         }
 
         #endregion
-
-        public override void RegisterEventHandlers()
-        {
-            this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
-
-            this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
-            this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
-        }
-
-        public override void UnregisterEventHandlers()
-        {
-            this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
-
-            this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
-            this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
-
-            // Reset loading to 0 since event handlers have been unregistered
-            pendingOperations = 0;
-        }
 
     }
 }

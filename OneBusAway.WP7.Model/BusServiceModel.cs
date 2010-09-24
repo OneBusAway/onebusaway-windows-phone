@@ -32,6 +32,7 @@ namespace OneBusAway.WP7.Model
         public event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
         public event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
         public event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
+        public event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
 
         #endregion
 
@@ -112,7 +113,7 @@ namespace OneBusAway.WP7.Model
 
                     if (RoutesForLocation_Completed != null)
                     {
-                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(location, routes, error));
+                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(routes, location, error));
                     }
                 }
             );
@@ -204,8 +205,28 @@ namespace OneBusAway.WP7.Model
                     }
                 );
             }
+        }
 
+        public void SearchForRoutes(GeoCoordinate location, string query)
+        {
+            SearchForRoutes(location, query, -1, -1);
+        }
 
+        public void SearchForRoutes(GeoCoordinate location, string query, int radiusInMeters, int maxCount)
+        {
+            webservice.RoutesForLocation(
+                location,
+                query,
+                radiusInMeters,
+                maxCount,
+                delegate(List<Route> routes, Exception error)
+                {
+                    if (SearchForRoutes_Completed != null)
+                    {
+                        SearchForRoutes_Completed(this, new ViewModel.EventArgs.SearchForRoutesEventArgs(routes, location, query, error));
+                    }
+                }
+            );
         }
 
         #endregion
