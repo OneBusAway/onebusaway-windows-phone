@@ -11,6 +11,9 @@ using System.Windows.Shapes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Silverlight.Testing;
 using OneBusAway.WP7.ViewModel;
+using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Collections.Generic;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.Test
 {
@@ -32,6 +35,50 @@ namespace OneBusAway.WP7.Test
 
         }
 
+        [TestMethod]
+        [Asynchronous]
+        public void SearchByRoute()
+        {
+            Assert.Equals(viewModel.Loading, false);
+
+            viewModel.SearchByRoute(
+                "48",
+                fakeData.HOME,
+                delegate(List<Route> routes, Exception error)
+                {
+                    Assert.Equals(error, null);
+                    Assert.Equals(routes.Count, 1);
+                    Assert.Equals(viewModel.Loading, false);
+
+                    EnqueueTestComplete();
+                }
+            );
+
+            Assert.Equals(viewModel.Loading, true);
+        }
+
+        [TestMethod]
+        [Asynchronous]
+        public void SearchByRoute_NoResult()
+        {
+            Assert.Equals(viewModel.Loading, false);
+
+            viewModel.SearchByRoute(
+                "BusDoesNotExist",
+                fakeData.HOME,
+                delegate(List<Route> routes, Exception error)
+                {
+                    Assert.Equals(error, null);
+                    Assert.Equals(routes.Count, 0);
+                    Assert.Equals(viewModel.Loading, false);
+
+                    EnqueueTestComplete();
+                }
+            );
+
+            Assert.Equals(viewModel.Loading, true);
+        }
+
         private class Callback
         {
             public bool finished { get; private set; }
@@ -46,11 +93,11 @@ namespace OneBusAway.WP7.Test
                 finished = false;
             }
 
-            //public void callback_Completed(object sender, AModelEventArgs e)
-            //{
-            //    Assert.AreEqual(e.error, null);
-            //    finished = true;
-            //}
+            public void callback_Completed(object sender, AModelEventArgs e)
+            {
+                Assert.AreEqual(e.error, null);
+                finished = true;
+            }
         }
 
     }

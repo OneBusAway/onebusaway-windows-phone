@@ -95,7 +95,9 @@ namespace OneBusAway.WP7.ViewModel
         public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
         public void SearchByRoute(string routeNumber, GeoCoordinate location, SearchByRoute_Callback callback)
         {
-            busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel).SearchByRoute_Completed;
+            pendingOperations++;
+
+            busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
             busServiceModel.SearchForRoutes(location, routeNumber);
         }
 
@@ -128,11 +130,13 @@ namespace OneBusAway.WP7.ViewModel
         {
             private SearchByRoute_Callback callback;
             private IBusServiceModel busServiceModel;
+            private MainPageVM viewModel;
 
-            public SearchByRouteCompleted(SearchByRoute_Callback callback, IBusServiceModel busServiceModel)
+            public SearchByRouteCompleted(SearchByRoute_Callback callback, IBusServiceModel busServiceModel, MainPageVM viewModel)
             {
                 this.callback = callback;
                 this.busServiceModel = busServiceModel;
+                this.viewModel = viewModel;
             }
 
             public void SearchByRoute_Completed(object sender, SearchForRoutesEventArgs e)
@@ -140,6 +144,7 @@ namespace OneBusAway.WP7.ViewModel
                 callback(e.routes, e.error);
 
                 busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
+                viewModel.pendingOperations--;
             }
 
         }
