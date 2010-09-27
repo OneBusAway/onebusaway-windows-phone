@@ -21,7 +21,6 @@ namespace OneBusAway.WP7.ViewModel
         private IBusServiceModel busServiceModel;
 
         public ObservableCollection<RouteStops> RouteDirections { get; private set; }
-        public Route CurrentRoute { get; private set; }
 
         public BusDirectionVM()
             : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
@@ -43,7 +42,6 @@ namespace OneBusAway.WP7.ViewModel
             RouteDirections.Clear();
             pendingOperations++;
             busServiceModel.StopsForRoute(route);
-            CurrentRoute = route;
         }
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)

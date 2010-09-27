@@ -57,6 +57,14 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Members
 
+        public ViewState CurrentViewState
+        {
+            get
+            {
+                return ViewState.Instance;
+            }
+        }
+
         public bool Loading
         {
             get

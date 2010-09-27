@@ -11,14 +11,17 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Shell;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Runtime.Serialization;
+using OneBusAway.WP7.ViewModel;
 using System.IO;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace OneBusAway.WP7.View
 {
     public partial class App : Application
     {
+        private ViewState viewState = ViewState.Instance;
+
         public App()
         {
             UnhandledException += new EventHandler<ApplicationUnhandledExceptionEventArgs>(Application_UnhandledException);
@@ -34,9 +37,9 @@ namespace OneBusAway.WP7.View
 
         void Current_Activated(object sender, ActivatedEventArgs e)
         {
-            ViewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
-            ViewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
-            ViewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
+            viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
+            viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
+            viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
         }
 
         private object GetStateHelper(string key, Type type)
@@ -53,9 +56,9 @@ namespace OneBusAway.WP7.View
 
         void Current_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(ViewState.CurrentRoute);
-            PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(ViewState.CurrentRouteDirection);
-            PhoneApplicationService.Current.State["CurrentStop"] = Serialize(ViewState.CurrentStop);
+            PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(viewState.CurrentRoute);
+            PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
+            PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
         }
 
         private string Serialize(Object obj)
