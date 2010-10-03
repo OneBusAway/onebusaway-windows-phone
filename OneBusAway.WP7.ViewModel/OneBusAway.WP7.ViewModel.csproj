@@ -64,6 +64,7 @@
     <Compile Include="EventArgs\ABusServiceEventArgs.cs" />
     <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
     <Compile Include="EventArgs\FavoritesChangedEventArgs.cs" />
+    <Compile Include="EventArgs\LocationForAddressEventArgs.cs" />
     <Compile Include="EventArgs\ScheduleForStopEventArgs.cs" />
     <Compile Include="EventArgs\SearchForRoutesEventArgs.cs" />
     <Compile Include="EventArgs\StopsForRouteEventArgs.cs" />

@@ -98,13 +98,26 @@ namespace OneBusAway.WP7.ViewModel
             pendingOperations++;
 
             busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
+
             busServiceModel.SearchForRoutes(location, routeNumber);
+        }
+
+        public delegate void SearchByAddress_Callback(GeoCoordinate routes, Exception error);
+        public void SearchByAddress(string addressString, SearchByAddress_Callback callback)
+        {
+            pendingOperations++;
+            busServiceModel.LocationForAddress(addressString);
+
+
+            //
         }
 
         public override void RegisterEventHandlers()
         {
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+            this.busServiceModel.LocationForAddress_Completed += new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -114,6 +127,8 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+            this.busServiceModel.LocationForAddress_Completed -= new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -141,12 +156,31 @@ namespace OneBusAway.WP7.ViewModel
 
             public void SearchByRoute_Completed(object sender, SearchForRoutesEventArgs e)
             {
-                callback(e.routes, e.error);
+                Debug.Assert(e.error == null);
 
+                if (e.error == null)
+                {
+                    e.routes.Sort(new RouteDistanceComparer(e.location));
+                    viewModel.RoutesForLocation.Clear();
+
+                    int count = 0;
+                    foreach (Route route in e.routes)
+                    {
+                        if (count > viewModel.maxRoutes)
+                        {
+                            break;
+                        }
+
+                        viewModel.RoutesForLocation.Add(route);
+                        count++;
+                    }
+                }
+                
+                callback(e.routes, e.error);
                 busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
+                
                 viewModel.pendingOperations--;
             }
-
         }
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
@@ -194,6 +228,18 @@ namespace OneBusAway.WP7.ViewModel
                     RoutesForLocation.Add(route);
                     count++;
                 }
+            }
+
+            pendingOperations--;
+        }
+
+        void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
+        {
+            Debug.Assert(e.error == null);
+
+            if (e.error == null)
+            {
+                LoadInfoForLocation(e.location, 100);
             }
 
             pendingOperations--;

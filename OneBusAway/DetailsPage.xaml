@@ -14,7 +14,7 @@
     mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480">
 
     <navigation:PhoneApplicationPage.Resources>
-        <m:ApplicationIdCredentialsProvider ApplicationId="ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm" x:Key="MyCredentials" />
+        
         <data:RouteDetailsVM x:Key="ViewModel" />
 
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />
@@ -104,7 +104,7 @@
         </Grid>
 
         <Grid Grid.Row="1" x:Name="ContentGrid">
-            <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MyCredentials}"
+            <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
                    Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" >
             </m:Map>
         </Grid>
@@ -120,6 +120,7 @@
             Name="ProgressBar" 
             VerticalAlignment="Top" 
             Width="480" 
+            Style="{StaticResource PerformanceProgressBar}"
             />
         
     </Grid>

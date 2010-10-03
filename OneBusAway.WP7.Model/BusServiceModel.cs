@@ -33,6 +33,8 @@ namespace OneBusAway.WP7.Model
         public event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
         public event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
         public event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
+        public event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
+
 
         #endregion
 
@@ -227,6 +229,80 @@ namespace OneBusAway.WP7.Model
                     }
                 }
             );
+        }
+
+        public void LocationForAddress(string query)
+        {
+            string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations/US/WA/-";
+            //http://dev.virtualearth.net/REST/v1/Locations/US/WA/Redmond/1%20Microsoft%20Way?output=xml&key=ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm
+            string requestUrl = string.Format(
+                "{0}/{1}?output=xml&key={2}",
+                bingMapAPIURL,
+                query,
+                "ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm"
+            );
+
+            WebClient client = new WebClient();
+            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
+                new GetLocationForAddressCompleted(requestUrl,
+                        delegate(GeoCoordinate location, Exception error)
+                        {
+                            if (error == null)
+                            {
+                                if (LocationForAddress_Completed != null)
+                                {
+                                    LocationForAddress_Completed(this, new ViewModel.EventArgs.LocationForAddressEventArgs(location, query, error));
+                                }
+                            }
+                        }
+                    ).LocationForAddress_Completed);
+            client.DownloadStringAsync(new Uri(requestUrl));
+        }
+
+        public delegate void LocationForAddress_Callback(GeoCoordinate location, Exception error);
+        private class GetLocationForAddressCompleted
+        {
+            private LocationForAddress_Callback callback;
+            private string requestUrl;
+
+            public GetLocationForAddressCompleted(string requestUrl, LocationForAddress_Callback callback)
+            {
+                this.callback = callback;
+                this.requestUrl = requestUrl;
+            }
+
+            public void LocationForAddress_Completed(object sender, DownloadStringCompletedEventArgs e)
+            {
+                Exception error = e.Error;
+                GeoCoordinate loc = null;
+
+                try
+                {
+                    if (error == null)
+                    {
+                        XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
+
+                        XNamespace ns = "http://schemas.microsoft.com/search/local/ws/rest/v1";
+
+
+                        loc = (from location in xmlDoc.Descendants(ns + "Point")
+                               select new GeoCoordinate
+                               {
+                                   Latitude = Convert.ToDouble(location.Element(ns + "Latitude").Value),
+                                   Longitude = Convert.ToDouble(location.Element(ns + "Longitude").Value)
+                               }).First();
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
+                }
+
+                Debug.Assert(error == null);
+
+                callback(loc, error);
+            }
         }
 
         #endregion
