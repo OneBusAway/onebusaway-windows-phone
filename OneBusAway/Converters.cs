@@ -47,8 +47,15 @@ namespace OneBusAway.WP7.View
                 stop = ((Route)value).closestStop;
             }
 
-            double distance = stop.CalculateDistanceInMiles(MainPage.CurrentLocation);
-            return string.Format("Distance: {0:0.00} mi", distance);
+            if (stop != null)
+            {
+                double distance = stop.CalculateDistanceInMiles(MainPage.CurrentLocation);
+                return string.Format("Distance: {0:0.00} mi", distance);
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

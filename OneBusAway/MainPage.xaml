@@ -9,6 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"   
     xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
+    xmlns:local="clr-namespace:OneBusAway.WP7.View"
+    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"    
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -16,7 +18,12 @@
 
     <phoneNavigation:PhoneApplicationPage.Resources>
         <data:MainPageVM x:Key="ViewModel" />
-        
+
+        <DataTemplate x:Key="PushpinTemplate">
+            <m:Pushpin PositionOrigin="{Binding location}" />
+        </DataTemplate>
+
+
         <!--<viewModel:RouteDirectionsMV x:Key="RouteStopsList" />-->
 
         <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
@@ -127,10 +134,15 @@
             </Grid>
         </DataTemplate>
 
+        <Storyboard x:Name="SearchStoryboard">
+            <DoubleAnimation Duration="0:0:0.2" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0:0:0.2" To="0.9" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
+        </Storyboard>
+
     </phoneNavigation:PhoneApplicationPage.Resources>
 
-    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
-        <pivot:Pivot Name="PC" SelectionChanged="PC_SelectionChanged" >
+    <Grid x:Name="LayoutRoot" Background="Transparent">
+        <pivot:Pivot Title="ONE BUS AWAY"  Name="PC" SelectionChanged="PC_SelectionChanged" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
@@ -140,12 +152,33 @@
                     />
             </pivot:PivotItem>
             <pivot:PivotItem Header="stops">
-                <ListBox 
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
+                    <m:Map  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
+                   Center="47.676526822627963, -122.3183012008667" ZoomLevel="10"  >
+                        <m:MapItemsControl ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+                            <m:MapItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <m:Pushpin Location="{Binding location}" >
+                                        <Image Source="/Bus_Icon.png" Width="20" Height="20" />
+                                    </m:Pushpin>
+                                </DataTemplate>
+                            </m:MapItemsControl.ItemTemplate>
+                        </m:MapItemsControl>
+
+                    </m:Map>
+                    <ListBox Grid.Row="1"
                     x:Name="StopsListBox" 
                     ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" 
                     ItemTemplate="{StaticResource StopTemplate}" 
                     SelectionChanged="StopsListBox_SelectionChanged"
                     />
+                </Grid>
+                
             </pivot:PivotItem>
             <pivot:PivotItem Header="recent">
                 <ListBox 
@@ -164,8 +197,20 @@
                     />
             </pivot:PivotItem>
         </pivot:Pivot>
-        
-        <ProgressBar 
+        <StackPanel x:Name="SearchPanel" Opacity="0" Background="{StaticResource PhoneBackgroundBrush}" Height="80" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+            <StackPanel.RenderTransform>
+                <CompositeTransform TranslateY="-75"/>
+            </StackPanel.RenderTransform>
+            <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" />
+            <TextBlock 
+				Text="By address (ex. '3rd and pike') or route number (ex. '44' or '71')"  
+				Foreground="{StaticResource PhoneSubtleBrush}" FontSize="16" HorizontalAlignment="Center">
+				<TextBlock.RenderTransform>
+				<CompositeTransform TranslateY="-14"/>
+			</TextBlock.RenderTransform>
+            </TextBlock>
+        </StackPanel>
+              <ProgressBar 
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             IsIndeterminate="True" 
             Height="4" 
@@ -173,13 +218,15 @@
             Name="ProgressBar" 
             VerticalAlignment="Top" 
             Width="480" 
+            Style="{StaticResource PerformanceProgressBar}"
             />
 
     </Grid>
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+        <shell:ApplicationBar IsVisible="False" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
+            <shell:ApplicationBarIconButton x:Name="appbar_search" IconUri="/Images/appbar.feature.search.rest.png" Text="Search" Click="appbar_search_Click"></shell:ApplicationBarIconButton>
         </shell:ApplicationBar>
     </phoneNavigation:PhoneApplicationPage.ApplicationBar>
 </phoneNavigation:PhoneApplicationPage>

@@ -66,6 +66,7 @@
             Name="ProgressBar" 
             VerticalAlignment="Top" 
             Width="480" 
+            Style="{StaticResource PerformanceProgressBar}"
             />
 
     </Grid>

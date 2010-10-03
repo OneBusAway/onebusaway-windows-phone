@@ -32,5 +32,8 @@ namespace OneBusAway.WP7.ViewModel
         event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
         void SearchForRoutes(GeoCoordinate location, string query);
         void SearchForRoutes(GeoCoordinate location, string query, int radiusInMeters, int maxCount);
+
+        event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
+        void LocationForAddress(string addressString);
     }
 }

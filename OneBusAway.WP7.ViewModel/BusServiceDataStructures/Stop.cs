@@ -39,6 +39,7 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             double c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
             double d = R * c;
 
+
             return d;
         }
 

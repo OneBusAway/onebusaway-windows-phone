@@ -9,8 +9,8 @@
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     d:DesignHeight="64" d:DesignWidth="44">
-    
-    <m:Pushpin>
+
+    <m:Pushpin x:Name="Pushpin">
         <Canvas x:Name="BusIcon">
             <Canvas.RenderTransform>
                 <TransformGroup>

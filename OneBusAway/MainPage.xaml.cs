@@ -17,6 +17,10 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using Microsoft.Phone.Shell;
+using System.Windows.Controls.Primitives;
+using System.Threading;
+using System.ComponentModel;
+using Microsoft.Phone.Controls.Maps;
 
 namespace OneBusAway.WP7.View
 {
@@ -27,6 +31,7 @@ namespace OneBusAway.WP7.View
         private MainPageVM viewModel;
         private bool informationLoaded;
         private int selectedPivotIndex = 0;
+        private Popup popup;
 
         public static GeoCoordinate CurrentLocation
         {
@@ -63,6 +68,8 @@ namespace OneBusAway.WP7.View
         public MainPage()
         {
             InitializeComponent();
+            ShowLoadingSplash();
+
 
             viewModel = Resources["ViewModel"] as MainPageVM;
             informationLoaded = false;
@@ -73,6 +80,26 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
+        }
+
+        private void ShowLoadingSplash() 
+        { 
+            this.popup = new Popup(); 
+            this.popup.Child = new PopupSplash(); 
+            this.popup.IsOpen = true;
+
+            Timer timer = new Timer(HideLoadingSplash, null, 500, Timeout.Infinite);
+        }
+
+        private void HideLoadingSplash(Object stateInfo)
+        {
+            this.Dispatcher.BeginInvoke(() => { HideLoadingSplash(); });
+        }
+
+        private void HideLoadingSplash()
+        {
+            this.popup.IsOpen = false;
+            ApplicationBar.IsVisible = true;
         }
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
@@ -108,6 +135,8 @@ namespace OneBusAway.WP7.View
             {
                 selectedPivotIndex = 0;
             }
+
+            ZoomMap();
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -167,6 +196,65 @@ namespace OneBusAway.WP7.View
         {
             Pivot pivot = sender as Pivot;
             PhoneApplicationService.Current.State["MainPageSelectedPivot"] = pivot.SelectedIndex.ToString();
+        }
+
+        private void appbar_search_Click(object sender, EventArgs e)
+        {
+            if (SearchPanel.Opacity == 0)
+            {
+                SearchStoryboard.Begin();
+                SearchInputBox.Focus();
+            }
+            else
+            {
+                SearchStoryboard.Seek(TimeSpan.Zero);
+                SearchStoryboard.Stop();
+                this.Focus();
+            }
+        }
+
+        private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            viewModel.LoadInfoForLocation(CurrentLocation, 1000);            
+        }
+
+        private void SearchByRouteCallback(List<Route> routes, Exception error)
+        {
+
+        }
+
+        private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            string searchString = SearchInputBox.Text;
+
+            if (e.Key == Key.Enter)
+            {
+                int routeNumber = 0;
+                bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+                if (canConvert == true) //it's a route number
+                {
+                    viewModel.SearchByRoute(searchString, CurrentLocation, SearchByRouteCallback);
+                }
+                else
+                {
+                    //try geocoding
+                    viewModel.SearchByAddress(searchString, null);
+                }
+
+            }
+        }
+
+        private void ZoomMap()
+        {
+            StopsMap.Center = MainPage.CurrentLocation;
+            StopsMap.ZoomLevel = 17;
+
+            //Add current location and nearest stop
+            MapLayer mapLayer = new MapLayer();
+            StopsMap.Children.Add(mapLayer);
+            
+            //mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location);
+            mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
         }
 
     }
