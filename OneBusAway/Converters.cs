@@ -237,7 +237,7 @@ namespace OneBusAway.WP7.View
                 if (delay.Minutes < 0)
                 {
                     // Bus is running late
-                    return new SolidColorBrush(Colors.Red);
+                    return new SolidColorBrush(Colors.Blue);
                 }
                 else if (delay.Minutes == 0)
                 {
@@ -247,7 +247,7 @@ namespace OneBusAway.WP7.View
                 else
                 {
                     // Bus is running early
-                    return new SolidColorBrush(Colors.Blue);
+                    return new SolidColorBrush(Colors.Red);
                 }
             }
             else

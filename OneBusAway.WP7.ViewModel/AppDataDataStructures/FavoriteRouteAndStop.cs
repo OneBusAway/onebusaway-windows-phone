@@ -64,10 +64,11 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
             if (obj is FavoriteRouteAndStop)
             {
                 FavoriteRouteAndStop otherFavorite = (FavoriteRouteAndStop)obj;
+                
                 if (
-                    this.route == otherFavorite.route &&
-                    this.stop == otherFavorite.stop &&
-                    this.routeStops == otherFavorite.routeStops
+                    Object.Equals(this.route, otherFavorite.route) &&
+                    Object.Equals(this.stop, otherFavorite.stop) &&
+                    Object.Equals(this.routeStops, otherFavorite.routeStops)
                     )
                 {
                     return true;

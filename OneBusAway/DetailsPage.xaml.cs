@@ -110,11 +110,11 @@ namespace OneBusAway.WP7.View
             //Add current location and nearest stop
             MapLayer mapLayer = new MapLayer();
             DetailsMap.Children.Add(mapLayer);
-            mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location);
+            mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location, PositionOrigin.BottomLeft);
 
             if (AViewModel.LocationKnown == true)
             {
-                mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation);
+                mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation, PositionOrigin.Center);
             }
 
             SetFilterRoutesIcon();
