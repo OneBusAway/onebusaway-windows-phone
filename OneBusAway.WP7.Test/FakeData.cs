@@ -20,7 +20,7 @@ namespace OneBusAway.WP7.Test
     {
 
         internal GeoCoordinate OTC = new GeoCoordinate(47.644385, -122.135353);
-        internal GeoCoordinate HOME = new GeoCoordinate(47.67652682262796, -122.3183012008667);
+        internal GeoCoordinate GREENLAKE_PR = new GeoCoordinate(47.676, -122.32);
 
         internal Stop STOP_RAVENNA = new Stop();
         internal Stop STOP_UDIST = new Stop();
