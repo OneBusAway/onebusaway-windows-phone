@@ -105,13 +105,14 @@ namespace OneBusAway.WP7.View
                 // An unhandled exception has occurred, break in the debugger
                 System.Diagnostics.Debugger.Break();
             }
-            else
-            {
-                // By default show the error
-                e.Handled = true;
-                MessageBox.Show(e.ExceptionObject.Message + Environment.NewLine + e.ExceptionObject.StackTrace,
-                    "Error", MessageBoxButton.OK);
-            }
+
+            // By default show the error
+            e.Handled = true;
+            MessageBox.Show(
+                e.ExceptionObject.Message,
+                "Error", 
+                MessageBoxButton.OK
+                );
         }
     }
 }

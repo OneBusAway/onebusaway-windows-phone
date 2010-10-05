@@ -43,7 +43,6 @@ namespace OneBusAway.WP7.Test
 
             viewModel.SearchByRoute(
                 "48",
-                fakeData.HOME,
                 delegate(List<Route> routes, Exception error)
                 {
                     Assert.Equals(error, null);
@@ -65,7 +64,6 @@ namespace OneBusAway.WP7.Test
 
             viewModel.SearchByRoute(
                 "BusDoesNotExist",
-                fakeData.HOME,
                 delegate(List<Route> routes, Exception error)
                 {
                     Assert.Equals(error, null);

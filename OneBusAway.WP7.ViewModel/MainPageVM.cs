@@ -46,7 +46,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.busServiceModel = busServiceModel;
             this.appDataModel = appDataModel;
-            pendingOperations = 0;
 
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
@@ -67,23 +66,33 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Methods
 
-        public void LoadInfoForLocation(GeoCoordinate location, int radiusInMeters)
+        public void LoadInfoForLocation(int radiusInMeters)
         {
             StopsForLocation.Clear();
             pendingOperations++;
-            busServiceModel.StopsForLocation(location, radiusInMeters);
+            RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    busServiceModel.StopsForLocation(location, radiusInMeters);
+                });
 
             RoutesForLocation.Clear();
             pendingOperations++;
-            busServiceModel.RoutesForLocation(location, radiusInMeters);
+            RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    busServiceModel.RoutesForLocation(location, radiusInMeters);
+                });
         }
 
-        // Location is used for sorting the favorites
-        public void LoadFavorites(GeoCoordinate location)
+        public void LoadFavorites()
         {
             Favorites.Clear();
             List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites(FavoriteType.Favorite);
-            favorites.Sort(new FavoriteDistanceComparer(location));
+            // TODO: Add a way for calls to wait ~5 seconds for location to become available
+            // but fallback to running without location if it times out
+            if (LocationKnown == true)
+            {
+                favorites.Sort(new FavoriteDistanceComparer(CurrentLocation));
+            }
             favorites.ForEach(favorite => Favorites.Add(favorite));
 
             Recents.Clear();
@@ -93,13 +102,15 @@ namespace OneBusAway.WP7.ViewModel
         }
 
         public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
-        public void SearchByRoute(string routeNumber, GeoCoordinate location, SearchByRoute_Callback callback)
+        public void SearchByRoute(string routeNumber, SearchByRoute_Callback callback)
         {
             pendingOperations++;
 
             busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
-
-            busServiceModel.SearchForRoutes(location, routeNumber);
+            RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    busServiceModel.SearchForRoutes(location, routeNumber);
+                });
         }
 
         public delegate void SearchByAddress_Callback(GeoCoordinate routes, Exception error);
@@ -239,7 +250,7 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                LoadInfoForLocation(e.location, 100);
+                LoadInfoForLocation(1000);
             }
 
             pendingOperations--;

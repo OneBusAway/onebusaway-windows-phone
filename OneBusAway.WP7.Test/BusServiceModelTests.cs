@@ -63,7 +63,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void RoutesForLocation()
         {
-            ModelTest(() => model.RoutesForLocation(fakeData.HOME, 1000));
+            ModelTest(() => model.RoutesForLocation(fakeData.GREENLAKE_PR, 1000));
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void StopsForLocation()
         {
-            ModelTest(() => model.StopsForLocation(fakeData.HOME, 1000));
+            ModelTest(() => model.StopsForLocation(fakeData.GREENLAKE_PR, 1000));
         }
 
         [TestMethod]
@@ -91,14 +91,14 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void SearchForRoutes()
         {
-            ModelTest(() => model.SearchForRoutes(fakeData.HOME, "48"));
+            ModelTest(() => model.SearchForRoutes(fakeData.GREENLAKE_PR, "48"));
         }
 
         [TestMethod]
         [Asynchronous]
         public void SearchForRoutes_NoRouteFound()
         {
-            ModelTest(() => model.SearchForRoutes(fakeData.HOME, "RouteDoesNotExist"));
+            ModelTest(() => model.SearchForRoutes(fakeData.GREENLAKE_PR, "RouteDoesNotExist"));
         }
 
         [TestMethod]

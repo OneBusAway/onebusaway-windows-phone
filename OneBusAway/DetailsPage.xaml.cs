@@ -62,7 +62,16 @@ namespace OneBusAway.WP7.View
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
 
             DetailsMap.Children.Clear();
-            DetailsMap.Center = MainPage.CurrentLocation;
+
+            if (AViewModel.LocationKnown == true)
+            {
+                DetailsMap.Center = AViewModel.CurrentLocation;
+            }
+            else
+            {
+                DetailsMap.Center = viewModel.CurrentViewState.CurrentStop.location;
+            }
+
             DetailsMap.ZoomLevel = 15;
 
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
@@ -102,7 +111,11 @@ namespace OneBusAway.WP7.View
             MapLayer mapLayer = new MapLayer();
             DetailsMap.Children.Add(mapLayer);
             mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location);
-            mapLayer.AddChild(new CenterControl(), MainPage.CurrentLocation);
+
+            if (AViewModel.LocationKnown == true)
+            {
+                mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation);
+            }
 
             SetFilterRoutesIcon();
 

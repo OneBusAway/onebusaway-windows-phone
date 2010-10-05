@@ -10,6 +10,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Data;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Device.Location;
+using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.View
 {
@@ -35,7 +37,10 @@ namespace OneBusAway.WP7.View
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null) return String.Empty;
+            if (value == null)
+            {
+                return String.Empty;
+            }
 
             Stop stop;
             if (value is Stop)
@@ -47,9 +52,9 @@ namespace OneBusAway.WP7.View
                 stop = ((Route)value).closestStop;
             }
 
-            if (stop != null)
+            if (stop != null && AViewModel.LocationKnown == true)
             {
-                double distance = stop.CalculateDistanceInMiles(MainPage.CurrentLocation);
+                double distance = stop.CalculateDistanceInMiles(AViewModel.CurrentLocation);
                 return string.Format("Distance: {0:0.00} mi", distance);
             }
             else

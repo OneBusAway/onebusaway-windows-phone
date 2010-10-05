@@ -14,6 +14,7 @@ using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Windows.Navigation;
 using System.Collections.Specialized;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.View
 {
@@ -69,7 +70,11 @@ namespace OneBusAway.WP7.View
                 viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];
                 foreach (Stop stop in viewModel.CurrentViewState.CurrentRouteDirection.stops)
                 {
-                    if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
+                    // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
+                    // at this point during a tombstoning scenario
+                    GeoCoordinate location = AViewModel.CurrentLocation;
+
+                    if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
                     {
                         viewModel.CurrentViewState.CurrentStop = stop;
                     }
