@@ -221,5 +221,10 @@ namespace OneBusAway.WP7.View
             }
         }
 
+        private void appbar_about_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
+
     }
 }
