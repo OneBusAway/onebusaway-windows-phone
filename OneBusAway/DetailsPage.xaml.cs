@@ -39,6 +39,8 @@ namespace OneBusAway.WP7.View
         private bool isFavorite;
         private bool isFiltered;
 
+        private ApplicationBarIconButton appbar_allroutes;
+
         public DetailsPage()
         {
             InitializeComponent();
@@ -56,7 +58,6 @@ namespace OneBusAway.WP7.View
 
             viewModel.RegisterEventHandlers();
 
-            appbar_allroutes = ((ApplicationBarIconButton)ApplicationBar.Buttons[1]);
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
@@ -81,6 +82,11 @@ namespace OneBusAway.WP7.View
                 RouteNumber.Text = viewModel.CurrentViewState.CurrentRoute.shortName;
                 RouteName.Text = viewModel.CurrentViewState.CurrentRouteDirection.name;
                 RouteInfo.Text = viewModel.CurrentViewState.CurrentStop.name;
+
+                appbar_allroutes = new ApplicationBarIconButton(unfilterRoutesIcon);
+                appbar_allroutes.Text = unfilterRoutesText;
+                appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
+                ApplicationBar.Buttons.Add(appbar_allroutes);
 
                 isFiltered = true;
 
@@ -116,8 +122,6 @@ namespace OneBusAway.WP7.View
             {
                 mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation, PositionOrigin.Center);
             }
-
-            SetFilterRoutesIcon();
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
             currentInfo.route = viewModel.CurrentViewState.CurrentRoute;
