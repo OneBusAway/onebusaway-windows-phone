@@ -27,20 +27,12 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         public string name { get; set; }
         public List<Route> routes { get; set; }
 
+        private const double kmPerMile = 1.60934400000644;
+
         public double CalculateDistanceInMiles(GeoCoordinate location2)
         {
-            double R = 3950; //mile conversion, 6371 for km
-
-            double dLat = toRadian(location.Latitude - location2.Latitude);
-            double dLon = toRadian(location.Longitude - location2.Longitude);
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(toRadian(location2.Latitude)) * Math.Cos(toRadian(location.Latitude)) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-            double c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
-            double d = R * c;
-
-
-            return d;
+            double meters = location.GetDistanceTo(location2);
+            return meters / (1000.0 * kmPerMile);
         }
 
         private static double toRadian(double val)
