@@ -33,8 +33,7 @@ namespace OneBusAway.WP7.View
         public MainPage()
         {
             InitializeComponent();
-            ShowLoadingSplash();
-
+            //ShowLoadingSplash();
 
             viewModel = Resources["ViewModel"] as MainPageVM;
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
@@ -73,6 +72,8 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+
 
             viewModel.RegisterEventHandlers();
 
@@ -162,6 +163,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
+
         private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
         {
             viewModel.LoadInfoForLocation(1000);            
@@ -169,7 +171,17 @@ namespace OneBusAway.WP7.View
 
         private void SearchByRouteCallback(List<Route> routes, Exception error)
         {
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+            this.Focus();
 
+            if (routes.Count > 0)
+            {
+                viewModel.CurrentViewState.CurrentRoute = routes[0];
+                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;
+
+                NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+            }
         }
 
         private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
@@ -180,9 +192,11 @@ namespace OneBusAway.WP7.View
             {
                 int routeNumber = 0;
                 bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
-                if (canConvert == true) //it's a route number
+                if (canConvert == true) //it's a route or stop number
                 {
-                    viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+                    int number = int.Parse(searchString);
+                    if (number < 10000)
+                        viewModel.SearchByRoute(searchString, SearchByRouteCallback);
                 }
                 else
                 {

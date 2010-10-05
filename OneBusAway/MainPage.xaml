@@ -136,7 +136,7 @@
 
         <Storyboard x:Name="SearchStoryboard">
             <DoubleAnimation Duration="0:0:0.2" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
-            <DoubleAnimation Duration="0:0:0.2" To="0.9" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
+            <DoubleAnimation Duration="0:0:0.2" To="1.0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
         </Storyboard>
 
     </phoneNavigation:PhoneApplicationPage.Resources>
@@ -159,7 +159,7 @@
                     </Grid.RowDefinitions>
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
                     <m:Map  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="47.676526822627963, -122.3183012008667" ZoomLevel="10"  >
+                   Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" IsEnabled="False" >
                         <m:MapItemsControl ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                             <m:MapItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -201,9 +201,9 @@
             <StackPanel.RenderTransform>
                 <CompositeTransform TranslateY="-75"/>
             </StackPanel.RenderTransform>
-            <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" />
+            <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
             <TextBlock 
-				Text="By address (ex. '3rd and pike') or route number (ex. '44' or '71')"  
+				Text="By route number (ex. '44' or '71')"  
 				Foreground="{StaticResource PhoneSubtleBrush}" FontSize="16" HorizontalAlignment="Center">
 				<TextBlock.RenderTransform>
 				<CompositeTransform TranslateY="-14"/>
@@ -224,7 +224,7 @@
     </Grid>
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="False" IsMenuEnabled="True">
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBarIconButton x:Name="appbar_search" IconUri="/Images/appbar.feature.search.rest.png" Text="Search" Click="appbar_search_Click"></shell:ApplicationBarIconButton>
         </shell:ApplicationBar>
