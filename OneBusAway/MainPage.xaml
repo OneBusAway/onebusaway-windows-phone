@@ -160,7 +160,7 @@
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
                     <m:Map  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
                    Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" IsEnabled="False" >
-                        <m:MapItemsControl ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+                        <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                             <m:MapItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <m:Pushpin Location="{Binding location}" >
@@ -215,7 +215,7 @@
             IsIndeterminate="True" 
             Height="4" 
             HorizontalAlignment="Left" 
-            Name="ProgressBar" 
+            x:Name="LoadingProgressBar" 
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"

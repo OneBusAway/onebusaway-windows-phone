@@ -11,6 +11,7 @@ using Microsoft.Phone.Shell;
 using System.Windows.Controls.Primitives;
 using System.Threading;
 using Microsoft.Phone.Controls.Maps;
+using System.Windows.Data;
 
 namespace OneBusAway.WP7.View
 {
@@ -18,23 +19,43 @@ namespace OneBusAway.WP7.View
     {
         private MainPageVM viewModel;
         private int selectedPivotIndex = 0;
-        private Popup popup;
 
         public MainPage()
         {
             InitializeComponent();
             //ShowLoadingSplash();
 
+            // Set up the viewModel programmatically
+            //if (viewModel == null)
+            //{
+            //    viewModel = new MainPageVM();
+            //    this.Resources.Add("ViewModel", viewModel);
+
+            //    RoutesListBox.ItemsSource = viewModel.RoutesForLocation;
+            //    StopsListBox.ItemsSource = viewModel.StopsForLocation;
+            //    RecentsListBox.ItemsSource = viewModel.Recents;
+            //    FavoritesListBox.ItemsSource = viewModel.Favorites;
+            //    StopsMapItemsControl.ItemsSource = viewModel.StopsForLocation;
+
+            //    Binding b = new Binding("Visibility");
+            //    b.Source = viewModel.Loading;
+            //    b.Converter = new VisibilityConverter();
+            //    LoadingProgressBar.SetBinding(ProgressBar.VisibilityProperty, b);
+            //}
+          
             viewModel = Resources["ViewModel"] as MainPageVM;
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
         }
 
-        private void ShowLoadingSplash() 
-        { 
-            this.popup = new Popup(); 
-            this.popup.Child = new PopupSplash(); 
+
+        private Popup popup;
+
+        private void ShowLoadingSplash()
+        {
+            this.popup = new Popup();
+            this.popup.Child = new PopupSplash();
             this.popup.IsOpen = true;
 
             Timer timer = new Timer(HideLoadingSplash, null, 500, Timeout.Infinite);
@@ -48,21 +69,12 @@ namespace OneBusAway.WP7.View
         private void HideLoadingSplash()
         {
             this.popup.IsOpen = false;
-            ApplicationBar.IsVisible = true;
+            //ApplicationBar.IsVisible = true;
         }
+
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            PC.SelectedIndex = selectedPivotIndex;
-
-            viewModel.LoadFavorites();
-            viewModel.LoadInfoForLocation(1000);
-        }
-
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-
 
 
             viewModel.RegisterEventHandlers();
@@ -77,6 +89,17 @@ namespace OneBusAway.WP7.View
             }
 
             ZoomMap();
+
+            PC.SelectedIndex = selectedPivotIndex;
+
+            viewModel.LoadFavorites();
+            viewModel.LoadInfoForLocation(1000);
+        }
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            //ShowLoadingSplash();
+            base.OnNavigatedTo(e);
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
