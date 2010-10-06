@@ -11,6 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
+using System.Reflection;
 
 namespace OneBusAway.WP7.View
 {
@@ -19,12 +20,15 @@ namespace OneBusAway.WP7.View
         public AboutPage()
         {
             InitializeComponent();
+
+            VersionTextBlock.Text = "Version " + "1.5.0.0";
+
         }
 
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
         {
             EmailComposeTask emailComposeTask = new EmailComposeTask();
-            emailComposeTask.To = "contact@onebusaway.org";
+            emailComposeTask.To = "obawp@onebusaway.org";
             emailComposeTask.Body = null;
             emailComposeTask.Subject = "OneBusAway for Windows Phone";
             emailComposeTask.Show();
