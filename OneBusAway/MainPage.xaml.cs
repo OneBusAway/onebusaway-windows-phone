@@ -75,8 +75,6 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-
-
             viewModel.RegisterEventHandlers();
 
             if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
@@ -188,7 +186,7 @@ namespace OneBusAway.WP7.View
             SearchStoryboard.Stop();
             this.Focus();
 
-            if (routes.Count > 0)
+            if (error == null && routes.Count > 0)
             {
                 viewModel.CurrentViewState.CurrentRoute = routes[0];
                 viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;

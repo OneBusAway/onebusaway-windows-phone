@@ -46,19 +46,15 @@ namespace OneBusAway.WP7.Model
         public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
         {
             string requestUrl = string.Format(
-                "{0}/{1}.xml?key={2}&lat={3}&lon={4}&version={5}",
+                "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
                 "routes-for-location",
                 KEY,
                 location.Latitude,
                 location.Longitude,
+                radiusInMeters,
                 APIVERSION
                 );
-
-            if (radiusInMeters > 0)
-            {
-                requestUrl += string.Format("&radius={0}", radiusInMeters);
-            }
 
             if (string.IsNullOrEmpty(query) == false)
             {
@@ -97,26 +93,9 @@ namespace OneBusAway.WP7.Model
                     if (error == null)
                     {
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
-
                         routes =
                             (from route in xmlDoc.Descendants("route")
-                             select new Route
-                             {
-                                 id = route.Element("id").Value,
-                                 description = route.Element("description").Value,
-                                 shortName = route.Element("shortName").Value,
-                                 url = route.Element("url").Value,
-
-                                 agency =
-                                 (from agency in xmlDoc.Descendants("agency")
-                                  where route.Element("agencyId").Value == agency.Element("id").Value
-                                  select new Agency
-                                  {
-                                      id = agency.Element("id").Value,
-                                      name = agency.Element("name").Value
-                                  }).First()
-
-                             }).ToList<Route>();
+                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
                     }
                 }
                 catch (Exception ex)
@@ -128,6 +107,29 @@ namespace OneBusAway.WP7.Model
 
                 callback(routes, error);
             }
+        }
+
+        private static Route ParseRoute(XElement routeXml, IEnumerable<XElement> agenciesXml)
+        {
+            Route route = new Route();
+            route.id = routeXml.Element("id").Value;
+            route.shortName = routeXml.Element("shortName").Value;
+            route.url = routeXml.Element("url") != null ? routeXml.Element("url").Value : string.Empty;
+            route.description = routeXml.Element("description") != null ?
+                routeXml.Element("description").Value :
+                    (routeXml.Element("longName") != null ?
+                        routeXml.Element("longName").Value : string.Empty);
+
+            route.agency =
+                (from agency in agenciesXml
+                    where routeXml.Element("agencyId").Value == agency.Element("id").Value
+                    select new Agency
+                    {
+                        id = agency.Element("id").Value,
+                        name = agency.Element("name").Value
+                    }).First();
+
+            return route;
         }
 
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
@@ -189,26 +191,10 @@ namespace OneBusAway.WP7.Model
                                  name = stop.Element("name").Value,
 
                                  routes =
-                                 (from routeId in stop.Element("routeIds").Descendants("string")
-                                  from route in xmlDoc.Descendants("route")
-                                  where route.Element("id").Value == routeId.Value
-                                  select new Route
-                                  {
-                                      id = route.Element("id").Value,
-                                      description = route.Element("description").Value,
-                                      shortName = route.Element("shortName").Value,
-                                      url = route.Element("url").Value,
-
-                                      agency =
-                                      (from agency in xmlDoc.Descendants("agency")
-                                       where route.Element("agencyId").Value == agency.Element("id").Value
-                                       select new Agency
-                                       {
-                                           id = agency.Element("id").Value,
-                                           name = agency.Element("name").Value
-                                       }).First()
-
-                                  }).ToList<Route>()
+                                     (from routeId in stop.Element("routeIds").Descendants("string")
+                                      from route in xmlDoc.Descendants("route")
+                                      where route.Element("id").Value == routeId.Value
+                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
 
                              }).ToList<Stop>();
                     }
@@ -260,7 +246,7 @@ namespace OneBusAway.WP7.Model
                     if (error == null)
                     {
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
-                        
+
                         routeStops =
                             (from stopGroup in xmlDoc.Descendants("stopGroup")
                              where stopGroup.Element("name").Element("type").Value == "destination"
@@ -291,23 +277,7 @@ namespace OneBusAway.WP7.Model
                                               (from routeId in stop.Element("routeIds").Descendants("string")
                                                from route in xmlDoc.Descendants("route")
                                                where route.Element("id").Value == routeId.Value
-                                               select new Route
-                                               {
-                                                   id = route.Element("id").Value,
-                                                   description = route.Element("description") != null ? route.Element("description").Value : String.Empty,
-                                                   shortName = route.Element("shortName").Value,
-                                                   url = route.Element("url") != null ? route.Element("url").Value : String.Empty,
-
-
-                                                   agency =
-                                                   (from agency in xmlDoc.Descendants("agency")
-                                                    where route.Element("agencyId").Value == agency.Element("id").Value
-                                                    select new Agency
-                                                    {
-                                                        id = agency.Element("id").Value,
-                                                    }).First()
-
-                                               }).ToList<Route>()
+                                               select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
 
                                       }).ToList<Stop>()
 
@@ -437,22 +407,7 @@ namespace OneBusAway.WP7.Model
                                  route =
                                     (from route in xmlDoc.Descendants("route")
                                      where route.Element("id").Value == schedule.Element("routeId").Value
-                                     select new Route
-                                     {
-                                         id = route.Element("id").Value,
-                                         description = route.Element("description").Value,
-                                         shortName = route.Element("shortName").Value,
-                                         url = route.Element("url").Value,
-
-                                         agency =
-                                         (from agency in xmlDoc.Descendants("agency")
-                                          where route.Element("agencyId").Value == agency.Element("id").Value
-                                          select new Agency
-                                          {
-                                              id = agency.Element("id").Value,
-                                              name = agency.Element("name").Value
-                                          }).First()
-                                     }).First(),
+                                     select ParseRoute(route, xmlDoc.Descendants("agency"))).First(),
 
                                  directions =
                                      (from direction in schedule.Descendants("stopRouteDirectionSchedule")
