@@ -211,7 +211,7 @@ namespace OneBusAway.WP7.Model
 
         public void SearchForRoutes(GeoCoordinate location, string query)
         {
-            SearchForRoutes(location, query, -1, -1);
+            SearchForRoutes(location, query, 1000000, -1);
         }
 
         public void SearchForRoutes(GeoCoordinate location, string query, int radiusInMeters, int maxCount)
