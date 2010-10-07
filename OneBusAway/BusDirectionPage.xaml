@@ -27,7 +27,7 @@
                     <ColumnDefinition Width="400" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="{Binding Path=CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="10,0,0,0" />
+                <TextBlock Grid.Column="0" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="10,0,0,0" />
 
                 <TextBlock Grid.Column="1" Text="{Binding name}" FontSize="{StaticResource PhoneFontSizeLarge}" />
             </Grid>
