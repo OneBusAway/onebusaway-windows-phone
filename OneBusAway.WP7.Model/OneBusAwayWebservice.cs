@@ -134,13 +134,20 @@ namespace OneBusAway.WP7.Model
 
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
         {
+            // Round off coordinates so that we can exploit caching.
+            // At Seattle's latitude, rounding to 3 decimal places moves the location by at most 50 or so meters.
+            GeoCoordinate roundedLocation = new GeoCoordinate(
+                Math.Round(location.Latitude, 3),
+                Math.Round(location.Longitude, 3)
+            );
+
             string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
                 "stops-for-location",
                 KEY,
-                location.Latitude,
-                location.Longitude,
+                roundedLocation.Latitude,
+                roundedLocation.Longitude,
                 radiusInMeters,
                 APIVERSION
                 );
@@ -150,10 +157,9 @@ namespace OneBusAway.WP7.Model
                 requestUrl += string.Format("&maxCount={0}", maxCount);
             }
 
-            WebClient client = new WebClient();
-            client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
-                new GetStopsForLocationCompleted(requestUrl, callback).StopsForLocation_Completed);
-            client.DownloadStringAsync(new Uri(requestUrl));
+            HttpCache stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
+            stopsCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetStopsForLocationCompleted(requestUrl, callback).StopsForLocation_Completed);
+            stopsCache.DownloadStringAsync(new Uri(requestUrl));
         }
 
         private class GetStopsForLocationCompleted
@@ -167,7 +173,7 @@ namespace OneBusAway.WP7.Model
                 this.requestUrl = requestUrl;
             }
 
-            public void StopsForLocation_Completed(object sender, DownloadStringCompletedEventArgs e)
+            public void StopsForLocation_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
             {
                 Exception error = e.Error;
                 List<Stop> stops = null;
@@ -220,7 +226,7 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds);
+            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100); 
             directionCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, callback).DirectionsForRoute_Completed);
             directionCache.DownloadStringAsync(new Uri(requestUrl));
         }

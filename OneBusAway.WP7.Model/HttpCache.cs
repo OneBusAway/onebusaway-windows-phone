@@ -24,10 +24,22 @@ namespace OneBusAway.WP7.Model
         /// </summary>
         public int ExpirationPeriod { get; private set; }
 
-        public HttpCache(string name, int expirationPeriod)
+        /// <summary>
+        /// The maximum number of entries in the cache.
+        /// If the cache is full, old entries will be evicted to make room for new ones.
+        /// </summary>
+        public int Capacity { get; private set; }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="name">Identifier for the desired cache.  Caches with the same name target the same underlying storage.</param>
+        /// <param name="expirationPeriod">Time in seconds for which a cached entry is good</param>
+        /// <param name="capacity">Maximum number of entries in the cache</param>
+        public HttpCache(string name, int expirationPeriod, int capacity)
         {
             this.Name = name;
             this.ExpirationPeriod = expirationPeriod;
+            this.Capacity = capacity;
             CacheCalls = 0;
             CacheHits = 0;
             CacheMisses = 0;
@@ -64,6 +76,7 @@ namespace OneBusAway.WP7.Model
         public int CacheHits { get; private set; }
         public int CacheMisses { get; private set; }
         public int CacheExpirations { get; private set; }
+        public int CacheEvictions { get; private set; }
 
         #endregion
 
@@ -129,9 +142,7 @@ namespace OneBusAway.WP7.Model
                     iso.CreateDirectory(this.Name);
                 }
 
-                // TODO cache eviction
-                // "A cache without an eviction policy is a memory leak"
-                // We might run into quota limits on IsolatedStorage.  We need to check those, and evict files to make room. 
+                EvictIfNecessary(iso);
 
                 string fileName = MapAddressToFile(address);
                 using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.Write))
@@ -146,13 +157,90 @@ namespace OneBusAway.WP7.Model
         }
 
         /// <summary>
+        /// Evict an entry if we need to make room for a new one.
+        /// </summary>
+        /// <remarks>
+        /// "A cache without an eviction policy is a memory leak"
+        /// We might run into quota limits on IsolatedStorage.  We need to check those, and evict files to make room. 
+        /// 
+        /// Cache eviction policy is "least recently updated"
+        /// Note this is not the same as least recently used.
+        /// Rather, we're evicting the entry that will expire soonest.
+        /// </remarks>
+        /// <param name="iso"></param>
+        private void EvictIfNecessary(IsolatedStorageFile iso)
+        {
+            string[] filesInCache = iso.GetFileNames(this.Name + "\\*");
+            if (filesInCache.Length >= this.Capacity)
+            {
+                CacheMetadata m = new CacheMetadata(this);
+
+                DateTime oldestFileTime = DateTime.MaxValue;
+                string oldestFileName = null;
+                foreach (string filename in filesInCache)
+                {
+                    // the GetFileNames call above does not return qualified paths, but we expect those for the rest of the calls
+                    string qualifiedFilename = Path.Combine(this.Name, filename);
+                    DateTime? updateTime = m.GetUpdateTime(qualifiedFilename);
+                    if (null == updateTime)
+                    {
+                        // Then we have a file in the cache, but no record of it being put there... clean it up
+                        iso.DeleteFile(qualifiedFilename);
+                    }
+                    else
+                    {
+                        if (updateTime.Value < oldestFileTime)
+                        {
+                            oldestFileTime = updateTime.Value;
+                            oldestFileName = qualifiedFilename;
+                        }
+                    }
+                }
+                if (oldestFileName != null)
+                {
+                    iso.DeleteFile(oldestFileName);
+                    m.RemoveUpdateTime(oldestFileName);
+                    CacheEvictions++;
+                }
+            }
+        }
+
+        /// <summary>
         /// Maps a request URI to the file name where we will store it in the cache
         /// </summary>
         /// <param name="address"></param>
         /// <returns></returns>
         private string MapAddressToFile(Uri address)
         {
-            string escaped = address.GetComponents(UriComponents.HttpRequestUrl, UriFormat.UriEscaped);
+            // HACK - This is specific to the OneBusAway calls.  Ideally, figure out a way to inject this logic so that the cache stays general purpose.
+            // Remove the application key, because
+            // 1. it's long, and will push us over the max path length
+            // 2. it's constant, so no sense storing the information
+            // 3. it's somewhat private
+            string queryString = address.Query.Substring(1); // remove the leading ?
+            string[] parameters = queryString.Split('&');
+
+            string newQueryString = "?";
+            bool first = true;
+            foreach(string parameter in parameters)
+            {
+                if (!parameter.StartsWith("key="))
+                {
+                    if (!first)
+                    {
+                        newQueryString += "&";
+                    }
+                    else
+                    {
+                        first = false;
+                    }
+                    newQueryString += parameter;
+                }
+            }
+            UriBuilder builder = new UriBuilder(address);
+            builder.Query = newQueryString;
+          
+            string escaped = builder.Uri.GetComponents(UriComponents.HttpRequestUrl, UriFormat.UriEscaped);
             // tried Path.GetInvalidPathChars(). it doesn't seem to work here.
             escaped = escaped.Replace('/', '_');
             escaped = escaped.Replace(':', '_');
@@ -228,6 +316,15 @@ namespace OneBusAway.WP7.Model
                     return (lastGoodTime < DateTime.Now);
                 }
                 return true;
+            }
+
+            public DateTime? GetUpdateTime(string filename)
+            {
+                if (fileUpdateTimes.ContainsKey(filename))
+                {
+                    return fileUpdateTimes[filename];
+                }
+                return null;
             }
 
             public void AddUpdateTime(string filename, DateTime when)
