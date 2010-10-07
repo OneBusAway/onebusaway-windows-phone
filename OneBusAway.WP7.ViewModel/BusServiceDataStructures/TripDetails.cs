@@ -15,12 +15,33 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember()]
         public DateTime serviceDate { get; set; }
         [DataMember()]
-        public GeoCoordinate position { get; set; }
-        [DataMember()]
         public int? scheduleDeviationInSec { get; set; }
         [DataMember()]
         public string closestStopId { get; set; }
         [DataMember()]
         public int? closestStopTimeOffset { get; set; }
+        [DataMember]
+        public Coordinate coordinate { get; set; }
+
+        public GeoCoordinate position
+        {
+            get
+            {
+                return new GeoCoordinate
+                {
+                    Latitude = coordinate.Latitude,
+                    Longitude = coordinate.Longitude
+                };
+            }
+
+            set
+            {
+                coordinate = new Coordinate
+                {
+                    Latitude = value.Latitude,
+                    Longitude = value.Longitude
+                };
+            }
+        }
     }
 }

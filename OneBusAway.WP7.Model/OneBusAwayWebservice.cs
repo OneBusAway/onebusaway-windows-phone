@@ -262,7 +262,7 @@ namespace OneBusAway.WP7.Model
                                  encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
                                                      select new PolyLine
                                                      {
-                                                         points = poly.Element("points").Value,
+                                                         pointsString = poly.Element("points").Value,
                                                          length = poly.Element("length").Value
                                                      }).ToList<PolyLine>(),
                                  stops =

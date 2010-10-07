@@ -94,7 +94,7 @@ namespace OneBusAway.WP7.View
                 foreach (PolyLine pl in viewModel.CurrentViewState.CurrentRouteDirection.encodedPolylines)
                 {
                     points = new LocationCollection();
-                    pl.coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
+                    pl.Coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
 
                     MapPolyline shape = new MapPolyline();
                     shape.Locations = points;

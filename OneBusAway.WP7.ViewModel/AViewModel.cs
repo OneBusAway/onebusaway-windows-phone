@@ -13,6 +13,8 @@ using System.Device.Location;
 using Microsoft.Devices;
 using System.Collections.Generic;
 using System.Threading;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -92,7 +94,33 @@ namespace OneBusAway.WP7.ViewModel
         #endregion
 
         public AViewModel()
+            :   this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
+                    .GetType("OneBusAway.WP7.Model.BusServiceModel")
+                    .GetField("Singleton")
+                    .GetValue(null),
+                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                    .GetType("OneBusAway.WP7.Model.AppDataModel")
+                    .GetField("Singleton")
+                    .GetValue(null))
         {
+
+        }
+
+        public AViewModel(IBusServiceModel busSerivceModel)
+            : this(busSerivceModel,
+                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                    .GetType("OneBusAway.WP7.Model.AppDataModel")
+                    .GetField("Singleton")
+                    .GetValue(null))
+        {
+
+        }
+
+        public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+        {
+            this.busServiceModel = busServiceModel;
+            this.appDataModel = appDataModel;
+
             locationLoading = false;
             Loading = false;
             pendingOperationsCount = 0;
@@ -109,10 +137,12 @@ namespace OneBusAway.WP7.ViewModel
                 locationLoading = true;
                 LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
             }
-
         }
 
         #region Private/Protected Properties
+
+        protected IBusServiceModel busServiceModel { get; private set; }
+        protected IAppDataModel appDataModel { get; private set; }
 
         private bool locationLoading;
         private bool loading;

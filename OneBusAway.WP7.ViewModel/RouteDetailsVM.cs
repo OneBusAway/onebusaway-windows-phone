@@ -16,8 +16,6 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private Variables
 
-        private IBusServiceModel busServiceModel;
-        private IAppDataModel appDataModel;
         private ArrivalsForStopHandler arrivalsForStopHandler;
 
         #endregion
@@ -30,24 +28,19 @@ namespace OneBusAway.WP7.ViewModel
         public static RouteDetailsVM Singleton = new RouteDetailsVM();
 
         public RouteDetailsVM()
-            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")    
-                .GetField("Singleton")
-                .GetValue(null),
-                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.AppDataModel")
-                .GetField("Singleton")
-                .GetValue(null)
-            )
+            : base()
         {
-            
+            Initialize();
         }
 
         public RouteDetailsVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+            : base(busServiceModel, appDataModel)
         {
-            this.busServiceModel = busServiceModel;
-            this.appDataModel = appDataModel;
+            Initialize();
+        }
 
+        private void Initialize()
+        {
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
         }
