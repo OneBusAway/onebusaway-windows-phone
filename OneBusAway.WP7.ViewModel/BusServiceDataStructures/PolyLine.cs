@@ -25,27 +25,28 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
     [DataContract()]
     public class PolyLine
     {
-        [DataMember()]
-        public List<Coordinate> coordinates = new List<Coordinate>();
-
-        private string pointsString;
-        [DataMember()]
-        public string points
+        private List<Coordinate> coordinates;
+        public List<Coordinate> Coordinates
         {
-            get { return pointsString; }
-            set
+            get
             {
-                pointsString = value;
-                coordinates = DecodeLatLongList(value);
+                if (coordinates == null)
+                {
+                    coordinates = DecodeLatLongList(pointsString);
+                }
+
+                return coordinates;
             }
         }
 
+        [DataMember()]
+        public string pointsString { get; set; }
         [DataMember()]
         public string length { get; set; }
         [DataMember()]
         public string levels { get; set; }
 
-        public static List<Coordinate> DecodeLatLongList(string encoded)
+        private static List<Coordinate> DecodeLatLongList(string encoded)
         {
 
             int index = 0;

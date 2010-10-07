@@ -26,6 +26,7 @@ namespace OneBusAway.WP7.Model
 
         private Dictionary<FavoriteType, string> fileNames;
         private Dictionary<FavoriteType, List<FavoriteRouteAndStop>> favorites;
+        private bool initialized;
 
         #endregion
 
@@ -36,20 +37,31 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
-        #region Constructor/Singleton
+        #region Constructor/Initialize/Singleton
 
         public static AppDataModel Singleton = new AppDataModel();
 
         // Constructor is public for testing purposes
         public AppDataModel()
         {
+            initialized = false;
+
             fileNames = new Dictionary<FavoriteType, string>(2);
             fileNames.Add(FavoriteType.Favorite, "favorites.xml");
             fileNames.Add(FavoriteType.Recent, "recent.xml");
 
             favorites = new Dictionary<FavoriteType, List<FavoriteRouteAndStop>>(2);
-            favorites[FavoriteType.Favorite] = ReadFavoritesFromDisk(fileNames[FavoriteType.Favorite]);
-            favorites[FavoriteType.Recent] = ReadFavoritesFromDisk(fileNames[FavoriteType.Recent]);
+        }
+
+        private void Initialize()
+        {
+            if (initialized == false)
+            {
+                favorites[FavoriteType.Favorite] = ReadFavoritesFromDisk(fileNames[FavoriteType.Favorite]);
+                favorites[FavoriteType.Recent] = ReadFavoritesFromDisk(fileNames[FavoriteType.Recent]);
+
+                initialized = true;
+            }
         }
 
         #endregion
@@ -64,6 +76,8 @@ namespace OneBusAway.WP7.Model
 
             try
             {
+                Initialize();
+
                 // If the recent already exists delete the old instance.
                 // This way the new one will be added with the new LastAccessed time.
                 if (type == FavoriteType.Recent && IsFavorite(favorite, type))
@@ -97,6 +111,8 @@ namespace OneBusAway.WP7.Model
 
         public List<FavoriteRouteAndStop> GetFavorites(FavoriteType type)
         {
+            Initialize();
+
             return favorites[type];
         }
 
@@ -106,6 +122,8 @@ namespace OneBusAway.WP7.Model
 
             try
             {
+                Initialize();
+
                 favorites[type].Remove(favorite);
                 WriteFavoritesToDisk(favorites[type], fileNames[type]);
             }
@@ -127,6 +145,8 @@ namespace OneBusAway.WP7.Model
 
             try
             {
+                Initialize();
+
                 favorites[type].Clear();
                 WriteFavoritesToDisk(favorites[type], fileNames[type]);
             }
@@ -144,6 +164,8 @@ namespace OneBusAway.WP7.Model
 
         public bool IsFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
         {
+            Initialize();
+
             return favorites[type].Contains(favorite);
         }
 

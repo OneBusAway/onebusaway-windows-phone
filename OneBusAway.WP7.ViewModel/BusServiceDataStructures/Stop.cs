@@ -20,12 +20,33 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember]
         public string id { get; set; }
         [DataMember]
-        public GeoCoordinate location { get; set; }
-        [DataMember]
         public string direction { get; set; }
         [DataMember]
         public string name { get; set; }
         public List<Route> routes { get; set; }
+        [DataMember]
+        public Coordinate coordinate { get; set; }
+
+        public GeoCoordinate location
+        {
+            get
+            {
+                return new GeoCoordinate
+                {
+                    Latitude = coordinate.Latitude,
+                    Longitude = coordinate.Longitude
+                };
+            }
+
+            set
+            {
+                coordinate = new Coordinate
+                {
+                    Latitude = value.Latitude,
+                    Longitude = value.Longitude
+                };
+            }
+        }
 
         private const double kmPerMile = 1.60934400000644;
 

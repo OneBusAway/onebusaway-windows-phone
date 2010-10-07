@@ -18,9 +18,6 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private Variables
 
-        private IBusServiceModel busServiceModel;
-        private IAppDataModel appDataModel;
-
         private int maxRoutes = 30;
         private int maxStops = 30;
 
@@ -29,24 +26,19 @@ namespace OneBusAway.WP7.ViewModel
         #region Constructors
 
         public MainPageVM()
-            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")
-                .GetField("Singleton")
-                .GetValue(null),
-                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.AppDataModel")
-                .GetField("Singleton")
-                .GetValue(null)
-            )
+            : base()
         {
-
+            Initialize();
         }
 
         public MainPageVM(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+            : base(busServiceModel, appDataModel)
         {
-            this.busServiceModel = busServiceModel;
-            this.appDataModel = appDataModel;
+            Initialize();
+        }
 
+        private void Initialize()
+        {
             StopsForLocation = new ObservableCollection<Stop>();
             RoutesForLocation = new ObservableCollection<Route>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();

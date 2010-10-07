@@ -18,24 +18,28 @@ namespace OneBusAway.WP7.ViewModel
 {
     public class BusDirectionVM : AViewModel
     {
-        private IBusServiceModel busServiceModel;
-
         public ObservableCollection<RouteStops> RouteDirections { get; private set; }
 
-        public BusDirectionVM()
-            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")
-                .GetField("Singleton")
-                .GetValue(null))
-        {
+        #region Constructors
 
+        public BusDirectionVM()
+            : base()
+        {
+            Initialize();
         }
 
         public BusDirectionVM(IBusServiceModel busServiceModel)
+            : base(busServiceModel)
+        {
+            Initialize();
+        }
+
+        private void Initialize()
         {
             RouteDirections = new ObservableCollection<RouteStops>();
-            this.busServiceModel = busServiceModel;
         }
+
+        #endregion
 
         public void LoadRouteDirections(Route route)
         {
