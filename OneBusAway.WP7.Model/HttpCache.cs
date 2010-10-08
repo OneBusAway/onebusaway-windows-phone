@@ -45,7 +45,10 @@ namespace OneBusAway.WP7.Model
             CacheHits = 0;
             CacheMisses = 0;
             CacheExpirations = 0;
+            CacheEvictions = 0;
         }
+
+        #region public methods
 
         public void DownloadStringAsync(Uri address)
         {
@@ -68,9 +71,50 @@ namespace OneBusAway.WP7.Model
             }
         }
 
+        /// <summary>
+        /// Delete all data in the cache.
+        /// </summary>
+        public void Clear()
+        {
+            using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                if (iso.DirectoryExists(this.Name))
+                {
+                    // IsolatedStorage requires you to delete all the files before removing the directory
+                    string[] files = iso.GetFileNames(this.Name + "\\*");
+                    foreach (string file in files)
+                    {
+                        iso.DeleteFile(Path.Combine(this.Name,file));
+                    }
+                    iso.DeleteDirectory(this.Name);
+                }
+            }
+            CacheMetadata m = new CacheMetadata(this);
+            m.Clear();
+        }
+
+        /// <summary>
+        /// Ensures that there is no entry for the given address in the cache.
+        /// </summary>
+        public void Invalidate(Uri address)
+        {
+            string fileName = MapAddressToFile(address);
+            using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                if (iso.FileExists(fileName))
+                {
+                    iso.DeleteFile(fileName);
+                }
+            }
+            CacheMetadata m = new CacheMetadata(this);
+            m.RemoveUpdateTime(fileName);
+        }
+
+        #endregion
+
         #region diagnostic properties
         // Mainly useful for statistics of cache performance.
-        // You'd need to maintain a common instance for these to be useful.
+        // TODO We'd need to maintain a common instance for these to be useful.
         // That requires some more thought about how to register and clean up EventHandlers
 
         public int CacheCalls { get; private set; }
@@ -97,10 +141,8 @@ namespace OneBusAway.WP7.Model
                 {
                     // get result file for this address
                     string fileName = MapAddressToFile(address);
-                    // does file exist?
                     if (iso.FileExists(fileName))
                     {
-                        // we have a copy, check expiration
                         if (CheckForExpiration(fileName))
                         {
                             return null;
@@ -114,18 +156,9 @@ namespace OneBusAway.WP7.Model
                             }
                         }
                     }
-                    else
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    // this cache does not exist, so we can't have any results
-                    return null;
                 }
             }
-
+            return null;
         }
 
         /// <summary>
@@ -186,6 +219,7 @@ namespace OneBusAway.WP7.Model
                     if (null == updateTime)
                     {
                         // Then we have a file in the cache, but no record of it being put there... clean it up
+                        // Most common way to hit this would be that I changed the internal naming format between versions.
                         iso.DeleteFile(qualifiedFilename);
                     }
                     else
@@ -342,6 +376,14 @@ namespace OneBusAway.WP7.Model
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
                 IsolatedStorageSettings.ApplicationSettings.Save();
+            }
+
+            public void Clear()
+            {
+                fileUpdateTimes.Clear();
+                IsolatedStorageSettings cacheSettings = IsolatedStorageSettings.ApplicationSettings;
+                cacheSettings.Remove(owner.Name);
+                cacheSettings.Save();
             }
             
         }

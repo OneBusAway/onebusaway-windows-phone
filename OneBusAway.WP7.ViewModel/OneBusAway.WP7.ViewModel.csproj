@@ -85,6 +85,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainPageVM.cs" />
     <Compile Include="RouteDetailsVM.cs" />
+    <Compile Include="SettingsVM.cs" />
     <Compile Include="ViewState.cs" />
   </ItemGroup>
   <ItemGroup />

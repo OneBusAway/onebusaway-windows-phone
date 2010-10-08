@@ -119,7 +119,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            viewModel.LoadInfoForLocation(1000);
+            viewModel.LoadInfoForLocation(1000, true);
         }
 
         private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -248,6 +248,11 @@ namespace OneBusAway.WP7.View
             {
                 mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation, PositionOrigin.Center);
             }
+        }
+
+        private void appbar_settings_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
         }
 
         private void appbar_about_Click(object sender, EventArgs e)
