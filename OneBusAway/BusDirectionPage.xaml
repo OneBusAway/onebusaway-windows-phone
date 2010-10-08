@@ -21,15 +21,20 @@
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
 
         <DataTemplate x:Key="RouteDirectionTemplate">
-            <Grid Margin="0,15,0,15">
+            <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="400" />
                 </Grid.ColumnDefinitions>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="10,0,0,0" />
-
-                <TextBlock Grid.Column="1" Text="{Binding name}" FontSize="{StaticResource PhoneFontSizeLarge}" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="10,0,0,0" />
+                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding name}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Path=route.agency.name}" FontSize="{StaticResource PhoneFontSizeSmall}" Foreground="{StaticResource PhoneSubtleBrush}" />
             </Grid>
         </DataTemplate>
         

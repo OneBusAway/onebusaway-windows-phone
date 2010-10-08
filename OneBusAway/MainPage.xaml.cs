@@ -111,8 +111,7 @@ namespace OneBusAway.WP7.View
         {
             if (e.AddedItems.Count > 0)
             {
-                viewModel.CurrentViewState.CurrentRoute = (Route)e.AddedItems[0];
-                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;
+                viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)e.AddedItems[0] };
 
                 NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
             }
@@ -165,6 +164,7 @@ namespace OneBusAway.WP7.View
             {
                 SearchStoryboard.Begin();
                 SearchInputBox.Focus();
+                SearchInputBox.SelectAll();
             }
             else
             {
@@ -186,10 +186,17 @@ namespace OneBusAway.WP7.View
             SearchStoryboard.Stop();
             this.Focus();
 
-            if (error == null && routes.Count > 0)
+            if (error != null)
             {
-                viewModel.CurrentViewState.CurrentRoute = routes[0];
-                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;
+                // TODO: Show error
+            }
+            else if (routes.Count == 0)
+            {
+                MessageBox.Show("No results found");
+            }
+            else
+            {
+                viewModel.CurrentViewState.CurrentRoutes = routes;
 
                 NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
             }
@@ -202,18 +209,19 @@ namespace OneBusAway.WP7.View
             if (e.Key == Key.Enter)
             {
                 int routeNumber = 0;
-                bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
-                if (canConvert == true) //it's a route or stop number
-                {
+                // TODO: Re-enable this code when we add searching by something other than
+                // a route number
+                //bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+                //if (canConvert == true) //it's a route or stop number
+                //{
                     int number = int.Parse(searchString);
-                    if (number < 10000)
-                        viewModel.SearchByRoute(searchString, SearchByRouteCallback);
-                }
-                else
-                {
+                    viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+                //}
+                //else
+                //{
                     //try geocoding
-                    viewModel.SearchByAddress(searchString, null);
-                }
+                    //viewModel.SearchByAddress(searchString, null);
+                //}
 
             }
         }

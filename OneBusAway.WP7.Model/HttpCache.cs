@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace OneBusAway.WP7.Model
 {
@@ -382,7 +383,9 @@ namespace OneBusAway.WP7.Model
                     owner.CacheAddResult(requestedAddress, eventArgs.Result);
                     // and fire our event
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Result);
-                    owner.CacheDownloadStringCompleted(this, newArgs);
+                    // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
+                    // original call and wierd things could happen.
+                    Deployment.Current.Dispatcher.BeginInvoke(() => owner.CacheDownloadStringCompleted(this, newArgs));
                 }
             }
         }

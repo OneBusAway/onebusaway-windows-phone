@@ -36,11 +36,18 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 
             set
             {
-                coordinate = new Coordinate
+                if (value != null)
                 {
-                    Latitude = value.Latitude,
-                    Longitude = value.Longitude
-                };
+                    coordinate = new Coordinate
+                    {
+                        Latitude = value.Latitude,
+                        Longitude = value.Longitude
+                    };
+                }
+                else
+                {
+                    coordinate = null;
+                }
             }
         }
     }

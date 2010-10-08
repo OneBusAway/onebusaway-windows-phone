@@ -1,5 +1,6 @@
 ﻿using System;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Collections.Generic;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -15,6 +16,8 @@ namespace OneBusAway.WP7.ViewModel
         public Stop CurrentStop { get; set; }
 
         public Route CurrentRoute { get; set; }
+
+        public List<Route> CurrentRoutes { get; set; }
 
         public RouteStops CurrentRouteDirection { get; set; }
 
