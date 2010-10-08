@@ -111,7 +111,7 @@ namespace OneBusAway.WP7.Model
             }
         }
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
+        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
         {
             // Round off coordinates so that we can exploit caching.
             // At Seattle's latitude, rounding to 3 decimal places moves the location by at most 50 or so meters.
@@ -120,7 +120,7 @@ namespace OneBusAway.WP7.Model
                 Math.Round(location.Longitude, 3)
             );
 
-            string requestUrl = string.Format(
+            string requestString = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
                 "stops-for-location",
@@ -133,12 +133,17 @@ namespace OneBusAway.WP7.Model
 
             if (maxCount > 0)
             {
-                requestUrl += string.Format("&maxCount={0}", maxCount);
+                requestString += string.Format("&maxCount={0}", maxCount);
             }
 
             HttpCache stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
-            stopsCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetStopsForLocationCompleted(requestUrl, callback).StopsForLocation_Completed);
-            stopsCache.DownloadStringAsync(new Uri(requestUrl));
+            Uri requestUri = new Uri(requestString);
+            if (invalidateCache)
+            {
+                stopsCache.Invalidate(requestUri);
+            }
+            stopsCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetStopsForLocationCompleted(requestString, callback).StopsForLocation_Completed);
+            stopsCache.DownloadStringAsync(requestUri);
         }
 
         private class GetStopsForLocationCompleted
@@ -532,6 +537,12 @@ namespace OneBusAway.WP7.Model
         }
 
         #endregion
+
+        internal void ClearCache()
+        {
+            new HttpCache("StopsForRoute", 0, 0).Clear();
+            new HttpCache("StopsForLocation", 0, 0).Clear();
+        }
     }
 
     public class WebserviceParsingException : Exception

@@ -228,6 +228,7 @@
             <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBarIconButton x:Name="appbar_search" IconUri="/Images/appbar.feature.search.rest.png" Text="Search" Click="appbar_search_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem x:Name="appbar_settings" Click="appbar_settings_Click" Text="settings"></shell:ApplicationBarMenuItem>
                 <shell:ApplicationBarMenuItem x:Name="appbar_about" Click="appbar_about_Click" Text="about"></shell:ApplicationBarMenuItem>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>

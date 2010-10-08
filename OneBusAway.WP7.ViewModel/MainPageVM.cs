@@ -60,18 +60,28 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadInfoForLocation(int radiusInMeters)
         {
+            LoadInfoForLocation(radiusInMeters, false);
+        }
+
+        /// <summary>
+        /// Call the OBA webservice to load stops and routes for the current location.
+        /// </summary>
+        /// <param name="radiusInMeters"></param>
+        /// <param name="invalidateCache">If true, will discard any cached result and requery the server</param>
+        public void LoadInfoForLocation(int radiusInMeters, bool invalidateCache)
+        {
             StopsForLocation.Clear();
             pendingOperations++;
             RunWhenLocationKnown(delegate(GeoCoordinate location)
                 {
-                    busServiceModel.StopsForLocation(location, radiusInMeters);
+                    busServiceModel.StopsForLocation(location, radiusInMeters, -1, invalidateCache);
                 });
 
             RoutesForLocation.Clear();
             pendingOperations++;
             RunWhenLocationKnown(delegate(GeoCoordinate location)
                 {
-                    busServiceModel.RoutesForLocation(location, radiusInMeters);
+                    busServiceModel.RoutesForLocation(location, radiusInMeters, -1, invalidateCache);
                 });
         }
 

@@ -58,10 +58,16 @@ namespace OneBusAway.WP7.Model
 
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
         {
+            StopsForLocation(location, radiusInMeters, maxCount, false);
+        }
+
+        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        {
             webservice.StopsForLocation(
                 location,
                 radiusInMeters,
                 maxCount,
+                invalidateCache,
                 delegate(List<Stop> stops, Exception error)
                 {
                     if (StopsForLocation_Completed != null)
@@ -79,10 +85,16 @@ namespace OneBusAway.WP7.Model
 
         public void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
         {
+            RoutesForLocation(location, radiusInMeters, maxCount, false);
+        }
+
+        public void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        {
             webservice.StopsForLocation(
                 location,
                 radiusInMeters,
                 maxCount,
+                invalidateCache,
                 delegate(List<Stop> stops, Exception e)
                 {
                     Exception error = e;
@@ -303,6 +315,11 @@ namespace OneBusAway.WP7.Model
 
                 callback(loc, error);
             }
+        }
+
+        public void ClearCache()
+        {
+            webservice.ClearCache();
         }
 
         #endregion
