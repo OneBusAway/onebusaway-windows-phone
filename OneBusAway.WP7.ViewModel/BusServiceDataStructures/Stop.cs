@@ -31,20 +31,34 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         {
             get
             {
-                return new GeoCoordinate
+                if (coordinate != null)
                 {
-                    Latitude = coordinate.Latitude,
-                    Longitude = coordinate.Longitude
-                };
+                    return new GeoCoordinate
+                    {
+                        Latitude = coordinate.Latitude,
+                        Longitude = coordinate.Longitude
+                    };
+                }
+                else
+                {
+                    return null;
+                }
             }
 
             set
             {
-                coordinate = new Coordinate
+                if (value != null)
                 {
-                    Latitude = value.Latitude,
-                    Longitude = value.Longitude
-                };
+                    coordinate = new Coordinate
+                    {
+                        Latitude = value.Latitude,
+                        Longitude = value.Longitude
+                    };
+                }
+                else
+                {
+                    coordinate = null;
+                }
             }
         }
 

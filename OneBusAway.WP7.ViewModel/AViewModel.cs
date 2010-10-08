@@ -38,9 +38,15 @@ namespace OneBusAway.WP7.ViewModel
 
         static void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
         {
+            // The location service will return the last known location of the phone when it first starts up.  Since
+            // we can't refresh the home screen wait until a recent location value is found before using it.  The
+            // location must be less than 1 minute old.
             if (e.Position.Location.IsUnknown == false)
             {
-                lastKnownLocation = e.Position.Location;
+                if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 1, 0))
+                {
+                    lastKnownLocation = e.Position.Location;
+                }
             }
         }
 
@@ -136,6 +142,7 @@ namespace OneBusAway.WP7.ViewModel
                 pendingOperations++;
                 locationLoading = true;
                 LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
+                LocationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
             }
         }
 
@@ -188,6 +195,26 @@ namespace OneBusAway.WP7.ViewModel
             if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        void LocationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
+        {
+            if (e.Status == GeoPositionStatus.Disabled)
+            {
+                // Status disabled means the user has disabled the location service on their phone
+                // and we won't be getting a location.  Go ahead and stop loading the location and
+                // set it to the default
+                lock (pendingOperationsLock)
+                {
+                    if (locationLoading == true)
+                    {
+                        lastKnownLocation = DefaultLocation;
+
+                        locationLoading = false;
+                        pendingOperations--;
+                    }
+                }
             }
         }
 

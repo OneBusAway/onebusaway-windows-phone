@@ -43,6 +43,8 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
+        #region OneBusAway service calls
+
         public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
         {
             string requestUrl = string.Format(
@@ -109,29 +111,6 @@ namespace OneBusAway.WP7.Model
             }
         }
 
-        private static Route ParseRoute(XElement routeXml, IEnumerable<XElement> agenciesXml)
-        {
-            Route route = new Route();
-            route.id = routeXml.Element("id").Value;
-            route.shortName = routeXml.Element("shortName").Value;
-            route.url = routeXml.Element("url") != null ? routeXml.Element("url").Value : string.Empty;
-            route.description = routeXml.Element("description") != null ?
-                routeXml.Element("description").Value :
-                    (routeXml.Element("longName") != null ?
-                        routeXml.Element("longName").Value : string.Empty);
-
-            route.agency =
-                (from agency in agenciesXml
-                    where routeXml.Element("agencyId").Value == agency.Element("id").Value
-                    select new Agency
-                    {
-                        id = agency.Element("id").Value,
-                        name = agency.Element("name").Value
-                    }).First();
-
-            return route;
-        }
-
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, StopsForLocation_Callback callback)
         {
             // Round off coordinates so that we can exploit caching.
@@ -186,23 +165,14 @@ namespace OneBusAway.WP7.Model
 
                         stops =
                             (from stop in xmlDoc.Descendants("stop")
-                             select new Stop
-                             {
-                                 id = stop.Element("id").Value,
-                                 location = new GeoCoordinate(
-                                     double.Parse(stop.Element("lat").Value),
-                                     double.Parse(stop.Element("lon").Value)
-                                     ),
-                                 direction = stop.Element("direction").Value,
-                                 name = stop.Element("name").Value,
-
-                                 routes =
-                                     (from routeId in stop.Element("routeIds").Descendants("string")
-                                      from route in xmlDoc.Descendants("route")
-                                      where route.Element("id").Value == routeId.Value
-                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
-
-                             }).ToList<Stop>();
+                             select ParseStop
+                                (
+                                    stop,
+                                    (from routeId in stop.Element("routeIds").Descendants("string")
+                                     from route in xmlDoc.Descendants("route")
+                                     where route.Element("id").Value == routeId.Value
+                                     select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
+                                )).ToList<Stop>();
                     }
                 }
                 catch (Exception ex)
@@ -227,7 +197,7 @@ namespace OneBusAway.WP7.Model
                 APIVERSION
                 );
             HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100); 
-            directionCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, callback).DirectionsForRoute_Completed);
+            directionCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, route, callback).DirectionsForRoute_Completed);
             directionCache.DownloadStringAsync(new Uri(requestUrl));
         }
 
@@ -235,11 +205,13 @@ namespace OneBusAway.WP7.Model
         {
             private StopsForRoute_Callback callback;
             private string requestUrl;
+            private Route route;
 
-            public GetDirectionsForRouteCompleted(string requestUrl, StopsForRoute_Callback callback)
+            public GetDirectionsForRouteCompleted(string requestUrl, Route route, StopsForRoute_Callback callback)
             {
                 this.callback = callback;
                 this.requestUrl = requestUrl;
+                this.route = route;
             }
 
             public void DirectionsForRoute_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
@@ -269,23 +241,15 @@ namespace OneBusAway.WP7.Model
                                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                                       from stop in xmlDoc.Descendants("stop")
                                       where stopId.Value == stop.Element("id").Value
-                                      select new Stop
-                                      {
-                                          id = stop.Element("id").Value,
-                                          direction = stop.Element("direction").Value,
-                                          location = new GeoCoordinate(
-                                              double.Parse(stop.Element("lat").Value),
-                                              double.Parse(stop.Element("lon").Value)
-                                              ),
-                                          name = stop.Element("name").Value,
+                                      select ParseStop(
+                                            stop, 
+                                            (from routeId in stop.Element("routeIds").Descendants("string")
+                                            from route in xmlDoc.Descendants("route")
+                                            where route.Element("id").Value == routeId.Value
+                                            select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
+                                            )).ToList<Stop>(),
 
-                                          routes =
-                                              (from routeId in stop.Element("routeIds").Descendants("string")
-                                               from route in xmlDoc.Descendants("route")
-                                               where route.Element("id").Value == routeId.Value
-                                               select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
-
-                                      }).ToList<Stop>()
+                                 route = this.route
 
                              }).ToList<RouteStops>();
                     }
@@ -341,21 +305,7 @@ namespace OneBusAway.WP7.Model
 
                         arrivals =
                             (from arrival in xmlDoc.Descendants("arrivalAndDeparture")
-                             select new ArrivalAndDeparture
-                             {
-                                 routeId = arrival.Element("routeId").Value,
-                                 tripId = arrival.Element("tripId").Value,
-                                 stopId = arrival.Element("stopId").Value,
-                                 routeShortName = arrival.Element("routeShortName").Value,
-                                 tripHeadsign = arrival.Element("tripHeadsign").Value,
-                                 predictedArrivalTime = arrival.Element("predictedArrivalTime").Value == "0" ?
-                                    null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedArrivalTime").Value)),
-                                 scheduledArrivalTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledArrivalTime").Value)),
-                                 predictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
-                                    null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedDepartureTime").Value)),
-                                 scheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
-                                 status = arrival.Element("status").Value
-                             }).ToList<ArrivalAndDeparture>();
+                             select ParseArrivalAndDeparture(arrival)).ToList<ArrivalAndDeparture>();
                     }
                 }
                 catch (Exception ex)
@@ -475,25 +425,7 @@ namespace OneBusAway.WP7.Model
 
                         tripDetail =
                             (from trip in xmlDoc.Descendants("entry")
-                             select new TripDetails
-                             {
-                                 tripId = trip.Element("tripId").Value,
-                                 serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
-                                 scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
-                                 closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    trip.Element("status").Element("closestStop").Value : null,
-                                 closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
-                                 position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                                    new GeoCoordinate(
-                                        double.Parse(trip.Element("status").Element("position").Element("lat").Value),
-                                        double.Parse(trip.Element("status").Element("position").Element("lon").Value)
-                                        )
-                                    :
-                                    null
-
-                             }).First();
+                             select ParseTripDetails(trip)).First();
                     }
                 }
                 catch (Exception ex)
@@ -507,10 +439,99 @@ namespace OneBusAway.WP7.Model
             }
         }
 
+        #endregion
+
+        #region Structure parsing code
+
+        private static TripDetails ParseTripDetails(XElement trip)
+        {
+            return new TripDetails()
+            {
+                tripId = trip.Element("tripId").Value,
+                serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
+                scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
+                closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                    trip.Element("status").Element("closestStop").Value : null,
+                closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
+                position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                        new GeoCoordinate(
+                            double.Parse(trip.Element("status").Element("position").Element("lat").Value),
+                            double.Parse(trip.Element("status").Element("position").Element("lon").Value)
+                            )
+                    :
+                        null
+            };
+        }
+
+        private static ArrivalAndDeparture ParseArrivalAndDeparture(XElement arrival)
+        {
+            return new ArrivalAndDeparture
+            {
+                routeId = arrival.Element("routeId").Value,
+                tripId = arrival.Element("tripId").Value,
+                stopId = arrival.Element("stopId").Value,
+                routeShortName = arrival.Element("routeShortName").Value,
+                tripHeadsign = arrival.Element("tripHeadsign").Value,
+                predictedArrivalTime = arrival.Element("predictedArrivalTime").Value == "0" ?
+                null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedArrivalTime").Value)),
+                scheduledArrivalTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledArrivalTime").Value)),
+                predictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
+                null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedDepartureTime").Value)),
+                scheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
+                status = arrival.Element("status").Value
+            };
+        }
+
+        private static Route ParseRoute(XElement route, IEnumerable<XElement> agencies)
+        {
+            return new Route()
+            {
+                id = route.Element("id").Value,
+                shortName = route.Element("shortName").Value,
+                url = route.Element("url") != null ? route.Element("url").Value : string.Empty,
+                description = route.Element("description") != null ?
+                    route.Element("description").Value :
+                        (route.Element("longName") != null ?
+                            route.Element("longName").Value : string.Empty),
+
+                agency =
+                    (from agency in agencies
+                     where route.Element("agencyId").Value == agency.Element("id").Value
+                     select new Agency
+                     {
+                         id = agency.Element("id").Value,
+                         name = agency.Element("name").Value
+                     }).First()
+            };
+        }
+
+        private static Stop ParseStop(XElement stop, List<Route> routes)
+        {
+            return new Stop
+            {
+                id = stop.Element("id").Value,
+                direction = stop.Element("direction").Value,
+                location = new GeoCoordinate(
+                    double.Parse(stop.Element("lat").Value),
+                    double.Parse(stop.Element("lon").Value)
+                    ),
+                name = stop.Element("name").Value,
+                routes = routes
+            };
+        }
+
+        #endregion
+
+        #region Private Methods
+
         private static DateTime UnixTimeToDateTime(long unixTime)
         {
             return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
         }
+
+        #endregion
     }
 
     public class WebserviceParsingException : Exception

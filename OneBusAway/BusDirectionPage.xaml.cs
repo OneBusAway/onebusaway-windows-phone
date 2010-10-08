@@ -42,7 +42,7 @@ namespace OneBusAway.WP7.View
             // since the bus directions aren't going to change
             if (informationLoaded == false)
             {
-                viewModel.LoadRouteDirections(viewModel.CurrentViewState.CurrentRoute);
+                viewModel.LoadRouteDirections(viewModel.CurrentViewState.CurrentRoutes);
                 informationLoaded = true;
             }
             else
@@ -65,6 +65,7 @@ namespace OneBusAway.WP7.View
         {
             if (e.AddedItems.Count > 0)
             {
+                viewModel.CurrentViewState.CurrentRoute = ((RouteStops)e.AddedItems[0]).route;
                 viewModel.CurrentViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
 
                 viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];

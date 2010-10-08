@@ -44,6 +44,7 @@ namespace OneBusAway.WP7.View
         void Application_Activated(object sender, ActivatedEventArgs e)
         {
             viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
+            viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
             viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
             viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
         }
@@ -65,6 +66,7 @@ namespace OneBusAway.WP7.View
         void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
             PhoneApplicationService.Current.State["CurrentRoute"] = Serialize(viewState.CurrentRoute);
+            PhoneApplicationService.Current.State["CurrentRoutes"] = Serialize(viewState.CurrentRoutes);
             PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
             PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
         }
