@@ -10,6 +10,8 @@
     xmlns:view="clr-namespace:OneBusAway.WP7.View"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:shapes="clr-namespace:System.Windows.Shapes;assembly=System.Windows"
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
     SupportedOrientations="Portrait"
     mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480">
 
