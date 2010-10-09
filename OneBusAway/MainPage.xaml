@@ -10,11 +10,14 @@
     xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
     xmlns:local="clr-namespace:OneBusAway.WP7.View"
-    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"    
+    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps" 
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}">
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+>
 
     <phoneNavigation:PhoneApplicationPage.Resources>
         <data:MainPageVM x:Key="ViewModel" />
@@ -142,6 +145,8 @@
     </phoneNavigation:PhoneApplicationPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="Transparent">
+        <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
+
         <pivot:Pivot Title="ONE BUS AWAY"  Name="PC" SelectionChanged="PC_SelectionChanged" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
@@ -158,13 +163,13 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
-                    <m:Map  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
+                    <m:Map Margin="14,0,0,16"  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
                    Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" IsEnabled="False" >
                         <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                             <m:MapItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <m:Pushpin Location="{Binding location}" >
-                                        <Image Source="/Bus_Icon.png" Width="20" Height="20" />
+                                        <Image Source="/Images/bus.w.png" Width="20" Height="20" />
                                     </m:Pushpin>
                                 </DataTemplate>
                             </m:MapItemsControl.ItemTemplate>
@@ -220,7 +225,6 @@
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
             />
-
     </Grid>
 
     <phoneNavigation:PhoneApplicationPage.ApplicationBar>

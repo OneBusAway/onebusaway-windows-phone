@@ -9,6 +9,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
