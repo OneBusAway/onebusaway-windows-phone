@@ -73,6 +73,17 @@ namespace OneBusAway.WP7.View
 
             viewModel.LoadFavorites();
             viewModel.LoadInfoForLocation(1000);
+
+            viewModel.CheckForLocalTransitData(delegate(bool hasData)
+            {
+                if (hasData == false)
+                {
+                    MessageBox.Show(
+                        "Currently the OneBusAway service only supports Seattle and the surrounding counties. " +
+                        "Many functions of this app will not work in your current location."
+                        );
+                }
+            });
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)

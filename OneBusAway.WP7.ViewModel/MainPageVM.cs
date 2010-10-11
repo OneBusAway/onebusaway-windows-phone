@@ -120,9 +120,26 @@ namespace OneBusAway.WP7.ViewModel
         {
             pendingOperations++;
             busServiceModel.LocationForAddress(addressString);
+        }
 
+        public delegate void CheckForLocalTransitData_Callback(bool hasData);
+        public void CheckForLocalTransitData(CheckForLocalTransitData_Callback callback)
+        {
+            RunWhenLocationKnown(delegate(GeoCoordinate location)
+            {
+                bool hasData;
+                // Ensure that their current location is within ~150 miles of Seattle
+                if (location.GetDistanceTo(AViewModel.DefaultLocationStatic) > 250000)
+                {
+                    hasData = false;
+                }
+                else
+                {
+                    hasData = true;
+                }
 
-            //
+                callback(hasData);
+            });
         }
 
         public override void RegisterEventHandlers()
