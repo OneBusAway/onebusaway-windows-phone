@@ -52,9 +52,9 @@ namespace OneBusAway.WP7.View
                 stop = ((Route)value).closestStop;
             }
 
-            if (stop != null && AViewModel.LocationKnown == true)
+            if (stop != null && AViewModel.LocationKnownStatic == true)
             {
-                double distance = stop.CalculateDistanceInMiles(AViewModel.CurrentLocation);
+                double distance = stop.CalculateDistanceInMiles(AViewModel.CurrentLocationStatic);
                 return string.Format("Distance: {0:0.00} mi", distance);
             }
             else

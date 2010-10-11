@@ -13,7 +13,9 @@
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     SupportedOrientations="Portrait"
-    mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480">
+    mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True"
+    >
 
     <navigation:PhoneApplicationPage.Resources>
         
@@ -107,11 +109,37 @@
 
         <Grid Grid.Row="1" x:Name="ContentGrid">
             <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" >
+                   Center="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="15" >
+                <m:MapLayer x:Name="BusStopsLayer">
+                    <m:MapItemsControl ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
+                        <m:MapItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <m:Pushpin Location="{Binding location}" PositionOrigin="TopLeft" Background="Transparent">
+                                    <Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                                </m:Pushpin>
+                            </DataTemplate>
+                        </m:MapItemsControl.ItemTemplate>
+                    </m:MapItemsControl>
+                </m:MapLayer>
+                <m:MapLayer x:Name="MyLocationLayer">
+                    <m:Pushpin Location="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="TopLeft" Background="Transparent">
+                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
+                    </m:Pushpin>
+                </m:MapLayer>
+                <m:MapLayer x:Name="SelectedStopLayer">
+                    <m:Pushpin Location="{Binding Path=CurrentViewState.CurrentStop.location, Source={StaticResource ViewModel}}" PositionOrigin="BottomLeft">
+                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                    </m:Pushpin>
+                </m:MapLayer>
             </m:Map>
         </Grid>
         <Grid Grid.Row="2" x:Name="StopGrid">
-            <ListBox x:Name="ArrivalsListBox" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" ItemTemplate="{StaticResource RouteTemplate}" />
+            <ListBox 
+                x:Name="ArrivalsListBox" 
+                ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" 
+                ItemTemplate="{StaticResource RouteTemplate}" 
+                SelectionChanged="ArrivalsListBox_SelectionChanged"
+                />
         </Grid>
 
         <ProgressBar 

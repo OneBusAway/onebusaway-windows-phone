@@ -59,7 +59,9 @@ namespace OneBusAway.WP7.Model
             {
                 CacheHits++;
                 CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(cachedResult);
-                CacheDownloadStringCompleted(this, eventArgs);
+                // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
+                // original call and wierd things could happen.
+                Deployment.Current.Dispatcher.BeginInvoke(() => CacheDownloadStringCompleted(this, eventArgs));
             }
             else
             {
@@ -425,9 +427,7 @@ namespace OneBusAway.WP7.Model
                     owner.CacheAddResult(requestedAddress, eventArgs.Result);
                     // and fire our event
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Result);
-                    // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
-                    // original call and wierd things could happen.
-                    Deployment.Current.Dispatcher.BeginInvoke(() => owner.CacheDownloadStringCompleted(this, newArgs));
+                    owner.CacheDownloadStringCompleted(this, newArgs);
                 }
             }
         }

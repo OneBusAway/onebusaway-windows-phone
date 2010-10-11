@@ -162,6 +162,7 @@
     <Content Include="Images\appbar.refresh.rest.png" />
     <Content Include="Images\bus.w.png" />
     <Content Include="Images\center.png" />
+    <Content Include="Images\CenterIcon.png" />
     <Content Include="SplashImage.png" />
     <Content Include="SplashScreenImage.jpg" />
   </ItemGroup>

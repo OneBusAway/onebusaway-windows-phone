@@ -32,11 +32,11 @@ namespace OneBusAway.WP7.ViewModel
 
             LocationWatcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
             LocationWatcher.MovementThreshold = 5; // 5 meters
-            LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+            LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChangedStatic);
             LocationWatcher.Start();
         }
 
-        static void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        static void LocationWatcher_PositionChangedStatic(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
         {
             // The location service will return the last known location of the phone when it first starts up.  Since
             // we can't refresh the home screen wait until a recent location value is found before using it.  The
@@ -50,16 +50,14 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        public static GeoCoordinate CurrentLocation
+        public static GeoCoordinate CurrentLocationStatic
         {
             get
             {
-#if DEBUG
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
                     return new GeoCoordinate(47.676, -122.32);
                 }
-#endif
 
                 if (lastKnownLocation != null)
                 {
@@ -70,16 +68,14 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        public static bool LocationKnown
+        public static bool LocationKnownStatic
         {
             get
             {
-#if DEBUG
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
                     return true;
                 }
-#endif
 
                 return lastKnownLocation != null;
             }
@@ -89,7 +85,7 @@ namespace OneBusAway.WP7.ViewModel
         /// Returns a default location to use when our current location is
         /// unavailable.  This is downtown Seattle.
         /// </summary>
-        public static GeoCoordinate DefaultLocation
+        public static GeoCoordinate DefaultLocationStatic
         {
             get
             {
@@ -98,6 +94,8 @@ namespace OneBusAway.WP7.ViewModel
         }
 
         #endregion
+
+        #region Constructors
 
         public AViewModel()
             :   this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
@@ -137,7 +135,7 @@ namespace OneBusAway.WP7.ViewModel
             // Create the timer but don't run it until methods are added to the queue
             methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
 
-            if (LocationKnown == false)
+            if (LocationKnownStatic == false)
             {
                 pendingOperations++;
                 locationLoading = true;
@@ -145,6 +143,8 @@ namespace OneBusAway.WP7.ViewModel
                 LocationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
             }
         }
+
+        #endregion
 
         #region Private/Protected Properties
 
@@ -170,9 +170,14 @@ namespace OneBusAway.WP7.ViewModel
             set
             {
                 // Make sure we never set pendingOperations to a negative number
-                if (pendingOperationsCount >= 0)
+                if (value >= 0)
                 {
                     pendingOperationsCount = value;
+                }
+                else
+                {
+                    Debug.Assert(value >= 0);
+                    pendingOperations = 0;
                 }
 
                 if (pendingOperationsCount == 0)
@@ -209,7 +214,7 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     if (locationLoading == true)
                     {
-                        lastKnownLocation = DefaultLocation;
+                        lastKnownLocation = DefaultLocationStatic;
 
                         locationLoading = false;
                         pendingOperations--;
@@ -229,18 +234,27 @@ namespace OneBusAway.WP7.ViewModel
                         // We know where we are now, decrease the pending count
                         locationLoading = false;
                         pendingOperations--;
+
+                        // Remove this handler now that the location is known
+                        LocationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                     }
                 }
             }
         }
 
+        void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        {
+            OnPropertyChanged("CurrentLocation");
+            OnPropertyChanged("CurrentLocationSafe");
+        }
+
         private void RunMethodsRequiringLocation(object param)
         {
-            if (LocationKnown == true)
+            if (LocationKnownStatic == true)
             {
                 lock (methodsRequiringLocationLock)
                 {
-                    methodsRequiringLocation.ForEach(method => method(CurrentLocation));
+                    methodsRequiringLocation.ForEach(method => method(CurrentLocationStatic));
                     methodsRequiringLocation.Clear();
                     // Disable the timer now that no methods are in the queue
                     methodsRequiringLocationTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -251,9 +265,9 @@ namespace OneBusAway.WP7.ViewModel
         protected delegate void RequiresKnownLocation(GeoCoordinate location);
         protected void RunWhenLocationKnown(RequiresKnownLocation method)
         {
-            if (LocationKnown == true)
+            if (LocationKnownStatic == true)
             {
-                method(CurrentLocation);
+                method(CurrentLocationStatic);
             }
             else
             {
@@ -274,6 +288,29 @@ namespace OneBusAway.WP7.ViewModel
             get
             {
                 return ViewState.Instance;
+            }
+        }
+
+        public GeoCoordinate CurrentLocation
+        {
+            get
+            {
+                return AViewModel.CurrentLocationStatic;
+            }
+        }
+
+        public GeoCoordinate CurrentLocationSafe
+        {
+            get
+            {
+                if (AViewModel.LocationKnownStatic == true)
+                {
+                    return AViewModel.CurrentLocationStatic;
+                }
+                else
+                {
+                    return AViewModel.DefaultLocationStatic;
+                }
             }
         }
 
@@ -300,13 +337,19 @@ namespace OneBusAway.WP7.ViewModel
         /// Registers all event handlers with the model.  Call this when 
         /// the page is first loaded.
         /// </summary>
-        public abstract void RegisterEventHandlers();
+        public virtual void RegisterEventHandlers()
+        {
+            LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+        }
 
         /// <summary>
         /// Unregisters all event handlers with the model. Call this when
         /// the page is navigated away from.
         /// </summary>
-        public abstract void UnregisterEventHandlers();
+        public virtual void UnregisterEventHandlers()
+        {
+            LocationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+        }
 
         #endregion
 

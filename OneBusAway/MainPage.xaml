@@ -11,12 +11,13 @@
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
     xmlns:local="clr-namespace:OneBusAway.WP7.View"
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps" 
-    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
+    shell:SystemTray.IsVisible="True"
 >
 
     <phoneNavigation:PhoneApplicationPage.Resources>
@@ -164,17 +165,27 @@
                     </Grid.RowDefinitions>
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
                     <m:Map Margin="14,0,0,16"  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="47.676526822627963, -122.3183012008667" ZoomLevel="10" IsEnabled="False" >
-                        <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
-                            <m:MapItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <m:Pushpin Location="{Binding location}" >
-                                        <Image Source="/Images/bus.w.png" Width="20" Height="20" />
-                                    </m:Pushpin>
-                                </DataTemplate>
-                            </m:MapItemsControl.ItemTemplate>
-                        </m:MapItemsControl>
-
+                   Center="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" IsEnabled="False" >
+                        <m:MapLayer x:Name="BusStopsLayer">
+                            <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+                                <m:MapItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <m:Pushpin Location="{Binding location}" Background="Transparent" PositionOrigin="TopLeft">
+                                            <Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                                        </m:Pushpin>
+                                    </DataTemplate>
+                                </m:MapItemsControl.ItemTemplate>
+                            </m:MapItemsControl>
+                        </m:MapLayer>
+                        <m:MapLayer x:Name="MyLocationLayer">
+                            <m:MapLayer.Children>
+                                <m:Pushpin Location="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Background="Transparent">
+                                    <m:Pushpin.Content>
+                                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
+                                    </m:Pushpin.Content>
+                                </m:Pushpin>
+                            </m:MapLayer.Children>
+                        </m:MapLayer>
                     </m:Map>
                     <ListBox Grid.Row="1"
                     x:Name="StopsListBox" 

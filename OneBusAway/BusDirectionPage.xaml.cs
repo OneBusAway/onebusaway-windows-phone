@@ -73,7 +73,7 @@ namespace OneBusAway.WP7.View
                 {
                     // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
                     // at this point during a tombstoning scenario
-                    GeoCoordinate location = AViewModel.CurrentLocation;
+                    GeoCoordinate location = AViewModel.CurrentLocationStatic;
 
                     if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
                     {
