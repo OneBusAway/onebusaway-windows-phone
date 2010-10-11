@@ -61,8 +61,6 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.RegisterEventHandlers();
-
             if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
             {
                 selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);

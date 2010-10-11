@@ -50,7 +50,8 @@ namespace OneBusAway.WP7.Model
 
         #region public methods
 
-        public void DownloadStringAsync(Uri address)
+        public delegate void DownloadStringAsync_Completed(object sender, CacheDownloadStringCompletedEventArgs e);
+        public void DownloadStringAsync(Uri address, DownloadStringAsync_Completed callback)
         {
             CacheCalls++;
             // lookup address in cache
@@ -61,14 +62,14 @@ namespace OneBusAway.WP7.Model
                 CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(cachedResult);
                 // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
                 // original call and wierd things could happen.
-                Deployment.Current.Dispatcher.BeginInvoke(() => CacheDownloadStringCompleted(this, eventArgs));
+                Deployment.Current.Dispatcher.BeginInvoke(() => callback(this, eventArgs));
             }
             else
             {
                 CacheMisses++;
                 // not found, request data
                 WebClient client = new WebClient();
-                client.DownloadStringCompleted += new CacheCallback(this, address).Callback;
+                client.DownloadStringCompleted += new CacheCallback(this, callback, address).Callback;
                 client.DownloadStringAsync(address);
             }
         }
@@ -399,12 +400,14 @@ namespace OneBusAway.WP7.Model
         /// </summary>
         private class CacheCallback
         {
-            private HttpCache owner;
             private Uri requestedAddress;
+            private HttpCache owner;
+            private DownloadStringAsync_Completed callback;
 
-            public CacheCallback(HttpCache owner, Uri requestedAddress)
+            public CacheCallback(HttpCache owner, DownloadStringAsync_Completed callback, Uri requestedAddress)
             {
                 this.owner = owner;
+                this.callback = callback;
                 this.requestedAddress = requestedAddress;
             }
 
@@ -414,12 +417,12 @@ namespace OneBusAway.WP7.Model
                 if (eventArgs.Cancelled)
                 {
                     CacheDownloadStringCompletedEventArgs newArgs = CacheDownloadStringCompletedEventArgs.MakeCancelled();
-                    owner.CacheDownloadStringCompleted(this, newArgs);
+                    callback(this, newArgs);
                 }
                 else if (eventArgs.Error != null)
                 {
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Error);
-                    owner.CacheDownloadStringCompleted(this, newArgs);
+                    callback(this, newArgs);
                 }
                 else
                 {
@@ -427,7 +430,7 @@ namespace OneBusAway.WP7.Model
                     owner.CacheAddResult(requestedAddress, eventArgs.Result);
                     // and fire our event
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Result);
-                    owner.CacheDownloadStringCompleted(this, newArgs);
+                    callback(this, newArgs);
                 }
             }
         }
@@ -435,9 +438,6 @@ namespace OneBusAway.WP7.Model
 
         // Yes, these mirror the ones defined in System.Net.
         // Those don't have public constructors, so they're not reusable.
-
-        public event CacheDownloadStringCompletedEventHandler CacheDownloadStringCompleted;
-        public delegate void CacheDownloadStringCompletedEventHandler(object sender, CacheDownloadStringCompletedEventArgs e);
         public class CacheDownloadStringCompletedEventArgs : AsyncCompletedEventArgs 
         {
             /// <summary>

@@ -16,7 +16,8 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private Variables
 
-        private ArrivalsForStopHandler arrivalsForStopHandler;
+        private Route routeFilter;
+        private List<ArrivalAndDeparture> unfilteredArrivals;
 
         #endregion
 
@@ -43,6 +44,8 @@ namespace OneBusAway.WP7.ViewModel
         {
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
+            unfilteredArrivals = new List<ArrivalAndDeparture>();
+            routeFilter = null;
         }
 
         #endregion
@@ -65,21 +68,24 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop)
         {
-            pendingOperations++;
             LoadArrivalsForStop(stop, null);
         }
 
         public void LoadArrivalsForStop(Stop stop, Route routeFilter)
         {
-            arrivalsForStopHandler.routeFilter = routeFilter;
-
             pendingOperations++;
+
+            unfilteredArrivals.Clear();
+            ArrivalsForStop.Clear();
+            ChangeFilterForArrivals(routeFilter);
+
             busServiceModel.ArrivalsForStop(stop);
         }
 
         public void ChangeFilterForArrivals(Route routeFilter)
         {
-            arrivalsForStopHandler.UpdateFilter(routeFilter);
+            this.routeFilter = routeFilter;
+            FilterArrivals();
         }
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
@@ -132,61 +138,19 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
         {
-            pendingOperations--;
-        }
+            Debug.Assert(e.error == null);
 
-        private class ArrivalsForStopHandler
-        {
-            public Route routeFilter;
-
-            private ObservableCollection<ArrivalAndDeparture> arrivalsForStop;
-            private List<ArrivalAndDeparture> unfilteredArrivals;
-            private RouteDetailsVM viewModel;
-
-            public ArrivalsForStopHandler(ObservableCollection<ArrivalAndDeparture> arrivalsForStop, RouteDetailsVM viewModel)
+            if (e.error == null)
             {
-                routeFilter = null;
-                this.arrivalsForStop = arrivalsForStop;
-                unfilteredArrivals = new List<ArrivalAndDeparture>();
-                this.viewModel = viewModel;
-            }
-
-            public void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
-            {
-                Debug.Assert(e.error == null);
-
-                if (e.error == null)
-                {
-                    unfilteredArrivals = e.arrivals;
-                    FilterArrivals();
-                }
-                else
-                {
-                    viewModel.ErrorOccured(this, e.error);
-                }
-            }
-
-            public void UpdateFilter(Route routeFilter)
-            {
-                this.routeFilter = routeFilter;
-
+                unfilteredArrivals = e.arrivals;
                 FilterArrivals();
             }
-
-            private void FilterArrivals()
+            else
             {
-                arrivalsForStop.Clear();
-
-                foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
-                {
-                    if (routeFilter != null && routeFilter.id != arrival.routeId)
-                    {
-                        continue;
-                    }
-
-                    arrivalsForStop.Add(arrival);
-                }
+                ErrorOccured(this, e.error);
             }
+
+            pendingOperations--;
         }
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
@@ -208,15 +172,27 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
+        private void FilterArrivals()
+        {
+            ArrivalsForStop.Clear();
+
+            foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+            {
+                if (routeFilter != null && routeFilter.id != arrival.routeId)
+                {
+                    continue;
+                }
+
+                ArrivalsForStop.Add(arrival);
+            }
+        }
+
         public override void RegisterEventHandlers()
         {
             base.RegisterEventHandlers();
 
             this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-
-            arrivalsForStopHandler = new ArrivalsForStopHandler(ArrivalsForStop, this);
-            this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
         }
 
@@ -226,9 +202,7 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.TripDetailsForArrival_Completed -= new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-
-            this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(arrivalsForStopHandler.busServiceModel_ArrivalsForStop_Completed);
-            arrivalsForStopHandler = null;
+            this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
 
             pendingOperations = 0;
         }
