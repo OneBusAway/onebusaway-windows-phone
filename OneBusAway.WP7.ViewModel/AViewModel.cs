@@ -56,7 +56,8 @@ namespace OneBusAway.WP7.ViewModel
             {
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
-                    return new GeoCoordinate(47.676, -122.32);
+                    return new GeoCoordinate(47.676, -122.32); // Greenlake P&R
+                    //return new GeoCoordinate(30.266, -97.742); // Austin, TX
                 }
 
                 if (lastKnownLocation != null)
