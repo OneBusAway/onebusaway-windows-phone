@@ -45,7 +45,7 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
                 return 1;
             }
 
-            if (!(x is RecentRouteAndStop) || !(y is RecentRouteAndStop))
+            if ((x is RecentRouteAndStop) == false || (y is RecentRouteAndStop) == false)
             {
                 throw new NotSupportedException();
             }
