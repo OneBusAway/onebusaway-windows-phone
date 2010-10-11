@@ -143,8 +143,8 @@ namespace OneBusAway.WP7.Model
             {
                 stopsCache.Invalidate(requestUri);
             }
-            stopsCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetStopsForLocationCompleted(requestString, callback).StopsForLocation_Completed);
-            stopsCache.DownloadStringAsync(requestUri);
+
+            stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, callback).StopsForLocation_Completed);
         }
 
         private class GetStopsForLocationCompleted
@@ -202,9 +202,8 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100); 
-            directionCache.CacheDownloadStringCompleted += new HttpCache.CacheDownloadStringCompletedEventHandler(new GetDirectionsForRouteCompleted(requestUrl, route, callback).DirectionsForRoute_Completed);
-            directionCache.DownloadStringAsync(new Uri(requestUrl));
+            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
+            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route, callback).DirectionsForRoute_Completed);
         }
 
         private class GetDirectionsForRouteCompleted

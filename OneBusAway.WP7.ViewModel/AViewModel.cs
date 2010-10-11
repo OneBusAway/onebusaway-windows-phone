@@ -131,6 +131,7 @@ namespace OneBusAway.WP7.ViewModel
             Loading = false;
             pendingOperationsCount = 0;
             pendingOperationsLock = new Object();
+            eventsRegistered = false;
 
             methodsRequiringLocation = new List<RequiresKnownLocation>();
             methodsRequiringLocationLock = new Object();
@@ -160,6 +161,7 @@ namespace OneBusAway.WP7.ViewModel
         private const int timerIntervalMs = 500;
         private Object methodsRequiringLocationLock;
         private List<RequiresKnownLocation> methodsRequiringLocation;
+        private bool eventsRegistered;
 
         private Object pendingOperationsLock;
         protected int pendingOperations
@@ -358,7 +360,13 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         public virtual void RegisterEventHandlers()
         {
-            LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+            Debug.Assert(eventsRegistered == false);
+
+            if (eventsRegistered == false)
+            {
+                LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+                eventsRegistered = true;
+            }
         }
 
         /// <summary>
@@ -367,7 +375,13 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         public virtual void UnregisterEventHandlers()
         {
-            LocationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+            Debug.Assert(eventsRegistered == true);
+
+            if (eventsRegistered == true)
+            {
+                LocationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+                eventsRegistered = false;
+            }
         }
 
         #endregion
