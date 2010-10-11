@@ -301,10 +301,12 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                // Can't sort here right now because we don't have access to the current location
-                //e.newFavorites.Sort(new FavoriteDistanceComparer());
                 Favorites.Clear();
-                e.newFavorites.Sort(new RecentLastAccessComparer());
+                
+                if (LocationKnownStatic == true)
+                {
+                    e.newFavorites.Sort(new FavoriteDistanceComparer(CurrentLocation));
+                }
                 e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
             }
             else
@@ -320,6 +322,7 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 Recents.Clear();
+                e.newFavorites.Sort(new RecentLastAccessComparer());
                 e.newFavorites.ForEach(recent => Recents.Add(recent));
             }
             else

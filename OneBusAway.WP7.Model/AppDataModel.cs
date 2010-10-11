@@ -206,6 +206,14 @@ namespace OneBusAway.WP7.Model
                         DataContractSerializer serializer = new DataContractSerializer(favoritesFromFile.GetType(), knownTypes);
                         favoritesFromFile = serializer.ReadObject(favoritesFile) as List<FavoriteRouteAndStop>;
                     }
+
+                    // This is required because we changed the data format between versions 
+                    if (favoritesFromFile.Count > 0 && favoritesFromFile[0].version != FavoriteRouteAndStop.CurrentVersion)
+                    {
+                        // Currently we don't support backwards compatability, just delete all their favorites/recents
+                        appStorage.DeleteFile(fileName);
+                        favoritesFromFile = new List<FavoriteRouteAndStop>();
+                    }
                 }
                 else
                 {

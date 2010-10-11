@@ -18,12 +18,21 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
     [DataContract()]
     public class FavoriteRouteAndStop
     {
+        public const int CurrentVersion = 2;
+
         [DataMember]
         public Route route { get; set; }
         [DataMember]
         public RouteStops routeStops { get; set; }
         [DataMember]
         public Stop stop { get; set; }
+        [DataMember]
+        public int version { get; set; }
+
+        public FavoriteRouteAndStop()
+        {
+            version = CurrentVersion;
+        }
 
         public string Title
         {
