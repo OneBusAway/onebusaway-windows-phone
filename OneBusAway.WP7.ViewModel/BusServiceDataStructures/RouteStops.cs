@@ -19,6 +19,16 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember()]
         public List<PolyLine> encodedPolylines { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is RouteStops == false)
+            {
+                return false;
+            }
+
+            return ((RouteStops)obj).name == name;
+        }
+
         public override string ToString()
         {
             return string.Format("RouteStops: name='{0}'", name);

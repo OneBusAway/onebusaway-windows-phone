@@ -64,6 +64,12 @@ namespace OneBusAway.WP7.View
                             "Something went wrong decyphering the bus status, " +
                             "would you like to report this error to us so we can try and fix it?";
                     }
+                    else if (e.error is WebserviceResponseException)
+                    {
+                        errorMessage +=
+                            "We were able to contact OneBusAway but the service returned an error. " +
+                            "We don't think this is our fault, but would you like to report this error so we can make sure?";
+                    }
                     else
                     {
                         errorMessage +=

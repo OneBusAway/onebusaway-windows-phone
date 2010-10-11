@@ -63,4 +63,30 @@ namespace OneBusAway.WP7.ViewModel
                 );
         }
     }
+
+    public class WebserviceResponseException : Exception
+    {
+        private string requestUrl;
+        private string serverResponse;
+        private HttpStatusCode serverStatusCode;
+
+        public WebserviceResponseException(HttpStatusCode serverStatusCode, string requestUrl, string serverResponse, Exception innerException)
+            : base("We were able to contact the webservice but the service returned an error", innerException)
+        {
+            this.requestUrl = requestUrl;
+            this.serverResponse = serverResponse;
+            this.serverStatusCode = serverStatusCode;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0}\r\nHttpErrorCode: '{1}'\r\nRequestURL: '{2}'\r\nResponse:\r\n{3}",
+                base.ToString(),
+                serverStatusCode,
+                requestUrl,
+                serverResponse
+                );
+        }
+    }
 }

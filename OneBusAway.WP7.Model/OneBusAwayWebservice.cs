@@ -95,11 +95,17 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
                         routes =
                             (from route in xmlDoc.Descendants("route")
                              select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -167,6 +173,8 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         stops =
@@ -180,6 +188,10 @@ namespace OneBusAway.WP7.Model
                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
                                 )).ToList<Stop>();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -228,6 +240,8 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         routeStops =
@@ -258,6 +272,10 @@ namespace OneBusAway.WP7.Model
 
                              }).ToList<RouteStops>();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -306,12 +324,18 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         arrivals =
                             (from arrival in xmlDoc.Descendants("arrivalAndDeparture")
                              select ParseArrivalAndDeparture(arrival)).ToList<ArrivalAndDeparture>();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -359,6 +383,8 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         schedules =
@@ -379,6 +405,10 @@ namespace OneBusAway.WP7.Model
 
                              }).ToList<RouteSchedule>();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -426,12 +456,18 @@ namespace OneBusAway.WP7.Model
                 {
                     if (error == null)
                     {
+                        CheckResponseCode(e.Result, requestUrl);
+
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
                         tripDetail =
                             (from trip in xmlDoc.Descendants("entry")
                              select ParseTripDetails(trip)).First();
                     }
+                }
+                catch (WebserviceResponseException ex)
+                {
+                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -525,6 +561,18 @@ namespace OneBusAway.WP7.Model
                 name = stop.Element("name").Value,
                 routes = routes
             };
+        }
+
+        private static void CheckResponseCode(string xmlResponse, string requestUrl)
+        {
+            XDocument xmlDoc = XDocument.Load(new StringReader(xmlResponse));
+            HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+
+            if (code != HttpStatusCode.OK)
+            {
+                Debug.Assert(false);
+                throw new WebserviceResponseException(code, requestUrl, xmlResponse, null);
+            }
         }
 
         #endregion
