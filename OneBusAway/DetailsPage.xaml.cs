@@ -60,21 +60,6 @@ namespace OneBusAway.WP7.View
 
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
-            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
-
-            DetailsMap.Children.Clear();
-
-            if (AViewModel.LocationKnown == true)
-            {
-                DetailsMap.Center = AViewModel.CurrentLocation;
-            }
-            else
-            {
-                DetailsMap.Center = viewModel.CurrentViewState.CurrentStop.location;
-            }
-
-            DetailsMap.ZoomLevel = 15;
-
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
             {
                 // CurrentRouteDirection isn't null so we've been called for a specific route
@@ -114,14 +99,6 @@ namespace OneBusAway.WP7.View
             }
 
             //Add current location and nearest stop
-            MapLayer mapLayer = new MapLayer();
-            DetailsMap.Children.Add(mapLayer);
-            mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location, PositionOrigin.BottomLeft);
-
-            if (AViewModel.LocationKnown == true)
-            {
-                mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation, PositionOrigin.Center);
-            }
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
             currentInfo.route = viewModel.CurrentViewState.CurrentRoute;
@@ -134,6 +111,8 @@ namespace OneBusAway.WP7.View
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
+            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
+
             RecentRouteAndStop recent = new RecentRouteAndStop();
             recent.route = viewModel.CurrentViewState.CurrentRoute;
             recent.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
@@ -218,6 +197,11 @@ namespace OneBusAway.WP7.View
                 appbar_favorite.IconUri = addFavoriteIcon;
                 appbar_favorite.Text = addFavoriteText;
             }
+        }
+
+        private void ArrivalsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            
         }
     }
 }

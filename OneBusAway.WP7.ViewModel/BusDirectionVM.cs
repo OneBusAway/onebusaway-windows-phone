@@ -78,7 +78,7 @@ namespace OneBusAway.WP7.ViewModel
                     // Subtract 1 because we haven't decremented the count yet
                     if (pendingRouteDirectionsCount - 1 == 0)
                     {
-                        if (LocationKnown == true)
+                        if (LocationKnownStatic == true)
                         {
                             pendingRouteDirections.Sort(new RouteStopsDistanceComparer(CurrentLocation));
                         }
@@ -94,13 +94,16 @@ namespace OneBusAway.WP7.ViewModel
 
         public override void RegisterEventHandlers()
         {
+            base.RegisterEventHandlers();
+
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
 
         public override void UnregisterEventHandlers()
         {
-            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+            base.UnregisterEventHandlers();
 
+            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
             pendingOperations = 0;
         }
     }

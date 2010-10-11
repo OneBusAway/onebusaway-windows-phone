@@ -196,6 +196,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public override void RegisterEventHandlers()
         {
+            base.RegisterEventHandlers();
+
             this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
@@ -206,6 +208,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public override void UnregisterEventHandlers()
         {
+            base.UnregisterEventHandlers();
+
             this.busServiceModel.TripDetailsForArrival_Completed -= new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 

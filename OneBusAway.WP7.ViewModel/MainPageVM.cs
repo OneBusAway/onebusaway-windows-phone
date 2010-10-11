@@ -91,9 +91,9 @@ namespace OneBusAway.WP7.ViewModel
             List<FavoriteRouteAndStop> favorites = appDataModel.GetFavorites(FavoriteType.Favorite);
             // TODO: Add a way for calls to wait ~5 seconds for location to become available
             // but fallback to running without location if it times out
-            if (LocationKnown == true)
+            if (LocationKnownStatic == true)
             {
-                favorites.Sort(new FavoriteDistanceComparer(CurrentLocation));
+                favorites.Sort(new FavoriteDistanceComparer(CurrentLocationStatic));
             }
             favorites.ForEach(favorite => Favorites.Add(favorite));
 
@@ -127,6 +127,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public override void RegisterEventHandlers()
         {
+            base.RegisterEventHandlers();
+
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed += new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
@@ -138,6 +140,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public override void UnregisterEventHandlers()
         {
+            base.UnregisterEventHandlers();
+
             this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed -= new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);

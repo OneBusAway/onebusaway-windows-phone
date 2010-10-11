@@ -12,6 +12,7 @@ using System.Windows.Controls.Primitives;
 using System.Threading;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace OneBusAway.WP7.View
 {
@@ -25,24 +26,6 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
             //ShowLoadingSplash();
 
-            // Set up the viewModel programmatically
-            //if (viewModel == null)
-            //{
-            //    viewModel = new MainPageVM();
-            //    this.Resources.Add("ViewModel", viewModel);
-
-            //    RoutesListBox.ItemsSource = viewModel.RoutesForLocation;
-            //    StopsListBox.ItemsSource = viewModel.StopsForLocation;
-            //    RecentsListBox.ItemsSource = viewModel.Recents;
-            //    FavoritesListBox.ItemsSource = viewModel.Favorites;
-            //    StopsMapItemsControl.ItemsSource = viewModel.StopsForLocation;
-
-            //    Binding b = new Binding("Visibility");
-            //    b.Source = viewModel.Loading;
-            //    b.Converter = new VisibilityConverter();
-            //    LoadingProgressBar.SetBinding(ProgressBar.VisibilityProperty, b);
-            //}
-          
             viewModel = Resources["ViewModel"] as MainPageVM;
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
@@ -86,8 +69,6 @@ namespace OneBusAway.WP7.View
                 selectedPivotIndex = 0;
             }
 
-            ZoomMap();
-
             PC.SelectedIndex = selectedPivotIndex;
 
             viewModel.LoadFavorites();
@@ -98,6 +79,24 @@ namespace OneBusAway.WP7.View
         {
             //ShowLoadingSplash();
             base.OnNavigatedTo(e);
+
+            viewModel.RegisterEventHandlers();
+
+            // We refresh this info every load so clear the lists now
+            // to avoid a flicker as the page comes back
+            viewModel.RoutesForLocation.Clear();
+            viewModel.StopsForLocation.Clear();
+            viewModel.Favorites.Clear();
+            viewModel.Recents.Clear();
+
+            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
+            {
+                selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
+            }
+            else
+            {
+                selectedPivotIndex = 0;
+            }
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -223,30 +222,6 @@ namespace OneBusAway.WP7.View
                     //viewModel.SearchByAddress(searchString, null);
                 //}
 
-            }
-        }
-
-        private void ZoomMap()
-        {
-            if (AViewModel.LocationKnown == true)
-            {
-                StopsMap.Center = AViewModel.CurrentLocation;
-            }
-            else
-            {
-                StopsMap.Center = AViewModel.DefaultLocation;
-            }
-
-            StopsMap.ZoomLevel = 17;
-
-            //Add current location and nearest stop
-            MapLayer mapLayer = new MapLayer();
-            StopsMap.Children.Add(mapLayer);
-            
-            //mapLayer.AddChild(new BusStopControl(), viewModel.CurrentViewState.CurrentStop.location);
-            if (AViewModel.LocationKnown == true)
-            {
-                mapLayer.AddChild(new CenterControl(), AViewModel.CurrentLocation, PositionOrigin.Center);
             }
         }
 
