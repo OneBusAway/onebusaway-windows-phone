@@ -87,6 +87,10 @@ namespace OneBusAway.WP7.ViewModel
                     }
                 }
             }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
 
             pendingRouteDirectionsCount--;
             pendingOperations--;

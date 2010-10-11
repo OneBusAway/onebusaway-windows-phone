@@ -13,25 +13,28 @@ using System.Threading;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Net;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class MainPage : PhoneApplicationPage
+    public partial class MainPage : AViewPage
     {
-        private MainPageVM viewModel;
         private int selectedPivotIndex = 0;
+        private MainPageVM viewModel;
 
         public MainPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
             //ShowLoadingSplash();
 
-            viewModel = Resources["ViewModel"] as MainPageVM;
+            viewModel = aViewModel as MainPageVM;
+
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
         }
-
 
         private Popup popup;
 

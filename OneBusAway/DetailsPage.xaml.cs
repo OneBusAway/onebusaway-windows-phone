@@ -22,7 +22,7 @@ using System.Windows.Navigation;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class DetailsPage : PhoneApplicationPage
+    public partial class DetailsPage : AViewPage
     {
         private RouteDetailsVM viewModel;
 
@@ -42,8 +42,10 @@ namespace OneBusAway.WP7.View
         private ApplicationBarIconButton appbar_allroutes;
 
         public DetailsPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
 
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
 

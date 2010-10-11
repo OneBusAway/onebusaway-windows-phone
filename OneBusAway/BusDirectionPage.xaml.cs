@@ -18,14 +18,16 @@ using System.Device.Location;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class BusDirectionPage : PhoneApplicationPage
+    public partial class BusDirectionPage : AViewPage
     {
         private BusDirectionVM viewModel;
         private bool informationLoaded;
 
         public BusDirectionPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
 
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 

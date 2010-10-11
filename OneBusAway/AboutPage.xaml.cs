@@ -12,6 +12,7 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
 using System.Reflection;
+using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.View
 {
@@ -22,14 +23,13 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
 
             VersionTextBlock.Text = "Version " + "1.5.0.0";
-
         }
 
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
         {
             EmailComposeTask emailComposeTask = new EmailComposeTask();
-            emailComposeTask.To = "obawp@onebusaway.org";
-            emailComposeTask.Body = null;
+            emailComposeTask.To = AViewModel.FeedbackEmailAddress;
+            emailComposeTask.Body = string.Empty;
             emailComposeTask.Subject = "OneBusAway for Windows Phone";
             emailComposeTask.Show();
         }

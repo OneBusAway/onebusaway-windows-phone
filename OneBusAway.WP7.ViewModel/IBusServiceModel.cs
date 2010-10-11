@@ -40,4 +40,27 @@ namespace OneBusAway.WP7.ViewModel
 
         void ClearCache();
     }
+
+    public class WebserviceParsingException : Exception
+    {
+        private string requestUrl;
+        private string serverResponse;
+
+        public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
+            : base("There was an error parsing the server response", innerException)
+        {
+            this.requestUrl = requestUrl;
+            this.serverResponse = serverResponse;
+        }
+
+        public override string ToString()
+        {
+            return string.Format(
+                "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
+                base.ToString(),
+                requestUrl,
+                serverResponse
+                );
+        }
+    }
 }

@@ -14,13 +14,16 @@ using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class SettingsPage : PhoneApplicationPage
+    public partial class SettingsPage : AViewPage
     {
         private SettingsVM viewModel;
 
         public SettingsPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
+
             viewModel = Resources["ViewModel"] as SettingsVM;
         }
         private void appbar_clear_history_Click(object sender, EventArgs e)
