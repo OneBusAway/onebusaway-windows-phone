@@ -1,4 +1,4 @@
-﻿<phoneNavigation:PhoneApplicationPage 
+﻿<view:AViewPage 
     x:Class="OneBusAway.WP7.View.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -20,7 +20,7 @@
     shell:SystemTray.IsVisible="True"
 >
 
-    <phoneNavigation:PhoneApplicationPage.Resources>
+    <view:AViewPage.Resources>
         <data:MainPageVM x:Key="ViewModel" />
 
         <DataTemplate x:Key="PushpinTemplate">
@@ -143,7 +143,7 @@
             <DoubleAnimation Duration="0:0:0.2" To="1.0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
         </Storyboard>
 
-    </phoneNavigation:PhoneApplicationPage.Resources>
+    </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
@@ -238,7 +238,7 @@
             />
     </Grid>
 
-    <phoneNavigation:PhoneApplicationPage.ApplicationBar>
+    <view:AViewPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
             <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBarIconButton x:Name="appbar_search" IconUri="/Images/appbar.feature.search.rest.png" Text="Search" Click="appbar_search_Click"></shell:ApplicationBarIconButton>
@@ -247,5 +247,5 @@
                 <shell:ApplicationBarMenuItem x:Name="appbar_about" Click="appbar_about_Click" Text="about"></shell:ApplicationBarMenuItem>
             </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
-    </phoneNavigation:PhoneApplicationPage.ApplicationBar>
-</phoneNavigation:PhoneApplicationPage>
+    </view:AViewPage.ApplicationBar>
+</view:AViewPage>

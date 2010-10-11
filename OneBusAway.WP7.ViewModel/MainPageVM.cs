@@ -209,6 +209,10 @@ namespace OneBusAway.WP7.ViewModel
                         count++;
                     }
                 }
+                else
+                {
+                    viewModel.ErrorOccured(this, e.error);
+                }
                 
                 callback(e.routes, e.error);
                 busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
@@ -227,7 +231,7 @@ namespace OneBusAway.WP7.ViewModel
                 StopsForLocation.Clear();
 
                 int count = 0;
-                foreach(Stop stop in e.stops)
+                foreach (Stop stop in e.stops)
                 {
                     if (count > maxStops)
                     {
@@ -237,6 +241,10 @@ namespace OneBusAway.WP7.ViewModel
                     StopsForLocation.Add(stop);
                     count++;
                 }
+            }
+            else
+            {
+                ErrorOccured(this, e.error);
             }
 
             pendingOperations--;
@@ -263,6 +271,10 @@ namespace OneBusAway.WP7.ViewModel
                     count++;
                 }
             }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
 
             pendingOperations--;
         }
@@ -274,6 +286,10 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 LoadInfoForLocation(1000);
+            }
+            else
+            {
+                ErrorOccured(this, e.error);
             }
 
             pendingOperations--;
@@ -291,6 +307,10 @@ namespace OneBusAway.WP7.ViewModel
                 e.newFavorites.Sort(new RecentLastAccessComparer());
                 e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
             }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
         }
 
         void appDataModel_Recents_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
@@ -301,6 +321,10 @@ namespace OneBusAway.WP7.ViewModel
             {
                 Recents.Clear();
                 e.newFavorites.ForEach(recent => Recents.Add(recent));
+            }
+            else
+            {
+                ErrorOccured(this, e.error);
             }
         }
 

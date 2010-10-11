@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
+using OneBusAway.WP7.ViewModel.EventArgs;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -196,6 +197,19 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private/Protected Methods
 
+        protected void ErrorOccured(object sender, Exception e)
+        {
+            Debug.Assert(false);
+
+            // The VM should always be subscribed to the ErrorHandler event
+            Debug.Assert(ErrorHandler != null);
+
+            if (ErrorHandler != null)
+            {
+                ErrorHandler(sender, new ErrorHandlerEventArgs(e));
+            }
+        }
+
         protected void OnPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)
@@ -284,6 +298,10 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Members
 
+        public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
+
+        public const string FeedbackEmailAddress = "wp7@onebusaway.org";
+
         public ViewState CurrentViewState
         {
             get
@@ -333,7 +351,7 @@ namespace OneBusAway.WP7.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         /// <summary>
         /// Registers all event handlers with the model.  Call this when 
         /// the page is first loaded.

@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using System.IO;
 using System.Linq;
 using System.Diagnostics;
+using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.Model
 {
@@ -542,29 +543,6 @@ namespace OneBusAway.WP7.Model
         {
             new HttpCache("StopsForRoute", 0, 0).Clear();
             new HttpCache("StopsForLocation", 0, 0).Clear();
-        }
-    }
-
-    public class WebserviceParsingException : Exception
-    {
-        private string requestUrl;
-        private string serverResponse;
-
-        public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
-            : base("There was an error parsing the server response", innerException)
-        {
-            this.requestUrl = requestUrl;
-            this.serverResponse = serverResponse;
-        }
-
-        public override string ToString()
-        {
-            return string.Format(
-                "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
-                base.ToString(),
-                requestUrl,
-                serverResponse
-                );
         }
     }
 }

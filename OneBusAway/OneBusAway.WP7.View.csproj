@@ -75,6 +75,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AViewPage.cs" />
     <Compile Include="BusDirectionPage.xaml.cs">
       <DependentUpon>BusDirectionPage.xaml</DependentUpon>
     </Compile>

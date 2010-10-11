@@ -1,4 +1,4 @@
-﻿<navigation:PhoneApplicationPage 
+﻿<view:AViewPage 
     x:Class="OneBusAway.WP7.View.DetailsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,7 +17,7 @@
     shell:SystemTray.IsVisible="True"
     >
 
-    <navigation:PhoneApplicationPage.Resources>
+    <view:AViewPage.Resources>
         
         <data:RouteDetailsVM x:Key="ViewModel" />
 
@@ -82,7 +82,7 @@
 
             </Grid>
         </DataTemplate>
-    </navigation:PhoneApplicationPage.Resources>
+    </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -160,4 +160,4 @@
             <shell:ApplicationBarIconButton x:Name="appbar_favorite" IconUri="/Images/appbar.favs.addto.rest.png" Text="Favorite" Click="appbar_favorite_Click" />
         </shell:ApplicationBar>
     </navigation:PhoneApplicationPage.ApplicationBar>
-</navigation:PhoneApplicationPage>
+</view:AViewPage>
