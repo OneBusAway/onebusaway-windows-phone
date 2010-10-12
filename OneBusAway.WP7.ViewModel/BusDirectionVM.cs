@@ -58,9 +58,9 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             pendingRouteDirectionsCount += routes.Count;
-            pendingOperations += routes.Count;
             foreach(Route route in routes)
             {
+                operationTracker.WaitForOperation("StopsForRoute_" + route.id);
                 busServiceModel.StopsForRoute(route);
             }
         }
@@ -78,9 +78,9 @@ namespace OneBusAway.WP7.ViewModel
                     // Subtract 1 because we haven't decremented the count yet
                     if (pendingRouteDirectionsCount - 1 == 0)
                     {
-                        if (LocationKnownStatic == true)
+                        if (LocationTracker.LocationKnown == true)
                         {
-                            pendingRouteDirections.Sort(new RouteStopsDistanceComparer(CurrentLocation));
+                            pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
                         }
 
                         pendingRouteDirections.ForEach(route => RouteDirections.Add(route));
@@ -93,7 +93,7 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             pendingRouteDirectionsCount--;
-            pendingOperations--;
+            operationTracker.DoneWithOperation("StopsForRoute_" + e.route.id);
         }
 
         public override void RegisterEventHandlers()
@@ -108,7 +108,7 @@ namespace OneBusAway.WP7.ViewModel
             base.UnregisterEventHandlers();
 
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-            pendingOperations = 0;
+            this.operationTracker.ClearOperations();
         }
     }
 }

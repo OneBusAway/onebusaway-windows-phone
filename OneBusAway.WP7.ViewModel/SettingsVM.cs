@@ -26,9 +26,6 @@ namespace OneBusAway.WP7.ViewModel
         
         #endregion
 
-        public override void RegisterEventHandlers() { }
-        public override void UnregisterEventHandlers() { }
-
         public void Clear()
         {
             this.appDataModel.DeleteAllFavorites(FavoriteType.Recent);

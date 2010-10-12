@@ -86,7 +86,7 @@
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
                 <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
-                <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+                <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
             </Grid>
         </DataTemplate>
 
@@ -106,8 +106,8 @@
                 <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
                 
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding description}" />
-               
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />
+
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
             </Grid>
         </DataTemplate>
 
@@ -129,11 +129,11 @@
 
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}" />
 
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=stop, Converter={StaticResource DistanceConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=stop, Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
 
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=Detail}" />
                 <!--<TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}}" />-->
+                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />-->
 
             </Grid>
         </DataTemplate>
@@ -165,7 +165,7 @@
                     </Grid.RowDefinitions>
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
                     <m:Map Margin="14,0,0,16"  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" IsEnabled="False" >
+                   Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" IsEnabled="False" >
                         <m:MapLayer x:Name="BusStopsLayer">
                             <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                                 <m:MapItemsControl.ItemTemplate>
@@ -179,7 +179,7 @@
                         </m:MapLayer>
                         <m:MapLayer x:Name="MyLocationLayer">
                             <m:MapLayer.Children>
-                                <m:Pushpin Location="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Background="Transparent">
+                                <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Background="Transparent">
                                     <m:Pushpin.Content>
                                         <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
                                     </m:Pushpin.Content>

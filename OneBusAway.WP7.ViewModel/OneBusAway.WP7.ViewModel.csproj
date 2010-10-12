@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
     <Compile Include="AppDataDataStructures\RecentRouteAndStop.cs" />
+    <Compile Include="AsyncOperationTracker.cs" />
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
@@ -82,7 +83,7 @@
     <Compile Include="BusServiceDataStructures\Stop.cs" />
     <Compile Include="BusServiceDataStructures\TripDetails.cs" />
     <Compile Include="AViewModel.cs" />
-    <Compile Include="Location.cs" />
+    <Compile Include="LocationTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainPageVM.cs" />
     <Compile Include="RouteDetailsVM.cs" />
