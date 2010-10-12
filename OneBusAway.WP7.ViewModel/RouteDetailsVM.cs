@@ -62,7 +62,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadStopsForRoute(Route route)
         {
-            pendingOperations++;
+            operationTracker.WaitForOperation("StopsForRoute");
             busServiceModel.StopsForRoute(route);
         }
 
@@ -73,7 +73,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop, Route routeFilter)
         {
-            pendingOperations++;
+            operationTracker.WaitForOperation("ArrivalsForStop");
 
             unfilteredArrivals.Clear();
             ArrivalsForStop.Clear();
@@ -90,7 +90,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
         {
-            pendingOperations++;
+            operationTracker.WaitForOperation("TripsForArrivals");
             busServiceModel.TripDetailsForArrivals(arrivals);
         }
 
@@ -132,13 +132,14 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            pendingOperations--;
+            operationTracker.DoneWithOperation("StopsForRoute");
         }
 
 
         void busServiceModel_ArrivalsForStop_Completed(object sender, EventArgs.ArrivalsForStopEventArgs e)
         {
-            Debug.Assert(e.error == null);
+            Debug.Assert(e.error == null); 
+        
 
             if (e.error == null)
             {
@@ -150,7 +151,7 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            pendingOperations--;
+            operationTracker.DoneWithOperation("ArrivalsForStop");
         }
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
@@ -167,7 +168,7 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            pendingOperations--;
+            operationTracker.DoneWithOperation("TripsForArrivals");
         }
 
         #endregion
@@ -204,7 +205,7 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
             this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
 
-            pendingOperations = 0;
+            this.operationTracker.ClearOperations();
         }
     }
 }
