@@ -100,14 +100,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Constructors
 
         public AViewModel()
-            :   this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                    .GetType("OneBusAway.WP7.Model.BusServiceModel")
-                    .GetField("Singleton")
-                    .GetValue(null),
-                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
-                    .GetType("OneBusAway.WP7.Model.AppDataModel")
-                    .GetField("Singleton")
-                    .GetValue(null))
+            :   this(null, null)
         {
 
         }
@@ -124,8 +117,8 @@ namespace OneBusAway.WP7.ViewModel
 
         public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
         {
-            this.busServiceModel = busServiceModel;
-            this.appDataModel = appDataModel;
+            this.lazyBusServiceModel = busServiceModel;
+            this.lazyAppDataModel = appDataModel;
 
             locationLoading = false;
             Loading = false;
@@ -151,8 +144,39 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private/Protected Properties
 
-        protected IBusServiceModel busServiceModel { get; private set; }
-        protected IAppDataModel appDataModel { get; private set; }
+        private IBusServiceModel lazyBusServiceModel;
+        protected IBusServiceModel busServiceModel
+        {
+            get
+            {
+                if (lazyBusServiceModel == null)
+                {
+                    lazyBusServiceModel = (IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
+                        .GetType("OneBusAway.WP7.Model.BusServiceModel")
+                        .GetField("Singleton")
+                        .GetValue(null);
+                }
+
+                return lazyBusServiceModel;
+            }
+        }
+
+        private IAppDataModel lazyAppDataModel;
+        protected IAppDataModel appDataModel
+        {
+            get
+            {
+                if (lazyAppDataModel == null)
+                {
+                    lazyAppDataModel = (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
+                        .GetType("OneBusAway.WP7.Model.AppDataModel")
+                        .GetField("Singleton")
+                        .GetValue(null);
+                }
+
+                return lazyAppDataModel;
+            }
+        }
 
         private bool locationLoading;
         private bool loading;
