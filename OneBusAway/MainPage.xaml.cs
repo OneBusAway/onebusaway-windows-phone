@@ -21,15 +21,16 @@ namespace OneBusAway.WP7.View
     {
         private int selectedPivotIndex = 0;
         private MainPageVM viewModel;
+        private bool firstLoad;
 
         public MainPage()
             : base()
         {
             InitializeComponent();
             base.Initialize();
-            //ShowLoadingSplash();
 
             viewModel = aViewModel as MainPageVM;
+            firstLoad = true;
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
@@ -61,17 +62,7 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
-            {
-                selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
-            }
-            else
-            {
-                selectedPivotIndex = 0;
-            }
-
-            PC.SelectedIndex = selectedPivotIndex;
-
+            viewModel.RegisterEventHandlers();
             viewModel.LoadFavorites();
             viewModel.LoadInfoForLocation(1000);
 
@@ -89,10 +80,13 @@ namespace OneBusAway.WP7.View
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
-            //ShowLoadingSplash();
             base.OnNavigatedTo(e);
 
-            viewModel.RegisterEventHandlers();
+            if (firstLoad == true && PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
+            {
+                PC.SelectedIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
+                firstLoad = false;
+            }
 
             // We refresh this info every load so clear the lists now
             // to avoid a flicker as the page comes back
@@ -100,20 +94,13 @@ namespace OneBusAway.WP7.View
             viewModel.StopsForLocation.Clear();
             viewModel.Favorites.Clear();
             viewModel.Recents.Clear();
-
-            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
-            {
-                selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
-            }
-            else
-            {
-                selectedPivotIndex = 0;
-            }
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+
+            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = PC.SelectedIndex;
 
             viewModel.UnregisterEventHandlers();
         }

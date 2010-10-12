@@ -58,8 +58,6 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
-            viewModel.RegisterEventHandlers();
-
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
@@ -76,7 +74,33 @@ namespace OneBusAway.WP7.View
                 ApplicationBar.Buttons.Add(appbar_allroutes);
 
                 isFiltered = true;
+            }
+            else
+            {
+                // There isn't a specific route, just load up info on this bus stop
+                isFiltered = false;
 
+                RouteNumber.Text = string.Empty;
+                RouteName.Text = viewModel.CurrentViewState.CurrentStop.name;
+                RouteInfo.Text = string.Format("Direction: '{0}'", viewModel.CurrentViewState.CurrentStop.direction);
+            }
+
+            FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
+            currentInfo.route = viewModel.CurrentViewState.CurrentRoute;
+            currentInfo.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
+            currentInfo.stop = viewModel.CurrentViewState.CurrentStop;
+
+            isFavorite = viewModel.IsFavorite(currentInfo);
+            SetFavoriteIcon();
+        }
+
+        void DetailsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewModel.RegisterEventHandlers();
+            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
+
+            if (viewModel.CurrentViewState.CurrentRouteDirection != null)
+            {
                 LocationCollection points = new LocationCollection();
                 foreach (PolyLine pl in viewModel.CurrentViewState.CurrentRouteDirection.encodedPolylines)
                 {
@@ -90,30 +114,6 @@ namespace OneBusAway.WP7.View
                     DetailsMap.Children.Add(shape);
                 }
             }
-            else
-            {
-                // There isn't a specific route, just load up info on this bus stop
-                isFiltered = false;
-
-                RouteNumber.Text = string.Empty;
-                RouteName.Text = viewModel.CurrentViewState.CurrentStop.name;
-                RouteInfo.Text = string.Format("Direction: '{0}'", viewModel.CurrentViewState.CurrentStop.direction);
-            }
-
-            //Add current location and nearest stop
-
-            FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
-            currentInfo.route = viewModel.CurrentViewState.CurrentRoute;
-            currentInfo.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
-            currentInfo.stop = viewModel.CurrentViewState.CurrentStop;
-
-            isFavorite = viewModel.IsFavorite(currentInfo);
-            SetFavoriteIcon();
-        }
-
-        void DetailsPage_Loaded(object sender, RoutedEventArgs e)
-        {
-            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
 
             RecentRouteAndStop recent = new RecentRouteAndStop();
             recent.route = viewModel.CurrentViewState.CurrentRoute;
