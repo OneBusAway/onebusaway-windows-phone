@@ -138,6 +138,8 @@ namespace OneBusAway.WP7.ViewModel
                 LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                 LocationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
             }
+
+            LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
         }
 
         #endregion
@@ -303,8 +305,8 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        protected delegate void RequiresKnownLocation(GeoCoordinate location);
-        protected void RunWhenLocationKnown(RequiresKnownLocation method)
+        public delegate void RequiresKnownLocation(GeoCoordinate location);
+        public void RunWhenLocationKnown(RequiresKnownLocation method)
         {
             if (LocationKnownStatic == true)
             {
@@ -385,12 +387,7 @@ namespace OneBusAway.WP7.ViewModel
         public virtual void RegisterEventHandlers()
         {
             Debug.Assert(eventsRegistered == false);
-
-            if (eventsRegistered == false)
-            {
-                LocationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
-                eventsRegistered = true;
-            }
+            eventsRegistered = true;
         }
 
         /// <summary>
@@ -400,12 +397,7 @@ namespace OneBusAway.WP7.ViewModel
         public virtual void UnregisterEventHandlers()
         {
             Debug.Assert(eventsRegistered == true);
-
-            if (eventsRegistered == true)
-            {
-                LocationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
-                eventsRegistered = false;
-            }
+            eventsRegistered = false;
         }
 
         #endregion

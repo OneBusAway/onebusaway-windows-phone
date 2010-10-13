@@ -18,7 +18,7 @@
     >
 
     <view:AViewPage.Resources>
-        
+
         <data:RouteDetailsVM x:Key="ViewModel" />
 
         <view:DateTimeDeltaConverter x:Key="DateTimeDeltaConverter" />
@@ -82,6 +82,27 @@
 
             </Grid>
         </DataTemplate>
+        
+        <Style x:Key="BusStopPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MyLocationPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
@@ -94,7 +115,7 @@
         <Grid Grid.Row="0" x:Name="TitleGrid">
             <StackPanel Orientation="Horizontal">
                 <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="15" />
-                
+
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="1*" />
@@ -114,17 +135,13 @@
                     <m:MapItemsControl ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <m:Pushpin Location="{Binding location}" PositionOrigin="TopLeft" Background="Transparent">
-                                    <Image Source="/Bus_Icon.png" Width="25" Height="25" />
-                                </m:Pushpin>
+                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopPushpinStyle}" />
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>
                 </m:MapLayer>
                 <m:MapLayer x:Name="MyLocationLayer">
-                    <m:Pushpin Location="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="TopLeft" Background="Transparent">
-                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
-                    </m:Pushpin>
+                    <m:Pushpin Location="{Binding Path=CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
                 </m:MapLayer>
                 <m:MapLayer x:Name="SelectedStopLayer">
                     <m:Pushpin Location="{Binding Path=CurrentViewState.CurrentStop.location, Source={StaticResource ViewModel}}" PositionOrigin="BottomLeft">
@@ -152,7 +169,7 @@
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
             />
-        
+
     </Grid>
 
     <navigation:PhoneApplicationPage.ApplicationBar>
