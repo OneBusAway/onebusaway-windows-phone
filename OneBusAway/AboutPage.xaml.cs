@@ -22,7 +22,7 @@ namespace OneBusAway.WP7.View
         {
             InitializeComponent();
 
-            VersionTextBlock.Text = "Version " + "1.5.0.0";
+            VersionTextBlock.Text = "Version " + "1.6.0.0";
         }
 
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
