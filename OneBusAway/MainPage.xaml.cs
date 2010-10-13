@@ -14,6 +14,7 @@ using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Net;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.View
 {
@@ -76,6 +77,12 @@ namespace OneBusAway.WP7.View
                         );
                 }
             });
+
+            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    StopsMap.Center = location;
+                }
+            );
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)

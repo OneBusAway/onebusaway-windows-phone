@@ -10,8 +10,40 @@ namespace OneBusAway.WP7.ViewModel
 {
     public class LocationTracker : INotifyPropertyChanged
     {
-        private GeoCoordinate lastKnownLocation = null;
-        private GeoCoordinateWatcher locationWatcher;
+        #region Static Location Code
+
+        private static GeoCoordinateWatcher locationWatcher;
+        private static GeoCoordinate lastKnownLocation;
+
+        static LocationTracker()
+        {
+            lastKnownLocation = null;
+
+            locationWatcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
+            locationWatcher.MovementThreshold = 5; // 5 meters
+            locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+
+            locationWatcher.Start();
+        }
+
+        private static void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        {
+            // The location service will return the last known location of the phone when it first starts up.  Since
+            // we can't refresh the home screen wait until a recent location value is found before using it.  The
+            // location must be less than 1 minute old.
+            if (e.Position.Location.IsUnknown == false)
+            {
+                if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 1, 0))
+                {
+                    lastKnownLocation = e.Position.Location;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Private Variables
+
         private bool locationLoading;
         private Timer methodsRequiringLocationTimer;
         private const int timerIntervalMs = 500;
@@ -19,12 +51,12 @@ namespace OneBusAway.WP7.ViewModel
         private List<RequiresKnownLocation> methodsRequiringLocation;
         private AsyncOperationTracker operationTracker;
 
+        #endregion
+
+        #region Constructors
+
         public LocationTracker(AsyncOperationTracker operationTracker)
         {
-            locationWatcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
-            locationWatcher.MovementThreshold = 5; // 5 meters
-            locationWatcher.Start();
-
             this.operationTracker = operationTracker;
             locationLoading = false;
 
@@ -40,7 +72,13 @@ namespace OneBusAway.WP7.ViewModel
                 locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                 locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
             }
+
+            locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
         }
+
+        #endregion
+
+        #region Public Properties
 
         public GeoCoordinate CurrentLocation
         {
@@ -78,7 +116,7 @@ namespace OneBusAway.WP7.ViewModel
         /// Returns a default location to use when our current location is
         /// unavailable.  This is downtown Seattle.
         /// </summary>
-        public static GeoCoordinate DefaultLocationStatic
+        public GeoCoordinate DefaultLocationStatic
         {
             get
             {
@@ -96,10 +134,14 @@ namespace OneBusAway.WP7.ViewModel
                 }
                 else
                 {
-                    return LocationTracker.DefaultLocationStatic;
+                    return DefaultLocationStatic;
                 }
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         private void LocationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
         {
@@ -137,24 +179,17 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
+        private void locationWatcher_PositionChanged_NotifyPropertyChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
         {
-            // The location service will return the last known location of the phone when it first starts up.  Since
-            // we can't refresh the home screen wait until a recent location value is found before using it.  The
-            // location must be less than 1 minute old.
             if (e.Position.Location.IsUnknown == false)
             {
-                if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 1, 0))
-                {
-                    lastKnownLocation = e.Position.Location;
-                    OnPropertyChanged("CurrentLocation");
-                    OnPropertyChanged("CurrentLocationSafe");
-                    OnPropertyChanged("LocationKnown");
-                }
+                OnPropertyChanged("CurrentLocation");
+                OnPropertyChanged("CurrentLocationSafe");
+                OnPropertyChanged("LocationKnown");
             }
         }
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
@@ -163,6 +198,10 @@ namespace OneBusAway.WP7.ViewModel
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
+
+        #endregion
+
+        #region Run Requiring Location methods
 
         private void RunMethodsRequiringLocation(object param)
         {
@@ -195,16 +234,10 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        public void RegisterEventHandlers()
-        {
-            locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
-        }
+        #endregion
 
-        public void UnregisterEventHandlers()
-        {
-            locationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
-        }
     }
+
     public class LocationUnavailableException : Exception
     {
         public GeoPositionStatus Status { get; private set; }

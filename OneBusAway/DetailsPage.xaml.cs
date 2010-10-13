@@ -115,6 +115,15 @@ namespace OneBusAway.WP7.View
                 }
             }
 
+            // When we enter this page after tombstoning often the location won't be available when the map
+            // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
+            // so we need to explicitly set the center once the location is known.
+            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    DetailsMap.Center = location;
+                }
+            );
+
             RecentRouteAndStop recent = new RecentRouteAndStop();
             recent.route = viewModel.CurrentViewState.CurrentRoute;
             recent.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;

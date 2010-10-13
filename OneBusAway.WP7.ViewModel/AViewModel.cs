@@ -175,12 +175,7 @@ namespace OneBusAway.WP7.ViewModel
         public virtual void RegisterEventHandlers()
         {
             Debug.Assert(eventsRegistered == false);
-
-            if (eventsRegistered == false)
-            {
-                locationTracker.RegisterEventHandlers();
-                eventsRegistered = true;
-            }
+            eventsRegistered = true;
         }
 
         /// <summary>
@@ -190,12 +185,7 @@ namespace OneBusAway.WP7.ViewModel
         public virtual void UnregisterEventHandlers()
         {
             Debug.Assert(eventsRegistered == true);
-
-            if (eventsRegistered == true)
-            {
-                locationTracker.UnregisterEventHandlers();
-                eventsRegistered = false;
-            }
+            eventsRegistered = false;
         }
 
         #endregion
