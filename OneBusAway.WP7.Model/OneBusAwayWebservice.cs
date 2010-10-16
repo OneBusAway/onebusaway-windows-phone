@@ -184,7 +184,7 @@ namespace OneBusAway.WP7.Model
                                     stop,
                                     (from routeId in stop.Element("routeIds").Descendants("string")
                                      from route in xmlDoc.Descendants("route")
-                                     where route.Element("id").Value == routeId.Value
+                                     where SafeGetValue(route.Element("id")) == SafeGetValue(routeId)
                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
                                 )).ToList<Stop>();
                     }
@@ -246,25 +246,25 @@ namespace OneBusAway.WP7.Model
 
                         routeStops =
                             (from stopGroup in xmlDoc.Descendants("stopGroup")
-                             where stopGroup.Element("name").Element("type").Value == "destination"
+                             where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
                              select new RouteStops
                              {
-                                 name = stopGroup.Descendants("names").First().Element("string").Value,
+                                 name = SafeGetValue(stopGroup.Descendants("names").First().Element("string")),
                                  encodedPolylines = (from poly in stopGroup.Descendants("encodedPolyline")
                                                      select new PolyLine
                                                      {
-                                                         pointsString = poly.Element("points").Value,
-                                                         length = poly.Element("length").Value
+                                                         pointsString = SafeGetValue(poly.Element("points")),
+                                                         length = SafeGetValue(poly.Element("length"))
                                                      }).ToList<PolyLine>(),
                                  stops =
                                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                                       from stop in xmlDoc.Descendants("stop")
-                                      where stopId.Value == stop.Element("id").Value
+                                      where SafeGetValue(stopId) == SafeGetValue(stop.Element("id"))
                                       select ParseStop(
                                             stop, 
                                             (from routeId in stop.Element("routeIds").Descendants("string")
                                             from route in xmlDoc.Descendants("route")
-                                            where route.Element("id").Value == routeId.Value
+                                            where SafeGetValue(route.Element("id")) == SafeGetValue(routeId)
                                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
                                             )).ToList<Stop>(),
 
@@ -393,14 +393,14 @@ namespace OneBusAway.WP7.Model
                              {
                                  route =
                                     (from route in xmlDoc.Descendants("route")
-                                     where route.Element("id").Value == schedule.Element("routeId").Value
+                                     where SafeGetValue(route.Element("id")) == SafeGetValue(schedule.Element("routeId"))
                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).First(),
 
                                  directions =
                                      (from direction in schedule.Descendants("stopRouteDirectionSchedule")
                                       select new DirectionSchedule
                                       {
-                                          tripHeadsign = direction.Element("tripHeadsign").Value
+                                          tripHeadsign = SafeGetValue(direction.Element("tripHeadsign"))
                                       }).ToList<DirectionSchedule>()
 
                              }).ToList<RouteSchedule>();
@@ -510,18 +510,18 @@ namespace OneBusAway.WP7.Model
         {
             return new ArrivalAndDeparture
             {
-                routeId = arrival.Element("routeId").Value,
-                tripId = arrival.Element("tripId").Value,
-                stopId = arrival.Element("stopId").Value,
-                routeShortName = arrival.Element("routeShortName").Value,
-                tripHeadsign = arrival.Element("tripHeadsign").Value,
+                routeId = SafeGetValue(arrival.Element("routeId")),
+                tripId = SafeGetValue(arrival.Element("tripId")),
+                stopId = SafeGetValue(arrival.Element("stopId")),
+                routeShortName = SafeGetValue(arrival.Element("routeShortName")),
+                tripHeadsign = SafeGetValue(arrival.Element("tripHeadsign")),
                 predictedArrivalTime = arrival.Element("predictedArrivalTime").Value == "0" ?
                 null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedArrivalTime").Value)),
                 scheduledArrivalTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledArrivalTime").Value)),
                 predictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
                 null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedDepartureTime").Value)),
                 scheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
-                status = arrival.Element("status").Value
+                status = SafeGetValue(arrival.Element("status"))
             };
         }
 
@@ -529,9 +529,9 @@ namespace OneBusAway.WP7.Model
         {
             return new Route()
             {
-                id = route.Element("id").Value,
-                shortName = route.Element("shortName").Value,
-                url = route.Element("url") != null ? route.Element("url").Value : string.Empty,
+                id = SafeGetValue(route.Element("id")),
+                shortName = SafeGetValue(route.Element("shortName")),
+                url = SafeGetValue(route.Element("url")),
                 description = route.Element("description") != null ?
                     route.Element("description").Value :
                         (route.Element("longName") != null ?
@@ -542,8 +542,8 @@ namespace OneBusAway.WP7.Model
                      where route.Element("agencyId").Value == agency.Element("id").Value
                      select new Agency
                      {
-                         id = agency.Element("id").Value,
-                         name = agency.Element("name").Value
+                         id = SafeGetValue(agency.Element("id")),
+                         name = SafeGetValue(agency.Element("name"))
                      }).First()
             };
         }
@@ -552,13 +552,13 @@ namespace OneBusAway.WP7.Model
         {
             return new Stop
             {
-                id = stop.Element("id").Value,
-                direction = stop.Element("direction").Value,
+                id = SafeGetValue(stop.Element("id")),
+                direction = SafeGetValue(stop.Element("direction")),
                 location = new GeoCoordinate(
-                    double.Parse(stop.Element("lat").Value),
-                    double.Parse(stop.Element("lon").Value)
+                    double.Parse(SafeGetValue(stop.Element("lat"))),
+                    double.Parse(SafeGetValue(stop.Element("lon")))
                     ),
-                name = stop.Element("name").Value,
+                name = SafeGetValue(stop.Element("name")),
                 routes = routes
             };
         }
@@ -572,6 +572,18 @@ namespace OneBusAway.WP7.Model
             {
                 Debug.Assert(false);
                 throw new WebserviceResponseException(code, requestUrl, xmlResponse, null);
+            }
+        }
+
+        private static string SafeGetValue(XElement element)
+        {
+            if (element != null)
+            {
+                return element.Value;
+            }
+            else
+            {
+                return string.Empty;
             }
         }
 
