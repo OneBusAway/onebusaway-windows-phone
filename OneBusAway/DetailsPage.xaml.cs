@@ -120,7 +120,7 @@ namespace OneBusAway.WP7.View
             // so we need to explicitly set the center once the location is known.
             viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
                 {
-                    DetailsMap.Center = location;
+                    Dispatcher.BeginInvoke(() => DetailsMap.Center = location);
                 }
             );
 
