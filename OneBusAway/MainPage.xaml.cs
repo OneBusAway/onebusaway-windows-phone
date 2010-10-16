@@ -80,7 +80,7 @@ namespace OneBusAway.WP7.View
 
             viewModel.RunWhenLocationKnown(delegate(GeoCoordinate location)
                 {
-                    StopsMap.Center = location;
+                    Dispatcher.BeginInvoke(() => StopsMap.Center = location);
                 }
             );
         }
