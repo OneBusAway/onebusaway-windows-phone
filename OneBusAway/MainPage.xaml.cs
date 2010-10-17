@@ -182,7 +182,11 @@ namespace OneBusAway.WP7.View
 
         private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            viewModel.LoadInfoForLocation(1000);            
+            viewModel.LoadInfoForLocation(1000);
+
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+            this.Focus();
         }
 
         private void SearchByRouteCallback(List<Route> routes, Exception error)
