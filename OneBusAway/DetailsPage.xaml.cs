@@ -111,16 +111,33 @@ namespace OneBusAway.WP7.View
                     shape.Locations = points;
                     shape.StrokeThickness = 5;
                     shape.Stroke = new SolidColorBrush((Color)Resources["PhoneAccentColor"]);
-                    DetailsMap.Children.Add(shape);
+
+
+                    DetailsMap.Children.Insert(0, shape);
                 }
+
             }
+
 
             // When we enter this page after tombstoning often the location won't be available when the map
             // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
             // so we need to explicitly set the center once the location is known.
             viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
                 {
-                    Dispatcher.BeginInvoke(() => DetailsMap.Center = location);
+                    Dispatcher.BeginInvoke(() => { 
+                        DetailsMap.Center = location;
+ 
+                        //calculate distance to current stop and zoom map
+                        if (viewModel.CurrentViewState.CurrentStop != null)
+                        {
+                            GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
+                                viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
+                            double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degress and double
+
+                            DetailsMap.SetView(new LocationRect(location, radius, radius));
+                        }
+
+                    });
                 }
             );
 

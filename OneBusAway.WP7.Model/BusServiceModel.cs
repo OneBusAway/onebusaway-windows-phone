@@ -33,6 +33,7 @@ namespace OneBusAway.WP7.Model
         public event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
         public event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
         public event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
+        public event EventHandler<SearchForStopsEventArgs> SearchForStops_Completed;
         public event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
 
 
@@ -65,6 +66,7 @@ namespace OneBusAway.WP7.Model
         {
             webservice.StopsForLocation(
                 location,
+                null,
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
@@ -92,6 +94,7 @@ namespace OneBusAway.WP7.Model
         {
             webservice.StopsForLocation(
                 location,
+                null,
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
@@ -238,6 +241,29 @@ namespace OneBusAway.WP7.Model
                     if (SearchForRoutes_Completed != null)
                     {
                         SearchForRoutes_Completed(this, new ViewModel.EventArgs.SearchForRoutesEventArgs(routes, location, query, error));
+                    }
+                }
+            );
+        }
+
+        public void SearchForStops(GeoCoordinate location, string query)
+        {
+            SearchForStops(location, query, 1000000, -1);
+        }
+
+        public void SearchForStops(GeoCoordinate location, string query, int radiusInMeters, int maxCount)
+        {
+            webservice.StopsForLocation(
+                location,
+                query,
+                radiusInMeters,
+                maxCount,
+                false,
+                delegate(List<Stop> stops, Exception error)
+                {
+                    if (SearchForStops_Completed != null)
+                    {
+                        SearchForStops_Completed(this, new ViewModel.EventArgs.SearchForStopsEventArgs(stops, location, query, error));
                     }
                 }
             );
