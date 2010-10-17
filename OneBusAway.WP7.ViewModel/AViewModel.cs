@@ -49,9 +49,15 @@ namespace OneBusAway.WP7.ViewModel
                 () => { Loading = true; }
                 );
             locationTracker = new LocationTracker(operationTracker);
+            locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             
             Loading = false;
             eventsRegistered = false;
+        }
+
+        void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
+        {
+            ErrorOccured(this, e.error);
         }
 
         #endregion
