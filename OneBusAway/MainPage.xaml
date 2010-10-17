@@ -233,7 +233,7 @@
             </StackPanel.RenderTransform>
             <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
             <TextBlock 
-				Text="By route number (ex. '44' or '71')"  
+				Text="By route (ex. '44') or stop number (ex. '11132')"  
 				Foreground="{StaticResource PhoneSubtleBrush}" FontSize="16" HorizontalAlignment="Center">
 				<TextBlock.RenderTransform>
 				<CompositeTransform TranslateY="-14"/>
