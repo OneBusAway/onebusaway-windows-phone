@@ -118,7 +118,8 @@ namespace OneBusAway.WP7.Model
             }
         }
 
-        public void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
+
+        public void StopsForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
         {
             // Round off coordinates so that we can exploit caching.
             // At Seattle's latitude, rounding to 3 decimal places moves the location by at most 50 or so meters.
@@ -137,6 +138,11 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 APIVERSION
                 );
+
+            if (string.IsNullOrEmpty(query) == false)
+            {
+                requestString += string.Format("&query={0}", query);
+            }
 
             if (maxCount > 0)
             {

@@ -211,6 +211,30 @@ namespace OneBusAway.WP7.View
             }
         }
 
+        private void SearchByStopCallback(List<Stop> stops, Exception error)
+        {
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+            this.Focus();
+
+            if (error != null)
+            {
+                // TODO: Show error
+            }
+            else if (stops.Count == 0)
+            {
+                MessageBox.Show("No results found");
+            }
+            else
+            {
+                viewModel.CurrentViewState.CurrentRoute = null;
+                viewModel.CurrentViewState.CurrentRouteDirection = null;
+                viewModel.CurrentViewState.CurrentStop = stops[0];
+
+                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            }
+        }
+
         private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
         {
             string searchString = SearchInputBox.Text;
@@ -218,14 +242,26 @@ namespace OneBusAway.WP7.View
             if (e.Key == Key.Enter)
             {
                 int routeNumber = 0;
-                // TODO: Re-enable this code when we add searching by something other than
-                // a route number
-                //bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
-                //if (canConvert == true) //it's a route or stop number
-                //{
+
+                bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+                if (canConvert == true) //it's a route or stop number
+                {
                     int number = int.Parse(searchString);
-                    viewModel.SearchByRoute(searchString, SearchByRouteCallback);
-                //}
+                    if (number < 1000) //route number
+                    {
+                        viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+                    }
+                    else //stop number
+                    {
+                        viewModel.SearchByStop(searchString, SearchByStopCallback);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Try typing a route or stop number, for example '48' or '11132'." );
+                }
+
+                //TODO: add this back when we implement search by address 
                 //else
                 //{
                     //try geocoding

@@ -20,4 +20,19 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
             this.location = location;
         }
     }
+
+    public class SearchForStopsEventArgs : AModelEventArgs
+    {
+        public List<Stop> stops { get; private set; }
+        public GeoCoordinate location { get; private set; }
+        public string query { get; private set; }
+
+        public SearchForStopsEventArgs(List<Stop> stops, GeoCoordinate location, string query, Exception error)
+        {
+            this.error = error;
+            this.stops = stops;
+            this.query = query;
+            this.location = location;
+        }
+    }
 }

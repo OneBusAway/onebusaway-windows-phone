@@ -115,6 +115,18 @@ namespace OneBusAway.WP7.ViewModel
                 });
         }
 
+        public delegate void SearchByStop_Callback(List<Stop> stops, Exception error);
+        public void SearchByStop(string stopNumber, SearchByStop_Callback callback)
+        {
+            operationTracker.WaitForOperation("SearchByStop");
+
+            busServiceModel.SearchForStops_Completed += new SearchByStopCompleted(callback, busServiceModel, this).SearchByStop_Completed;
+            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            {
+                busServiceModel.SearchForStops(location, stopNumber);
+            });
+        }
+
         public delegate void SearchByAddress_Callback(GeoCoordinate routes, Exception error);
         public void SearchByAddress(string addressString, SearchByAddress_Callback callback)
         {
@@ -218,6 +230,48 @@ namespace OneBusAway.WP7.ViewModel
                 busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
 
                 viewModel.operationTracker.DoneWithOperation("SearchByRoute");
+            }
+        }
+
+        private class SearchByStopCompleted
+        {
+            private SearchByStop_Callback callback;
+            private IBusServiceModel busServiceModel;
+            private MainPageVM viewModel;
+
+            public SearchByStopCompleted(SearchByStop_Callback callback, IBusServiceModel busServiceModel, MainPageVM viewModel)
+            {
+                this.callback = callback;
+                this.busServiceModel = busServiceModel;
+                this.viewModel = viewModel;
+            }
+
+            public void SearchByStop_Completed(object sender, SearchForStopsEventArgs e)
+            {
+                Debug.Assert(e.error == null);
+
+                if (e.error == null)
+                {
+                    e.stops.Sort(new StopDistanceComparer(e.location));
+                    viewModel.StopsForLocation.Clear();
+
+                    int count = 0;
+                    foreach (Stop stop in e.stops)
+                    {
+
+                        viewModel.StopsForLocation.Add(stop);
+                        count++;
+                    }
+                }
+                else
+                {
+                    viewModel.ErrorOccured(this, e.error);
+                }
+
+                callback(e.stops, e.error);
+                busServiceModel.SearchForStops_Completed -= this.SearchByStop_Completed;
+
+                viewModel.operationTracker.DoneWithOperation("SearchByStop");
             }
         }
 
