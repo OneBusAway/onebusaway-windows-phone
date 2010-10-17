@@ -58,6 +58,16 @@ namespace OneBusAway.WP7.View
                         return;
                     }
 
+                    if (e.error is LocationUnavailableException)
+                    {
+                        errorMessage +=
+                            "We couldn't find your location, " +
+                            "make sure your location services are turned on in the phone's settings.";
+                        MessageBox.Show(errorMessage, "Uh oh...", MessageBoxButton.OK);
+
+                        return;
+                    }
+
                     if (e.error is WebserviceParsingException)
                     {
                         errorMessage +=

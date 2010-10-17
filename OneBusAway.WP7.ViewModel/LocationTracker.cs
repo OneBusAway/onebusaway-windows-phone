@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Device.Location;
 using System.Threading;
 using Microsoft.Devices;
+using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Diagnostics;
 
 
 namespace OneBusAway.WP7.ViewModel 
@@ -79,6 +81,8 @@ namespace OneBusAway.WP7.ViewModel
         #endregion
 
         #region Public Properties
+
+        public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
         public GeoCoordinate CurrentLocation
         {
@@ -160,6 +164,9 @@ namespace OneBusAway.WP7.ViewModel
                     OnPropertyChanged("CurrentLocationSafe");
                     OnPropertyChanged("LocationKnown");
                 }
+
+                // Let them know OneBusAway is pretty useless without location
+                ErrorOccured(this, new LocationUnavailableException("The location is currently unavailable: " + locationWatcher.Status, locationWatcher.Status));
             }
         }
 
@@ -196,6 +203,19 @@ namespace OneBusAway.WP7.ViewModel
             if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+        protected void ErrorOccured(object sender, Exception e)
+        {
+            Debug.Assert(false);
+
+            // The VM should always be subscribed to the ErrorHandler event
+            Debug.Assert(ErrorHandler != null);
+
+            if (ErrorHandler != null)
+            {
+                ErrorHandler(sender, new ErrorHandlerEventArgs(e));
             }
         }
 
