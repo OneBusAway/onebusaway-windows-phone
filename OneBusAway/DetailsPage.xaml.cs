@@ -231,5 +231,13 @@ namespace OneBusAway.WP7.View
         {
             
         }
+
+        private void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
+        {
+            if (DetailsMap.ZoomLevel < 15)
+                BusStopsLayer.Visibility = System.Windows.Visibility.Collapsed;
+            else
+                BusStopsLayer.Visibility = System.Windows.Visibility.Visible;
+        }
     }
 }
