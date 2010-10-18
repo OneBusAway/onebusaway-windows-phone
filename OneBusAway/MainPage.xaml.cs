@@ -15,6 +15,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Net;
 using System.Device.Location;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.View
 {
@@ -30,6 +31,8 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
             base.Initialize();
 
+            ShowLoadingSplash();
+
             viewModel = aViewModel as MainPageVM;
             firstLoad = true;
 
@@ -42,22 +45,31 @@ namespace OneBusAway.WP7.View
 
         private void ShowLoadingSplash()
         {
+            ApplicationBar.IsVisible = false;
+
             this.popup = new Popup();
             this.popup.Child = new PopupSplash();
             this.popup.IsOpen = true;
 
-            Timer timer = new Timer(HideLoadingSplash, null, 500, Timeout.Infinite);
+            DispatcherTimer splashTimer = new DispatcherTimer();
+            splashTimer.Interval = new TimeSpan(0, 0, 0, 3, 0); // 5 secs
+            splashTimer.Tick += new EventHandler(splashTimer_Tick);
+            splashTimer.Start();
+
         }
 
-        private void HideLoadingSplash(Object stateInfo)
+        void splashTimer_Tick(object sender, EventArgs e)
         {
             this.Dispatcher.BeginInvoke(() => { HideLoadingSplash(); });
+
+            (sender as DispatcherTimer).Stop();
         }
 
         private void HideLoadingSplash()
         {
             this.popup.IsOpen = false;
-            //ApplicationBar.IsVisible = true;
+            ApplicationBar.IsVisible = true;
+            SystemTray.IsVisible = true;
         }
 
 
@@ -83,6 +95,8 @@ namespace OneBusAway.WP7.View
                     Dispatcher.BeginInvoke(() => StopsMap.Center = location);
                 }
             );
+
+            HideLoadingSplash();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
