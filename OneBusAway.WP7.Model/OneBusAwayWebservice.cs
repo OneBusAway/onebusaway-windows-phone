@@ -206,6 +206,14 @@ namespace OneBusAway.WP7.Model
 
                 Debug.Assert(error == null);
 
+                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
+                // invalid server data in the cache
+                if (error != null)
+                {
+                    HttpCache stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
+                    stopsCache.Invalidate(new Uri(requestUrl));
+                }
+
                 callback(stops, error);
             }
         }
@@ -289,6 +297,14 @@ namespace OneBusAway.WP7.Model
                 }
 
                 Debug.Assert(error == null);
+
+                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
+                // invalid server data in the cache
+                if (error != null)
+                {
+                    HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
+                    directionCache.Invalidate(new Uri(requestUrl));
+                }
 
                 callback(routeStops, error);
             }
