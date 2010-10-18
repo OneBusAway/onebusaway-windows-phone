@@ -29,14 +29,12 @@ namespace OneBusAway.WP7.View
 
         public App()
         {
-            UnhandledException += new EventHandler<ApplicationUnhandledExceptionEventArgs>(Application_UnhandledException);
+            UnhandledException += new EventHandler<ApplicationUnhandledExceptionEventArgs>(AViewPage.unhandledException_ErrorHandler);
 
             InitializeComponent();
 
             // Phone-specific initialization
             InitializePhoneApplication();
-
-            
         }
 
         // Code to execute when the application is activated (brought to foreground)
@@ -106,26 +104,6 @@ namespace OneBusAway.WP7.View
                 return null;
             }
         }
-
-        // Code to execute on Unhandled Exceptions
-        private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
-        {
-            if (System.Diagnostics.Debugger.IsAttached)
-            {
-                // An unhandled exception has occurred, break in the debugger
-                System.Diagnostics.Debugger.Break();
-            }
-
-            // By default show the error
-            e.Handled = true;
-            MessageBox.Show(
-                e.ExceptionObject.Message,
-                "Error", 
-                MessageBoxButton.OK
-                );
-        }
-
-      
 
         #region Phone application initialization
 

@@ -229,10 +229,29 @@ namespace OneBusAway.WP7.ViewModel
             {
                 lock (methodsRequiringLocationLock)
                 {
-                    methodsRequiringLocation.ForEach(method => method(CurrentLocation));
+                    Exception error = null;
+                    foreach(RequiresKnownLocation method in methodsRequiringLocation)
+                    {
+                        try
+                        {
+                            method(CurrentLocation);
+                        }
+                        catch(Exception e)
+                        {
+                            // Queue up errors so that all methods will be executed the and list will be 
+                            // cleared even if exceptions occur.  If there is more than one error, just report the last one
+                            error = e;
+                        }
+                    }
+
                     methodsRequiringLocation.Clear();
                     // Disable the timer now that no methods are in the queue
                     methodsRequiringLocationTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+                    if (error != null)
+                    {
+                        throw error;
+                    }
                 }
             }
         }
