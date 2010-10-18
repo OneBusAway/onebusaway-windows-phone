@@ -11,13 +11,13 @@
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
     xmlns:local="clr-namespace:OneBusAway.WP7.View"
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps" 
-    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="696"
+    mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
-    shell:SystemTray.IsVisible="True"
+    shell:SystemTray.IsVisible="False"
 >
 
     <view:AViewPage.Resources>
@@ -168,7 +168,7 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
 
-        <pivot:Pivot Title="ONE BUS AWAY"  Name="PC" SelectionChanged="PC_SelectionChanged" >
+        <pivot:Pivot Name="PC" SelectionChanged="PC_SelectionChanged" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
