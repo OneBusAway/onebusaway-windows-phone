@@ -583,6 +583,11 @@ namespace OneBusAway.WP7.Model
 
         private static string SafeGetValue(XElement element)
         {
+            return SafeGetValue(element, string.Empty);
+        }
+
+        private static string SafeGetValue(XElement element, string debuggingString)
+        {
             if (element != null)
             {
                 return element.Value;
