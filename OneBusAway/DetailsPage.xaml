@@ -93,6 +93,16 @@
             </Setter>
         </Style>
 
+        <Style x:Key="BusTripPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Images/BusTrip.png" Width="25" Height="25" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="MyLocationPushpinStyle" TargetType="m:Pushpin">
             <Setter Property="Template">
                 <Setter.Value>
@@ -130,13 +140,22 @@
 
         <Grid Grid.Row="1" x:Name="ContentGrid">
             <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="15"
+                   Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="10"
                     MapZoom="DetailsMap_MapZoom">
-                <m:MapLayer x:Name="BusStopsLayer">
+                <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
                     <m:MapItemsControl ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopPushpinStyle}" />
+                            </DataTemplate>
+                        </m:MapItemsControl.ItemTemplate>
+                    </m:MapItemsControl>
+                </m:MapLayer>
+                <m:MapLayer x:Name="BusTripsLayer">
+                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=TripDetailsForArrivals, Source={StaticResource ViewModel}}">
+                        <m:MapItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusTripPushpinStyle}"  />
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>

@@ -171,6 +171,7 @@
     <Content Include="Images\appbar.minus.rest.png" />
     <Content Include="Images\appbar.refresh.rest.png" />
     <Content Include="Images\bus.w.png" />
+    <Content Include="Images\BusTrip.png" />
     <Content Include="Images\center.png" />
     <Content Include="Images\CenterIcon.png" />
     <Content Include="SplashImage.png" />
