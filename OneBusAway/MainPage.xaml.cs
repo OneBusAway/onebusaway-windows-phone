@@ -1,29 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Device.Location;
+using System.Net;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Phone.Controls;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using Microsoft.Phone.Controls.Maps;
+using Microsoft.Phone.Controls.Maps.Core;
+using Microsoft.Phone.Shell;
 using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
-using Microsoft.Phone.Shell;
-using System.Windows.Controls.Primitives;
-using System.Threading;
-using Microsoft.Phone.Controls.Maps;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Net;
-using System.Device.Location;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Diagnostics;
 using System.Windows.Threading;
 
 namespace OneBusAway.WP7.View
 {
     public partial class MainPage : AViewPage
     {
-        private int selectedPivotIndex = 0;
         private MainPageVM viewModel;
         private bool firstLoad;
+        private Popup popup;
 
         public MainPage()
             : base()
@@ -40,8 +42,6 @@ namespace OneBusAway.WP7.View
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
         }
-
-        private Popup popup;
 
         private void ShowLoadingSplash()
         {
@@ -72,7 +72,6 @@ namespace OneBusAway.WP7.View
             SystemTray.IsVisible = true;
         }
 
-
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             viewModel.RegisterEventHandlers();
@@ -81,13 +80,16 @@ namespace OneBusAway.WP7.View
 
             viewModel.CheckForLocalTransitData(delegate(bool hasData)
             {
-                if (hasData == false)
-                {
-                    MessageBox.Show(
-                        "Currently the OneBusAway service only supports Seattle and the surrounding counties. " +
-                        "Many functions of this app will not work in your current location."
-                        );
-                }
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        if (hasData == false)
+                        {
+                            MessageBox.Show(
+                                "Currently the OneBusAway service only supports Seattle and the surrounding counties. " +
+                                "Many functions of this app will not work in your current location."
+                                );
+                        }
+                    });
             });
 
             viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
@@ -211,7 +213,7 @@ namespace OneBusAway.WP7.View
 
             if (error != null)
             {
-                // TODO: Show error
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
             }
             else if (routes.Count == 0)
             {
@@ -233,7 +235,7 @@ namespace OneBusAway.WP7.View
 
             if (error != null)
             {
-                // TODO: Show error
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
             }
             else if (stops.Count == 0)
             {
@@ -293,6 +295,11 @@ namespace OneBusAway.WP7.View
         private void appbar_about_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
+
+        private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 
     }

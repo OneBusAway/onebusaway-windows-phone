@@ -83,36 +83,6 @@
             </Grid>
         </DataTemplate>
         
-        <Style x:Key="BusStopPushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="BusTripPushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Image Source="/Images/BusTrip.png" Width="25" Height="25" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="MyLocationPushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
@@ -146,7 +116,7 @@
                     <m:MapItemsControl ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopPushpinStyle}" />
+                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopSmallPushpinStyle}" />
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>
