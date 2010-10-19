@@ -101,9 +101,9 @@ namespace OneBusAway.WP7.View
                             new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.North, Longitude = DetailsMap.BoundingRectangle.West },
                             new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.South, Longitude = DetailsMap.BoundingRectangle.East }
                             );
-                    }
 
-                    previousMapView = DetailsMap.BoundingRectangle;
+                        previousMapView = DetailsMap.BoundingRectangle;
+                    }
                 }
         }
 
@@ -117,7 +117,7 @@ namespace OneBusAway.WP7.View
 
         void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
         {
-            if (DetailsMap.ZoomLevel < 16)
+            if (DetailsMap.ZoomLevel < 17)
             {
                 BusStopsLayer.Visibility = Visibility.Collapsed;
             }

@@ -45,7 +45,7 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         
         <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="16" >
+                Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" >
             <m:MapLayer x:Name="BusStopsLayer">
                 <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                     <m:MapItemsControl.ItemTemplate>
