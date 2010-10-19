@@ -146,6 +146,37 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="BusStopSmallPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MyLocationPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="BusTripPushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Image Source="/Images/BusTrip.png" Width="25" Height="25" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 
 </Application>

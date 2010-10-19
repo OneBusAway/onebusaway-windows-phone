@@ -142,27 +142,7 @@
             <DoubleAnimation Duration="0:0:0.2" To="0" Storyboard.TargetProperty="(UIElement.RenderTransform).(CompositeTransform.TranslateY)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
             <DoubleAnimation Duration="0:0:0.2" To="1.0" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SearchPanel" d:IsOptimized="True"/>
         </Storyboard>
-
-        <Style x:Key="BusStopPushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Image Source="/Bus_Icon.png" Width="25" Height="25" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="MyLocationPushpinStyle" TargetType="m:Pushpin">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Image Source="/Images/CenterIcon.png" Width="27" Height="27" />
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
+                       
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="Transparent">
@@ -184,23 +164,34 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <!--<Image Grid.Row="0" Source="/Images/appbar.refresh.rest.png" />-->
-                    <m:Map Margin="14,0,0,16"  Grid.Row="0" x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
-                   Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" IsEnabled="False" >
-                        <m:MapLayer x:Name="BusStopsLayer">
-                            <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
-                                <m:MapItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <m:Pushpin Location="{Binding location}" Style="{StaticResource BusStopPushpinStyle}" PositionOrigin="Center" />
-                                    </DataTemplate>
-                                </m:MapItemsControl.ItemTemplate>
-                            </m:MapItemsControl>
-                        </m:MapLayer>
-                        <m:MapLayer x:Name="MyLocationLayer">
-                            <m:MapLayer.Children>
-                                <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
-                            </m:MapLayer.Children>
-                        </m:MapLayer>
-                    </m:Map>
+                    <Button 
+                        Grid.Row="0" 
+                        x:Name="stopsMapBtn" 
+                        Click="stopsMapBtn_Click" 
+                        BorderBrush="Transparent" 
+                        BorderThickness="0" 
+                        HorizontalContentAlignment="Stretch" 
+                        VerticalContentAlignment="Stretch" 
+                        Padding="0"
+                        >
+                        <m:Map x:Name="StopsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
+                               Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" IsEnabled="False">
+                            <m:MapLayer x:Name="BusStopsLayer">
+                                <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
+                                    <m:MapItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <m:Pushpin Location="{Binding location}" Style="{StaticResource BusStopSmallPushpinStyle}" PositionOrigin="Center" />
+                                        </DataTemplate>
+                                    </m:MapItemsControl.ItemTemplate>
+                                </m:MapItemsControl>
+                            </m:MapLayer>
+                            <m:MapLayer x:Name="MyLocationLayer">
+                                <m:MapLayer.Children>
+                                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
+                                </m:MapLayer.Children>
+                            </m:MapLayer>
+                        </m:Map>
+                    </Button>
                     <ListBox Grid.Row="1"
                     x:Name="StopsListBox" 
                     ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" 
@@ -240,7 +231,8 @@
 			</TextBlock.RenderTransform>
             </TextBlock>
         </StackPanel>
-              <ProgressBar 
+        
+        <ProgressBar 
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             IsIndeterminate="True" 
             Height="4" 

@@ -74,6 +74,7 @@
     <Compile Include="EventArgs\RoutesForLocationEventArgs.cs" />
     <Compile Include="EventArgs\StopsForLocationEventArgs.cs" />
     <Compile Include="EventArgs\TripDetailsForArrivalEventArgs.cs" />
+    <Compile Include="StopsMapVM.cs" />
     <Compile Include="IAppDataModel.cs" />
     <Compile Include="IBusServiceModel.cs" />
     <Compile Include="BusServiceDataStructures\DirectionSchedule.cs" />
