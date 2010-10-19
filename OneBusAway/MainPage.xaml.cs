@@ -33,7 +33,12 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
             base.Initialize();
 
-            ShowLoadingSplash();
+            // It is the first launch of the app if this key doesn't exist.  Otherwise we are returning
+            // to the main page after tombstoning and showing the splash screen looks bad
+            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == false)
+            {
+                ShowLoadingSplash();
+            }
 
             viewModel = aViewModel as MainPageVM;
             firstLoad = true;
@@ -55,7 +60,6 @@ namespace OneBusAway.WP7.View
             splashTimer.Interval = new TimeSpan(0, 0, 0, 3, 0); // 5 secs
             splashTimer.Tick += new EventHandler(splashTimer_Tick);
             splashTimer.Start();
-
         }
 
         void splashTimer_Tick(object sender, EventArgs e)
@@ -67,7 +71,11 @@ namespace OneBusAway.WP7.View
 
         private void HideLoadingSplash()
         {
-            this.popup.IsOpen = false;
+            if (this.popup != null)
+            {
+                this.popup.IsOpen = false;
+            }
+
             ApplicationBar.IsVisible = true;
             SystemTray.IsVisible = true;
         }
@@ -171,12 +179,6 @@ namespace OneBusAway.WP7.View
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
             }
-        }
-
-        private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            Pivot pivot = sender as Pivot;
-            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = pivot.SelectedIndex.ToString();
         }
 
         private void appbar_search_Click(object sender, EventArgs e)
