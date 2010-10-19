@@ -518,7 +518,7 @@ namespace OneBusAway.WP7.Model
                     trip.Element("status").Element("closestStop").Value : null,
                 closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
                     int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
-                position = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
+                location = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
                         new GeoCoordinate(
                             double.Parse(trip.Element("status").Element("position").Element("lat").Value),
                             double.Parse(trip.Element("status").Element("position").Element("lon").Value)

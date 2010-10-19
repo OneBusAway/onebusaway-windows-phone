@@ -23,10 +23,12 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember]
         public Coordinate coordinate { get; set; }
 
-        public GeoCoordinate position
+        public GeoCoordinate location
         {
             get
             {
+                if (coordinate == null) return null;
+
                 return new GeoCoordinate
                 {
                     Latitude = coordinate.Latitude,

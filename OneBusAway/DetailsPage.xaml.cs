@@ -19,6 +19,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Specialized;
 using Microsoft.Phone.Shell;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.View
 {
@@ -41,6 +42,8 @@ namespace OneBusAway.WP7.View
 
         private ApplicationBarIconButton appbar_allroutes;
 
+        private DispatcherTimer busLocationUpdateTimer;
+
         public DetailsPage()
             : base()
         {
@@ -51,7 +54,6 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
 
-            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -92,6 +94,16 @@ namespace OneBusAway.WP7.View
 
             isFavorite = viewModel.IsFavorite(currentInfo);
             SetFavoriteIcon();
+
+            busLocationUpdateTimer = new DispatcherTimer();
+            busLocationUpdateTimer.Interval = new TimeSpan(0, 0, 1, 0, 0); // 1 min 
+            busLocationUpdateTimer.Tick += new EventHandler(busLocationUpdateTimer_Tick);
+            busLocationUpdateTimer.Start();
+        }
+
+        void busLocationUpdateTimer_Tick(object sender, EventArgs e)
+        {
+            viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
         }
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
@@ -153,13 +165,9 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedFrom(e);
 
-            viewModel.UnregisterEventHandlers();
-        }
+            busLocationUpdateTimer.Stop();
 
-        void ArrivalsForStop_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            // This call is disabled because we don't use this data currently
-            //viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
+            viewModel.UnregisterEventHandlers();
         }
 
         private void appbar_favorite_Click(object sender, EventArgs e)

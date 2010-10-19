@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.ComponentModel;
+using System.Linq;
+
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -44,6 +46,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             StopsForRoute = new ObservableCollection<RouteStops>();
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
+            TripDetailsForArrivals = new ObservableCollection<TripDetails>();
             unfilteredArrivals = new List<ArrivalAndDeparture>();
             routeFilter = null;
         }
@@ -152,6 +155,9 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             operationTracker.DoneWithOperation("ArrivalsForStop");
+
+            if (ArrivalsForStop.Count > 0)
+                LoadTripsForArrivals(ArrivalsForStop.ToList());
         }
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
@@ -161,7 +167,13 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 TripDetailsForArrivals.Clear();
-                e.tripDetails.ForEach(tripDetail => TripDetailsForArrivals.Add(tripDetail));
+
+                foreach (TripDetails tripDetail in e.tripDetails)
+                {
+                    if (tripDetail.location != null)
+                        TripDetailsForArrivals.Add(tripDetail);
+
+                }
             }
             else
             {
