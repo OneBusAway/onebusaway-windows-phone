@@ -148,7 +148,7 @@
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
 
-        <pivot:Pivot Name="PC" SelectionChanged="PC_SelectionChanged" >
+        <pivot:Pivot Name="PC" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
