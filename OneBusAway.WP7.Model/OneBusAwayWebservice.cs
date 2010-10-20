@@ -20,6 +20,9 @@ namespace OneBusAway.WP7.Model
         private const string KEY = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
         private const int APIVERSION = 2;
 
+        private HttpCache stopsCache;
+        private HttpCache directionCache;
+
         #endregion
 
         #region Delegates
@@ -33,13 +36,12 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
-        #region Constructor/Singleton
+        #region Constructor
 
-        public static OneBusAwayWebservice Singleton = new OneBusAwayWebservice();
-
-        private OneBusAwayWebservice()
+        public OneBusAwayWebservice()
         {
-            
+            stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
+            directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
         }
 
         #endregion
@@ -149,25 +151,26 @@ namespace OneBusAway.WP7.Model
                 requestString += string.Format("&maxCount={0}", maxCount);
             }
 
-            HttpCache stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
             Uri requestUri = new Uri(requestString);
             if (invalidateCache)
             {
                 stopsCache.Invalidate(requestUri);
             }
 
-            stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, callback).StopsForLocation_Completed);
+            stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, stopsCache, callback).StopsForLocation_Completed);
         }
 
         private class GetStopsForLocationCompleted
         {
             private StopsForLocation_Callback callback;
             private string requestUrl;
+            private HttpCache stopsCache;
 
-            public GetStopsForLocationCompleted(string requestUrl, StopsForLocation_Callback callback)
+            public GetStopsForLocationCompleted(string requestUrl, HttpCache stopsCache, StopsForLocation_Callback callback)
             {
                 this.callback = callback;
                 this.requestUrl = requestUrl;
+                this.stopsCache = stopsCache;
             }
 
             public void StopsForLocation_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
@@ -210,7 +213,6 @@ namespace OneBusAway.WP7.Model
                 // invalid server data in the cache
                 if (error != null)
                 {
-                    HttpCache stopsCache = new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
                     stopsCache.Invalidate(new Uri(requestUrl));
                 }
 
@@ -228,8 +230,7 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
-            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route, callback).DirectionsForRoute_Completed);
+            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route, directionCache, callback).DirectionsForRoute_Completed);
         }
 
         private class GetDirectionsForRouteCompleted
@@ -237,12 +238,14 @@ namespace OneBusAway.WP7.Model
             private StopsForRoute_Callback callback;
             private string requestUrl;
             private Route route;
+            private HttpCache directionCache;
 
-            public GetDirectionsForRouteCompleted(string requestUrl, Route route, StopsForRoute_Callback callback)
+            public GetDirectionsForRouteCompleted(string requestUrl, Route route, HttpCache directionCache, StopsForRoute_Callback callback)
             {
                 this.callback = callback;
                 this.requestUrl = requestUrl;
                 this.route = route;
+                this.directionCache = directionCache;
             }
 
             public void DirectionsForRoute_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
@@ -302,7 +305,6 @@ namespace OneBusAway.WP7.Model
                 // invalid server data in the cache
                 if (error != null)
                 {
-                    HttpCache directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
                     directionCache.Invalidate(new Uri(requestUrl));
                 }
 
@@ -627,8 +629,8 @@ namespace OneBusAway.WP7.Model
 
         internal void ClearCache()
         {
-            new HttpCache("StopsForRoute", 0, 0).Clear();
-            new HttpCache("StopsForLocation", 0, 0).Clear();
+            stopsCache.Clear();
+            directionCache.Clear();
         }
     }
 }

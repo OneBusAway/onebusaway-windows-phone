@@ -45,7 +45,7 @@ namespace OneBusAway.WP7.Model
 
         private BusServiceModel()
         {
-            webservice = OneBusAwayWebservice.Singleton;
+            webservice = new OneBusAwayWebservice();
         }
 
         #endregion
