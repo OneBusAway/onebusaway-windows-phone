@@ -15,6 +15,13 @@ namespace OneBusAway.WP7.Model
     public class HttpCache
     {
         /// <summary>
+        /// Acquire a lock on this object prior to file IO.
+        /// </summary>
+        private object fileAccessSync = new object();
+
+        private CacheMetadata metadata;
+
+        /// <summary>
         /// Allows multiple caches to coexist in storage.
         /// I.e. caches with different names are independent.
         /// </summary>
@@ -41,6 +48,7 @@ namespace OneBusAway.WP7.Model
             this.Name = name;
             this.ExpirationPeriod = expirationPeriod;
             this.Capacity = capacity;
+            this.metadata = new CacheMetadata(this);
             CacheCalls = 0;
             CacheHits = 0;
             CacheMisses = 0;
@@ -83,17 +91,19 @@ namespace OneBusAway.WP7.Model
             {
                 if (iso.DirectoryExists(this.Name))
                 {
-                    // IsolatedStorage requires you to delete all the files before removing the directory
-                    string[] files = iso.GetFileNames(this.Name + "\\*");
-                    foreach (string file in files)
+                    lock (fileAccessSync)
                     {
-                        iso.DeleteFile(Path.Combine(this.Name,file));
+                        // IsolatedStorage requires you to delete all the files before removing the directory
+                        string[] files = iso.GetFileNames(this.Name + "\\*");
+                        foreach (string file in files)
+                        {
+                            iso.DeleteFile(Path.Combine(this.Name, file));
+                        }
+                        iso.DeleteDirectory(this.Name);
                     }
-                    iso.DeleteDirectory(this.Name);
                 }
             }
-            CacheMetadata m = new CacheMetadata(this);
-            m.Clear();
+            metadata.Clear();
         }
 
         /// <summary>
@@ -106,19 +116,19 @@ namespace OneBusAway.WP7.Model
             {
                 if (iso.FileExists(fileName))
                 {
-                    iso.DeleteFile(fileName);
+                    lock (fileAccessSync)
+                    {
+                        iso.DeleteFile(fileName);
+                    }
                 }
             }
-            CacheMetadata m = new CacheMetadata(this);
-            m.RemoveUpdateTime(fileName);
+            metadata.RemoveUpdateTime(fileName);
         }
 
         #endregion
 
         #region diagnostic properties
         // Mainly useful for statistics of cache performance.
-        // TODO We'd need to maintain a common instance for these to be useful.
-        // That requires some more thought about how to register and clean up EventHandlers
 
         public int CacheCalls { get; private set; }
         public int CacheHits { get; private set; }
@@ -146,16 +156,19 @@ namespace OneBusAway.WP7.Model
                     string fileName = MapAddressToFile(address);
                     if (iso.FileExists(fileName))
                     {
-                        if (CheckForExpiration(fileName))
+                        lock (fileAccessSync)
                         {
-                            return null;
-                        }
-                        // all good! return the content
-                        using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read))
-                        {
-                            using (StreamReader r = new StreamReader(stream))
+                            if (CheckForExpiration(fileName))
                             {
-                                return r.ReadToEnd();
+                                return null;
+                            }
+                            // all good! return the content
+                            using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read))
+                            {
+                                using (StreamReader r = new StreamReader(stream))
+                                {
+                                    return r.ReadToEnd();
+                                }
                             }
                         }
                     }
@@ -179,14 +192,17 @@ namespace OneBusAway.WP7.Model
                     iso.CreateDirectory(this.Name);
                 }
 
-                EvictIfNecessary(iso);
-
                 string fileName = MapAddressToFile(address);
-                using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.Write))
+                lock (fileAccessSync)
                 {
-                    using (StreamWriter writer = new StreamWriter(stream))
+                    EvictIfNecessary(iso);
+
+                    using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.Write))
                     {
-                        writer.Write(result);
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            writer.Write(result);
+                        }
                     }
                 }
                 UpdateExpiration(fileName);
@@ -203,6 +219,8 @@ namespace OneBusAway.WP7.Model
         /// Cache eviction policy is "least recently updated"
         /// Note this is not the same as least recently used.
         /// Rather, we're evicting the entry that will expire soonest.
+        /// 
+        /// This function assumes the caller has already locked fileAccessSync
         /// </remarks>
         /// <param name="iso"></param>
         private void EvictIfNecessary(IsolatedStorageFile iso)
@@ -210,15 +228,13 @@ namespace OneBusAway.WP7.Model
             string[] filesInCache = iso.GetFileNames(this.Name + "\\*");
             if (filesInCache.Length >= this.Capacity)
             {
-                CacheMetadata m = new CacheMetadata(this);
-
                 DateTime oldestFileTime = DateTime.MaxValue;
                 string oldestFileName = null;
                 foreach (string filename in filesInCache)
                 {
                     // the GetFileNames call above does not return qualified paths, but we expect those for the rest of the calls
                     string qualifiedFilename = Path.Combine(this.Name, filename);
-                    DateTime? updateTime = m.GetUpdateTime(qualifiedFilename);
+                    DateTime? updateTime = metadata.GetUpdateTime(qualifiedFilename);
                     if (null == updateTime)
                     {
                         // Then we have a file in the cache, but no record of it being put there... clean it up
@@ -237,7 +253,7 @@ namespace OneBusAway.WP7.Model
                 if (oldestFileName != null)
                 {
                     iso.DeleteFile(oldestFileName);
-                    m.RemoveUpdateTime(oldestFileName);
+                    metadata.RemoveUpdateTime(oldestFileName);
                     CacheEvictions++;
                 }
             }
@@ -289,12 +305,14 @@ namespace OneBusAway.WP7.Model
         /// <summary>
         /// Checks if the specified file is expired.  If so, updates the cache accordingly.
         /// </summary>
+        /// <remarks>
+        /// Assumes that the caller has already locked fileAccessSync
+        /// </remarks>
         /// <param name="fileName"></param>
         /// <returns>True if the cached file is expired</returns>
         private bool CheckForExpiration(string fileName)
         {
-            CacheMetadata m = new CacheMetadata(this);
-            if (m.IsExpired(fileName))
+            if (metadata.IsExpired(fileName))
             {
                 // purge the entry from the cache
                 using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
@@ -303,7 +321,7 @@ namespace OneBusAway.WP7.Model
                 }
 
                 // and purge the metadata entry
-                m.RemoveUpdateTime(fileName);
+                metadata.RemoveUpdateTime(fileName);
 
                 CacheExpirations++;
                 return true;
@@ -313,8 +331,7 @@ namespace OneBusAway.WP7.Model
 
         private void UpdateExpiration(string fileName)
         {
-            CacheMetadata m = new CacheMetadata(this);
-            m.AddUpdateTime(fileName, DateTime.Now);
+            metadata.AddUpdateTime(fileName, DateTime.Now);
         }
 
         /// <summary>
