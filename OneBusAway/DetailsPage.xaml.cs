@@ -20,6 +20,7 @@ using System.Collections.Specialized;
 using Microsoft.Phone.Shell;
 using System.Windows.Navigation;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.View
 {
@@ -64,12 +65,6 @@ namespace OneBusAway.WP7.View
 
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
             {
-                // CurrentRouteDirection isn't null so we've been called for a specific route
-                // Load all of the route details
-                RouteNumber.Text = viewModel.CurrentViewState.CurrentRoute.shortName;
-                RouteName.Text = viewModel.CurrentViewState.CurrentRouteDirection.name;
-                RouteInfo.Text = viewModel.CurrentViewState.CurrentStop.name;
-
                 appbar_allroutes = new ApplicationBarIconButton(unfilterRoutesIcon);
                 appbar_allroutes.Text = unfilterRoutesText;
                 appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
@@ -81,10 +76,6 @@ namespace OneBusAway.WP7.View
             {
                 // There isn't a specific route, just load up info on this bus stop
                 isFiltered = false;
-
-                RouteNumber.Text = string.Empty;
-                RouteName.Text = viewModel.CurrentViewState.CurrentStop.name;
-                RouteInfo.Text = string.Format("Direction: '{0}'", viewModel.CurrentViewState.CurrentStop.direction);
             }
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
@@ -110,26 +101,6 @@ namespace OneBusAway.WP7.View
         {
             viewModel.RegisterEventHandlers();
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
-
-            if (viewModel.CurrentViewState.CurrentRouteDirection != null)
-            {
-                LocationCollection points = new LocationCollection();
-                foreach (PolyLine pl in viewModel.CurrentViewState.CurrentRouteDirection.encodedPolylines)
-                {
-                    points = new LocationCollection();
-                    pl.Coordinates.ForEach(delegate(Coordinate c) { points.Add(new GeoCoordinate(c.Latitude, c.Longitude)); });
-
-                    MapPolyline shape = new MapPolyline();
-                    shape.Locations = points;
-                    shape.StrokeThickness = 5;
-                    shape.Stroke = new SolidColorBrush((Color)Resources["PhoneAccentColor"]);
-
-
-                    DetailsMap.Children.Insert(0, shape);
-                }
-
-            }
-
 
             // When we enter this page after tombstoning often the location won't be available when the map
             // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
@@ -237,7 +208,11 @@ namespace OneBusAway.WP7.View
 
         private void ArrivalsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+            if (e.AddedItems.Count != 0)
+            {
+                ArrivalAndDeparture arrival = (ArrivalAndDeparture)e.AddedItems[0];
+                viewModel.SwitchToRouteByArrival(arrival);
+            }
         }
 
         private void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
@@ -246,6 +221,30 @@ namespace OneBusAway.WP7.View
                 BusStopsLayer.Visibility = System.Windows.Visibility.Collapsed;
             else
                 BusStopsLayer.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        private void BusStopPushpin_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button)
+            {
+                string selectedStopId = (string)((Button)sender).Tag;
+
+                Stop selectedStop = null;
+                foreach (object item in BusStopItemsControl.Items)
+                {
+                    Stop stop = item as Stop;
+                    if (stop != null && stop.id == selectedStopId)
+                    {
+                        selectedStop = stop;
+                        viewModel.SwitchToStop(selectedStop);
+
+                        break;
+                    }
+                }
+
+                Debug.Assert(selectedStop != null);
+
+            }
         }
     }
 }

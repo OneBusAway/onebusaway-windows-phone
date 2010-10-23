@@ -227,7 +227,7 @@ namespace OneBusAway.WP7.ViewModel
                 }
                 
                 callback(e.routes, e.error);
-                busServiceModel.SearchForRoutes_Completed -= this.SearchByRoute_Completed;
+                busServiceModel.SearchForRoutes_Completed -= new EventHandler<EventArgs.SearchForRoutesEventArgs>(this.SearchByRoute_Completed);
 
                 viewModel.operationTracker.DoneWithOperation("SearchByRoute");
             }
