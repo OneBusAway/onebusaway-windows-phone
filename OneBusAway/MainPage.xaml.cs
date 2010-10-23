@@ -82,7 +82,7 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.RegisterEventHandlers();
+            viewModel.RegisterEventHandlers(Dispatcher);
             viewModel.LoadFavorites();
             viewModel.LoadInfoForLocation(1000);
 

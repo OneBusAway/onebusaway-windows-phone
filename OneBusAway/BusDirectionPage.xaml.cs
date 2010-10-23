@@ -38,7 +38,7 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
-            viewModel.RegisterEventHandlers();
+            viewModel.RegisterEventHandlers(Dispatcher);
 
             // This prevents us from refreshing the data when someone comes back to this page
             // since the bus directions aren't going to change

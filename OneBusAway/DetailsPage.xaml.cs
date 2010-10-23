@@ -99,7 +99,7 @@ namespace OneBusAway.WP7.View
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.RegisterEventHandlers();
+            viewModel.RegisterEventHandlers(Dispatcher);
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
 
             // When we enter this page after tombstoning often the location won't be available when the map

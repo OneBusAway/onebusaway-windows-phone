@@ -5,6 +5,7 @@ using System.IO.IsolatedStorage;
 using System.Net;
 using System.Collections.Generic;
 using System.Windows;
+using System.Threading;
 
 namespace OneBusAway.WP7.Model
 {
@@ -70,7 +71,8 @@ namespace OneBusAway.WP7.Model
                 CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(cachedResult);
                 // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
                 // original call and wierd things could happen.
-                Deployment.Current.Dispatcher.BeginInvoke(() => callback(this, eventArgs));
+                Thread thread = new Thread(() => callback(this, eventArgs));
+                thread.Start();
             }
             else
             {

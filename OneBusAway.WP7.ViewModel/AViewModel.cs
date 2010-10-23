@@ -16,6 +16,7 @@ using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -53,6 +54,9 @@ namespace OneBusAway.WP7.ViewModel
             
             Loading = false;
             eventsRegistered = false;
+
+            // Set up the default action, just execute in the same thread
+            UIAction = (uiAction => uiAction());
         }
 
         void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
@@ -127,13 +131,28 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
             }
         }
 
         #endregion
 
         #region Public Members
+
+        private Action<Action> uiAction;
+        public Action<Action> UIAction
+        {
+            get { return uiAction; }
+
+            set
+            {
+                uiAction = value;
+
+                // Set the ViewState's UIAction
+                CurrentViewState.UIAction = uiAction;
+                locationTracker.UIAction = uiAction;
+            }
+        }
 
         public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
@@ -178,8 +197,11 @@ namespace OneBusAway.WP7.ViewModel
         /// Registers all event handlers with the model.  Call this when 
         /// the page is first loaded.
         /// </summary>
-        public virtual void RegisterEventHandlers()
+        public virtual void RegisterEventHandlers(Dispatcher dispatcher)
         {
+            // Set the UI Actions to occur on the UI thread
+            UIAction = (uiAction => dispatcher.BeginInvoke(() => uiAction()));
+
             Debug.Assert(eventsRegistered == false);
             eventsRegistered = true;
         }

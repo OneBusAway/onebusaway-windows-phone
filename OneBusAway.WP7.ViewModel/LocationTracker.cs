@@ -62,6 +62,9 @@ namespace OneBusAway.WP7.ViewModel
             this.operationTracker = operationTracker;
             locationLoading = false;
 
+            // Set up the default action, just execute in the same thread
+            UIAction = (uiAction => uiAction());
+
             methodsRequiringLocation = new List<RequiresKnownLocation>();
             methodsRequiringLocationLock = new Object();
             // Create the timer but don't run it until methods are added to the queue
@@ -82,6 +85,7 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Properties
 
+        public Action<Action> UIAction { get; set; }
         public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
         public GeoCoordinate CurrentLocation
@@ -202,7 +206,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
             }
         }
 
