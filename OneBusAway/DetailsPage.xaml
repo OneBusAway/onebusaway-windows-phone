@@ -25,7 +25,9 @@
         <view:DateTimeConverter x:Key="DateTimeConverter" />
         <view:VisibilityConverter x:Key="VisibilityConverter" />
         <view:DelayColorConverter x:Key="DelayColorConverter" />
-
+        <view:PolylineConverter x:Key="PolylineConverter" />
+        <view:PushpinScaleConverter x:Key="PushpinScaleConverter" />
+        
         <!-- TextBox styles -->
         <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
             <Setter Property="Margin" Value="20,20,0,0" />
@@ -82,7 +84,27 @@
 
             </Grid>
         </DataTemplate>
-        
+
+        <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button 
+                            Width="50" Height="50"
+                            HorizontalContentAlignment="Stretch" 
+                            VerticalContentAlignment="Stretch" 
+                            BorderThickness="0" 
+                            Padding="0" 
+                            Click="BusStopPushpin_Click"
+                            Tag="{TemplateBinding Tag}"
+                            >
+                            <Image Source="/Bus_Icon.png" Margin="-3"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
@@ -94,7 +116,7 @@
 
         <Grid Grid.Row="0" x:Name="TitleGrid">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="Route Number" FontSize="48"  Margin="15" />
+                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="48"  Margin="15" />
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -102,8 +124,8 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" x:Name="RouteName" Text="ONE BUS AWAY" FontSize="{StaticResource PhoneFontSizeMedium}"/>
-                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Text="More Route Info" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="0" x:Name="RouteName" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Text="{Binding Path=CurrentViewState.CurrentStop.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
                 </Grid>
             </StackPanel>
         </Grid>
@@ -112,11 +134,33 @@
             <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
                    Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="10"
                     MapZoom="DetailsMap_MapZoom">
-                <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
-                    <m:MapItemsControl ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
+                <m:MapLayer x:Name="RouteLineLayer">
+                    <m:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Source={StaticResource ViewModel}, Converter={StaticResource PolylineConverter}}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopSmallPushpinStyle}" />
+                                <m:MapPolyline 
+                                Locations="{Binding}" 
+                                StrokeThickness="5"
+                                Stroke="{StaticResource PhoneAccentBrush}"
+                                />
+                            </DataTemplate>
+                        </m:MapItemsControl.ItemTemplate>
+                    </m:MapItemsControl>
+                </m:MapLayer>
+                <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
+                    <m:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
+                        <m:MapItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <m:Pushpin 
+                                    Location="{Binding location}" 
+                                    PositionOrigin="Center" 
+                                    Tag="{Binding Path=id}" 
+                                    Style="{StaticResource BusStopLargePushpinStyle}" 
+                                    />
+                                <!-- 
+                                    TODO: Enable this once I get it working
+                                    RenderTransform="{Binding Path=ZoomLevel, ElementName=DetailsMap, Converter={StaticResource PushpinScaleConverter}}"
+                                -->
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>

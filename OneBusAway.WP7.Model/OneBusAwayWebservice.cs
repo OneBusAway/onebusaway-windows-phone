@@ -230,21 +230,21 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route, directionCache, callback).DirectionsForRoute_Completed);
+            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route.id, directionCache, callback).DirectionsForRoute_Completed);
         }
 
         private class GetDirectionsForRouteCompleted
         {
             private StopsForRoute_Callback callback;
             private string requestUrl;
-            private Route route;
+            private string routeId;
             private HttpCache directionCache;
 
-            public GetDirectionsForRouteCompleted(string requestUrl, Route route, HttpCache directionCache, StopsForRoute_Callback callback)
+            public GetDirectionsForRouteCompleted(string requestUrl, string routeId, HttpCache directionCache, StopsForRoute_Callback callback)
             {
                 this.callback = callback;
                 this.requestUrl = requestUrl;
-                this.route = route;
+                this.routeId = routeId;
                 this.directionCache = directionCache;
             }
 
@@ -285,7 +285,13 @@ namespace OneBusAway.WP7.Model
                                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
                                             )).ToList<Stop>(),
 
-                                 route = this.route
+                                 route =
+                                    (from route in xmlDoc.Descendants("route")
+                                     where routeId == SafeGetValue(route.Element("id"))
+                                     select ParseRoute(
+                                        route,
+                                        xmlDoc.Descendants("agency")
+                                        )).First()
 
                              }).ToList<RouteStops>();
                     }
