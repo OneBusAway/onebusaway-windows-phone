@@ -13,6 +13,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Device.Location;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -63,9 +64,9 @@ namespace OneBusAway.WP7.ViewModel
             busServiceModel.StopsForLocation(center, radiusInMeters);
         }
 
-        public override void RegisterEventHandlers()
+        public override void RegisterEventHandlers(Dispatcher dispatcher)
         {
-            base.RegisterEventHandlers();
+            base.RegisterEventHandlers(dispatcher);
 
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
         }
@@ -102,18 +103,22 @@ namespace OneBusAway.WP7.ViewModel
                             stopsToRemove.Add(stop);
                         }
                     }
-                    foreach (Stop stop in stopsToRemove)
-                    {
-                        StopsForLocation.Remove(stop);
-                    }
 
-                    foreach (Stop stop in e.stops)
-                    {
-                        if (StopsForLocation.Contains(stop) == false)
+                    UIAction(() =>
                         {
-                            StopsForLocation.Add(stop);
-                        }
-                    }
+                            foreach (Stop stop in stopsToRemove)
+                            {
+                                StopsForLocation.Remove(stop);
+                            }
+
+                            foreach (Stop stop in e.stops)
+                            {
+                                if (StopsForLocation.Contains(stop) == false)
+                                {
+                                    StopsForLocation.Add(stop);
+                                }
+                            }
+                        });
                 }
             }
             else

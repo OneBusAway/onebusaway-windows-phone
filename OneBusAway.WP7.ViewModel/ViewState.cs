@@ -2,6 +2,7 @@
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -10,9 +11,12 @@ namespace OneBusAway.WP7.ViewModel
         public static readonly ViewState Instance = new ViewState();
 
         private ViewState() 
-        { 
-        
+        {
+            // Set up the default action, just execute in the same thread
+            UIAction = (uiAction => uiAction());
         }
+
+        public Action<Action> UIAction { get; set; }
 
         private Stop currentStop;
         public Stop CurrentStop 
@@ -68,7 +72,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
             }
         }
     }

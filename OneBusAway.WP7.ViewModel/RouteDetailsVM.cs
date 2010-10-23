@@ -9,6 +9,7 @@ using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Threading;
 
 
 namespace OneBusAway.WP7.ViewModel
@@ -146,19 +147,22 @@ namespace OneBusAway.WP7.ViewModel
 
                 if (e.error == null)
                 {
-                    viewModel.CurrentViewState.CurrentRouteDirection = null;
-                    e.routeStops.ForEach(routeStop =>
+                    viewModel.UIAction(() =>
                         {
-                            // These aren't always the same, hopefully this comparison will work
-                            if (routeStop.name.Contains(arrival.tripHeadsign) || arrival.tripHeadsign.Contains(routeStop.name))
-                            {
-                                viewModel.CurrentViewState.CurrentRouteDirection = routeStop;
-                                viewModel.CurrentViewState.CurrentRoute = routeStop.route;
-                            }
-                        }
-                     );
+                            viewModel.CurrentViewState.CurrentRouteDirection = null;
+                            e.routeStops.ForEach(routeStop =>
+                                {
+                                    // These aren't always the same, hopefully this comparison will work
+                                    if (routeStop.name.Contains(arrival.tripHeadsign) || arrival.tripHeadsign.Contains(routeStop.name))
+                                    {
+                                        viewModel.CurrentViewState.CurrentRouteDirection = routeStop;
+                                        viewModel.CurrentViewState.CurrentRoute = routeStop.route;
+                                    }
+                                }
+                             );
 
-                    Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
+                            Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
+                        });
                 }
                 else
                 {
@@ -175,7 +179,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             Debug.Assert(e.error == null); 
         
-
             if (e.error == null)
             {
                 unfilteredArrivals = e.arrivals;
@@ -198,14 +201,18 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                TripDetailsForArrivals.Clear();
+                UIAction(() =>
+                    {
+                        TripDetailsForArrivals.Clear();
 
-                foreach (TripDetails tripDetail in e.tripDetails)
-                {
-                    if (tripDetail.location != null)
-                        TripDetailsForArrivals.Add(tripDetail);
-
-                }
+                        foreach (TripDetails tripDetail in e.tripDetails)
+                        {
+                            if (tripDetail.location != null)
+                            {
+                                TripDetailsForArrivals.Add(tripDetail);
+                            }
+                        }
+                    });
             }
             else
             {
@@ -219,22 +226,25 @@ namespace OneBusAway.WP7.ViewModel
 
         private void FilterArrivals()
         {
-            ArrivalsForStop.Clear();
-
-            foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
-            {
-                if (routeFilter != null && routeFilter.id != arrival.routeId)
+            UIAction(() =>
                 {
-                    continue;
-                }
+                    ArrivalsForStop.Clear();
 
-                ArrivalsForStop.Add(arrival);
-            }
+                    foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+                    {
+                        if (routeFilter != null && routeFilter.id != arrival.routeId)
+                        {
+                            continue;
+                        }
+
+                        ArrivalsForStop.Add(arrival);
+                    }
+                });
         }
 
-        public override void RegisterEventHandlers()
+        public override void RegisterEventHandlers(Dispatcher dispatcher)
         {
-            base.RegisterEventHandlers();
+            base.RegisterEventHandlers(dispatcher);
 
             this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);

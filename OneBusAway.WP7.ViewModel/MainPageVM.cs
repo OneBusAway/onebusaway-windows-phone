@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -154,9 +155,9 @@ namespace OneBusAway.WP7.ViewModel
             });
         }
 
-        public override void RegisterEventHandlers()
+        public override void RegisterEventHandlers(Dispatcher dispatcher)
         {
-            base.RegisterEventHandlers();
+            base.RegisterEventHandlers(dispatcher);
 
             this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
             this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
@@ -207,19 +208,22 @@ namespace OneBusAway.WP7.ViewModel
                 if (e.error == null)
                 {
                     e.routes.Sort(new RouteDistanceComparer(e.location));
-                    viewModel.RoutesForLocation.Clear();
 
-                    int count = 0;
-                    foreach (Route route in e.routes)
-                    {
-                        if (count > viewModel.maxRoutes)
+                    viewModel.UIAction(() =>
                         {
-                            break;
-                        }
+                            viewModel.RoutesForLocation.Clear();
+                            int count = 0;
+                            foreach (Route route in e.routes)
+                            {
+                                if (count > viewModel.maxRoutes)
+                                {
+                                    break;
+                                }
 
-                        viewModel.RoutesForLocation.Add(route);
-                        count++;
-                    }
+                                viewModel.RoutesForLocation.Add(route);
+                                count++;
+                            }
+                        });
                 }
                 else
                 {
@@ -253,15 +257,18 @@ namespace OneBusAway.WP7.ViewModel
                 if (e.error == null)
                 {
                     e.stops.Sort(new StopDistanceComparer(e.location));
-                    viewModel.StopsForLocation.Clear();
 
-                    int count = 0;
-                    foreach (Stop stop in e.stops)
-                    {
+                    viewModel.UIAction(() =>
+                        {
+                            viewModel.StopsForLocation.Clear();
+                            int count = 0;
+                            foreach (Stop stop in e.stops)
+                            {
 
-                        viewModel.StopsForLocation.Add(stop);
-                        count++;
-                    }
+                                viewModel.StopsForLocation.Add(stop);
+                                count++;
+                            }
+                        });
                 }
                 else
                 {
@@ -282,19 +289,22 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 e.stops.Sort(new StopDistanceComparer(e.location));
-                StopsForLocation.Clear();
 
-                int count = 0;
-                foreach (Stop stop in e.stops)
-                {
-                    if (count > maxStops)
-                    {
-                        break;
-                    }
+                UIAction(() =>
+                        {
+                            StopsForLocation.Clear();
+                            int count = 0;
+                            foreach (Stop stop in e.stops)
+                            {
+                                if (count > maxStops)
+                                {
+                                    break;
+                                }
 
-                    StopsForLocation.Add(stop);
-                    count++;
-                }
+                                StopsForLocation.Add(stop);
+                                count++;
+                            }
+                        });
             }
             else
             {
@@ -311,19 +321,23 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 e.routes.Sort(new RouteDistanceComparer(e.location));
-                RoutesForLocation.Clear();
 
-                int count = 0;
-                foreach (Route route in e.routes)
-                {
-                    if (count > maxRoutes)
+                UIAction(() =>
                     {
-                        break;
-                    }
+                        RoutesForLocation.Clear();
 
-                    RoutesForLocation.Add(route);
-                    count++;
-                }
+                        int count = 0;
+                        foreach (Route route in e.routes)
+                        {
+                            if (count > maxRoutes)
+                            {
+                                break;
+                            }
+
+                            RoutesForLocation.Add(route);
+                            count++;
+                        }
+                    });
             }
             else
             {
@@ -355,13 +369,16 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                Favorites.Clear();
-                
                 if (LocationTracker.LocationKnown == true)
                 {
                     e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
                 }
-                e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
+
+                UIAction(() =>
+                    {
+                        Favorites.Clear();
+                        e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
+                    });
             }
             else
             {
@@ -375,9 +392,13 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                Recents.Clear();
                 e.newFavorites.Sort(new RecentLastAccessComparer());
-                e.newFavorites.ForEach(recent => Recents.Add(recent));
+
+                UIAction(() =>
+                    {
+                        Recents.Clear();
+                        e.newFavorites.ForEach(recent => Recents.Add(recent));
+                    });
             }
             else
             {

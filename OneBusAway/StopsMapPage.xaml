@@ -33,7 +33,7 @@
                             Click="BusStopPushpin_Click"
                             Tag="{TemplateBinding Tag}"
                             >
-                            <Image Width="40" Height="40" Source="/Bus_Icon.png" />
+                            <Image Source="/Bus_Icon.png" Margin="-3"/>
                         </Button>
                     </ControlTemplate>
                 </Setter.Value>

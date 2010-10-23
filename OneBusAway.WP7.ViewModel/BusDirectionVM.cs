@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -83,7 +84,10 @@ namespace OneBusAway.WP7.ViewModel
                             pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
                         }
 
-                        pendingRouteDirections.ForEach(route => RouteDirections.Add(route));
+                        UIAction(() =>
+                            {
+                                pendingRouteDirections.ForEach(route => RouteDirections.Add(route));
+                            });
                     }
                 }
             }
@@ -96,9 +100,9 @@ namespace OneBusAway.WP7.ViewModel
             operationTracker.DoneWithOperation("StopsForRoute_" + e.route.id);
         }
 
-        public override void RegisterEventHandlers()
+        public override void RegisterEventHandlers(Dispatcher dispatcher)
         {
-            base.RegisterEventHandlers();
+            base.RegisterEventHandlers(dispatcher);
 
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
