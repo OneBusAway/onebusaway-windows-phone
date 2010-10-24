@@ -10,7 +10,7 @@
     tilt:TiltEffect.IsTiltEnabled="True"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
+    Foreground="{StaticResource OBAForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True">
@@ -19,11 +19,11 @@
     <Grid x:Name="LayoutRoot" Background="#78AA36" Width="480" Height="800">
 
         <Image HorizontalAlignment="Center"  Stretch="None" VerticalAlignment="Top" Source="/SplashImage.png" />
-        <Button Content="send feedback" Height="72" HorizontalAlignment="Left" Margin="121,555,0,0" Name="FeedbackButton" VerticalAlignment="Top" Width="236" Click="FeedbackButton_Click" />
-        <TextBlock Height="73" HorizontalAlignment="Left" Margin="63,374,0,0" Name="AddressBlock" Text="onebusaway.org" VerticalAlignment="Top" FontSize="48" Width="350" MouseLeftButtonUp="AddressBlock_MouseLeftButtonUp" />
-        <TextBlock Height="30" HorizontalAlignment="Left" Margin="18,705,0,0" Text="Windows Phone edition by Rob Smith and Shawn Henry" VerticalAlignment="Top" FontSize="18" />
-        <TextBlock Height="30" HorizontalAlignment="Left" Margin="91,729,0,0" Text="http://onebusawaywp7.codeplex.com" VerticalAlignment="Top" FontSize="18" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" />
-        <TextBlock Height="30" HorizontalAlignment="Right" Margin="0,10,14,0" Name="VersionTextBlock" Text="Version 1.0" VerticalAlignment="Top" />
+        <Button BorderBrush="{StaticResource OBAForegroundBrush}" Foreground="{StaticResource OBAForegroundBrush}" Content="send feedback" Height="72" HorizontalAlignment="Left" Margin="121,555,0,0" Name="FeedbackButton" VerticalAlignment="Top" Width="236" Click="FeedbackButton_Click" />
+        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="73" HorizontalAlignment="Left" Margin="63,374,0,0" Name="AddressBlock" Text="onebusaway.org" VerticalAlignment="Top" FontSize="48" Width="350" MouseLeftButtonUp="AddressBlock_MouseLeftButtonUp" />
+        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Left" Margin="18,705,0,0" Text="Windows Phone edition by Rob Smith and Shawn Henry" VerticalAlignment="Top" FontSize="18" />
+        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Left" Margin="91,729,0,0" Text="http://onebusawaywp7.codeplex.com" VerticalAlignment="Top" FontSize="18" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" />
+        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Right" Margin="0,10,14,0" Name="VersionTextBlock" Text="Version 1.0" VerticalAlignment="Top" />
     </Grid>
 
     <!--Sample code showing usage of ApplicationBar-->

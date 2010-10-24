@@ -42,7 +42,7 @@
 
     </view:AViewPage.Resources>
 
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         
         <m:Map x:Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed" ScaleVisibility="Collapsed" CredentialsProvider="{StaticResource MapCredentials}"
                 Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" >
@@ -71,6 +71,7 @@
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
+            Foreground="{StaticResource OBALightBrush}"            
             />
     </Grid>
 

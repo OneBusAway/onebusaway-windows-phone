@@ -12,9 +12,6 @@
     xmlns:local="clr-namespace:OneBusAway.WP7.View"
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps" 
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
-    FontFamily="{StaticResource PhoneFontFamilyNormal}"
-    FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     shell:SystemTray.IsVisible="False"
@@ -28,6 +25,7 @@
         </DataTemplate>
 
 
+
         <!--<viewModel:RouteDirectionsMV x:Key="RouteStopsList" />-->
 
         <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
@@ -36,15 +34,6 @@
         <view:StopDirectionConverter x:Key="StopDirectionConverter"></view:StopDirectionConverter>
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         
-        <!-- TextBox styles -->
-        <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
-            <Setter Property="Margin" Value="20,20,0,0" />
-        </Style>
-
-        <Style x:Key="PhoneTextPageTitle2Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextTitle1Style}">
-            <Setter Property="Margin" Value="20,43,0,0" />
-        </Style>
-
         <DataTemplate x:Key="StopTemplate">
 
             <Grid Margin="5">
@@ -62,31 +51,29 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <Polygon CacheMode="BitmapCache" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource PhoneForegroundBrush}" Opacity="1.0"/>
+                <Polygon CacheMode="BitmapCache" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource OBAForegroundBrush}" Opacity="1.0"/>
                 <Canvas CacheMode="BitmapCache" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  x:Name="BusIcon" Margin="12">
                     <Canvas.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform ScaleX="0.85" ScaleY="0.85" />
                         </TransformGroup>
                     </Canvas.RenderTransform>
-                    <Rectangle Width="26" Height="22" Canvas.Left="1" Canvas.Top="2" Fill="{StaticResource PhoneBackgroundBrush}" Stroke="{StaticResource PhoneBackgroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
-                    <Ellipse Width="6" Height="6" Canvas.Left="19" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource PhoneBackgroundBrush}" Fill="{StaticResource PhoneBackgroundBrush}"/>
-                    <Ellipse Width="6" Height="6" Canvas.Left="3" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource PhoneBackgroundBrush}" Fill="{StaticResource PhoneBackgroundBrush}"/>
+                    <Rectangle Width="26" Height="22" Canvas.Left="1" Canvas.Top="2" Fill="{StaticResource OBABackgroundBrush}" Stroke="{StaticResource OBABackgroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="19" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource OBABackgroundBrush}" Fill="{StaticResource OBABackgroundBrush}"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="3" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource OBABackgroundBrush}" Fill="{StaticResource OBABackgroundBrush}"/>
 
-                    <Rectangle Width="22" Height="10" Canvas.Left="3" Canvas.Top="7" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
-                    <Rectangle Width="6" Height="3" Canvas.Left="3" Canvas.Top="19" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
-                    <Rectangle Width="6" Height="3" Canvas.Left="19" Canvas.Top="19" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
-                    <Rectangle Width="22" Height="3" Canvas.Left="3" Canvas.Top="3" Fill="{StaticResource PhoneForegroundBrush}" Stroke="{StaticResource PhoneForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="22" Height="10" Canvas.Left="3" Canvas.Top="7" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="3" Canvas.Top="19" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="19" Canvas.Top="19" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="22" Height="3" Canvas.Left="3" Canvas.Top="3" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
 
-                    <Path Fill="{StaticResource PhoneBackgroundBrush}" Stretch="Fill" Stroke="{StaticResource PhoneBackgroundBrush}" StrokeLineJoin="Round" Height="12" Width="1" UseLayoutRounding="False" Canvas.Left="13.5" Canvas.Top="6.5" Data="M16,8 L16,17"/>
+                    <Path Fill="{StaticResource OBABackgroundBrush}" Stretch="Fill" Stroke="{StaticResource OBABackgroundBrush}" StrokeLineJoin="Round" Height="12" Width="1" UseLayoutRounding="False" Canvas.Left="13.5" Canvas.Top="6.5" Data="M16,8 L16,17"/>
                 </Canvas>
 
-                <!--<TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />-->
-
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" />
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
-                <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" Foreground="{StaticResource OBAForegroundBrush}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
+                <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
+                <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
             </Grid>
         </DataTemplate>
 
@@ -103,11 +90,11 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
-                
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding description}" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Text="{Binding shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5"  Foreground="{StaticResource OBAForegroundBrush}" />
 
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding description}"  Foreground="{StaticResource OBAForegroundBrush}" />
+
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
             </Grid>
         </DataTemplate>
 
@@ -125,16 +112,13 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Center" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Center" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5"  Foreground="{StaticResource OBAForegroundBrush}" />
 
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}"  Foreground="{StaticResource OBAForegroundBrush}" />
 
-                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=stop, Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
+                <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=stop, Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
 
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=Detail}" />
-                <!--<TextBlock  Grid.Column="1" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
-                <TextBlock  Grid.Column="2" Grid.Row="1" Foreground="{StaticResource PhoneSubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />-->
-
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=Detail}"  Foreground="{StaticResource OBAForegroundBrush}" />
             </Grid>
         </DataTemplate>
 
@@ -145,10 +129,10 @@
                        
     </view:AViewPage.Resources>
 
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
 
-        <pivot:Pivot Name="PC" >
+        <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
@@ -218,14 +202,14 @@
                     />
             </pivot:PivotItem>
         </pivot:Pivot>
-        <StackPanel x:Name="SearchPanel" Opacity="0" Background="{StaticResource PhoneBackgroundBrush}" Height="80" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+        <StackPanel x:Name="SearchPanel" Opacity="0" Background="{StaticResource OBADarkBrush}" Height="80" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
             <StackPanel.RenderTransform>
                 <CompositeTransform TranslateY="-75"/>
             </StackPanel.RenderTransform>
             <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
             <TextBlock 
 				Text="By route (ex. '44') or stop number (ex. '11132')"  
-				Foreground="{StaticResource PhoneSubtleBrush}" FontSize="16" HorizontalAlignment="Center">
+				Foreground="{StaticResource OBASubtleBrush}" FontSize="16" HorizontalAlignment="Center">
 				<TextBlock.RenderTransform>
 				<CompositeTransform TranslateY="-14"/>
 			</TextBlock.RenderTransform>
@@ -241,11 +225,12 @@
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
+            Foreground="{StaticResource OBALightBrush}"            
             />
     </Grid>
 
     <view:AViewPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+        <shell:ApplicationBar ForegroundColor="{StaticResource OBAForegroundColor}" IsVisible="True" IsMenuEnabled="True" BackgroundColor="{StaticResource OBADarkColor}">
             <shell:ApplicationBarIconButton x:Name="appbar_center" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBarIconButton x:Name="appbar_search" IconUri="/Images/appbar.feature.search.rest.png" Text="Search" Click="appbar_search_Click"></shell:ApplicationBarIconButton>
             <shell:ApplicationBar.MenuItems>
