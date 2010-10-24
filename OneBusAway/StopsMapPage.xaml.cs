@@ -14,6 +14,8 @@ using OneBusAway.WP7.ViewModel;
 using System.Device.Location;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using Microsoft.Phone.Controls.Maps;
+using System.Windows.Data;
+using System.Collections;
 
 namespace OneBusAway.WP7.View
 {
@@ -30,6 +32,8 @@ namespace OneBusAway.WP7.View
         private Object mapHasMovedLock;
         private bool mapHasMoved;
 
+        private const int minZoomLevel = 14; //below this level we don't even bother querying
+
         public StopsMapPage()
             : base()
         {
@@ -45,7 +49,7 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
             this.DetailsMap.MapZoom += new EventHandler<MapZoomEventArgs>(DetailsMap_MapZoom);
             this.DetailsMap.MapPan += new EventHandler<MapDragEventArgs>(DetailsMap_MapPan);
-            this.DetailsMap.MouseLeftButtonUp += new MouseButtonEventHandler(DetailsMap_MouseLeftButtonUp);
+            this.DetailsMap.ViewChangeEnd += new EventHandler<MapEventArgs>(DetailsMap_ViewChangeEnd);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
         }
@@ -55,7 +59,7 @@ namespace OneBusAway.WP7.View
         void DetailsMap_MapResolved(object sender, EventArgs e)
         {
             this.DetailsMap.MapResolved -= new EventHandler(DetailsMap_MapResolved);
-            DetailsMap_MouseLeftButtonUp(this, null);
+            DetailsMap_ViewChangeEnd(this, null);
         }
 
         void FullScreenMapPage_Loaded(object sender, RoutedEventArgs e)
@@ -79,7 +83,7 @@ namespace OneBusAway.WP7.View
             );
         }
 
-        void DetailsMap_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void DetailsMap_ViewChangeEnd(object sender, MapEventArgs e)
         {
                 lock (mapHasMovedLock)
                 {
@@ -93,9 +97,10 @@ namespace OneBusAway.WP7.View
                     }
                 }
 
-                if (BusStopsLayer.Visibility == Visibility.Visible)
+                if (DetailsMap.ZoomLevel > minZoomLevel)
                 {
-                    if (LocationRectContainedBy(previousMapView, DetailsMap.BoundingRectangle) == false)
+                    //TODO: add this back. It was causing problems when the map was zoomed from a layer that we didn't query on to a layer that we should
+                    //if (LocationRectContainedBy(previousMapView, DetailsMap.BoundingRectangle) == false)   
                     {
                         viewModel.LoadStopsForLocation(
                             new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.North, Longitude = DetailsMap.BoundingRectangle.West },
@@ -105,6 +110,7 @@ namespace OneBusAway.WP7.View
                         previousMapView = DetailsMap.BoundingRectangle;
                     }
                 }
+            
         }
 
         void DetailsMap_MapPan(object sender, MapDragEventArgs e)
@@ -117,7 +123,7 @@ namespace OneBusAway.WP7.View
 
         void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
         {
-            if (DetailsMap.ZoomLevel < 17)
+            if (DetailsMap.ZoomLevel < minZoomLevel)
             {
                 BusStopsLayer.Visibility = Visibility.Collapsed;
             }
@@ -176,7 +182,6 @@ namespace OneBusAway.WP7.View
                     viewModel.CurrentViewState.CurrentStop = stop;
                     viewModel.CurrentViewState.CurrentRoute = null;
                     viewModel.CurrentViewState.CurrentRouteDirection = null;
-
                     NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
 
                     break;
@@ -184,4 +189,47 @@ namespace OneBusAway.WP7.View
             }
         }
     }
+
+    public class MaxStopsConverter : IValueConverter
+    {
+        private const int maxNumberOfStop = 80; //maximum number of stops we show at a time
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            int count = (int)value;
+            bool visibility = (count < maxNumberOfStop) ;
+
+            if (parameter != null) 
+                visibility = !visibility;
+
+            return visibility ? Visibility.Visible : Visibility.Collapsed;
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class MaxZoomConverter : IValueConverter
+    {
+        private const double maxZoom = 14; //maximum number of stops we show at a time
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            double zoom = (double)value;
+            bool visibility = (zoom <= maxZoom);
+
+            return visibility ? Visibility.Visible : Visibility.Collapsed;
+
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    
 }
