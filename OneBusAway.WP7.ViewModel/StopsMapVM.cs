@@ -58,7 +58,7 @@ namespace OneBusAway.WP7.ViewModel
             int radiusInMeters = ((int)topLeft.GetDistanceTo(bottomRight)) / 2;
             // Query for at least a 250m radius and less than a 1km radius
             radiusInMeters = Math.Max(radiusInMeters, 250);
-            radiusInMeters = Math.Min(radiusInMeters, 1000);
+            radiusInMeters = Math.Min(radiusInMeters, 3000);
 
             operationTracker.WaitForOperation("StopsForLocation");
             busServiceModel.StopsForLocation(center, radiusInMeters);
