@@ -29,13 +29,6 @@
         <view:PushpinScaleConverter x:Key="PushpinScaleConverter" />
         
         <!-- TextBox styles -->
-        <Style x:Key="PhoneTextPageTitle1Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextNormalStyle}">
-            <Setter Property="Margin" Value="20,20,0,0" />
-        </Style>
-
-        <Style x:Key="PhoneTextPageTitle2Style" TargetType="TextBlock" BasedOn="{StaticResource PhoneTextTitle1Style}">
-            <Setter Property="Margin" Value="20,43,0,0" />
-        </Style>
 
         <DataTemplate x:Key="RouteTemplate">
             <Grid Margin="5">
@@ -56,18 +49,20 @@
                     Grid.RowSpan="2" 
                     Text="{Binding routeShortName}" 
                     FontSize="{StaticResource PhoneFontSizeLarge}" 
+                    Foreground="{StaticResource OBAForegroundBrush}"
                     Margin="5" 
                     />
                 <TextBlock 
                     Grid.Column="1" 
                     Grid.ColumnSpan="2" 
                     Grid.Row="0" 
+                    Foreground="{StaticResource OBAForegroundBrush}"                    
                     Text="{Binding tripHeadsign}" 
                     />
                 <TextBlock 
                     Grid.Column="1" 
                     Grid.Row="1" 
-                    Foreground="{StaticResource PhoneSubtleBrush}" 
+                    Foreground="{StaticResource OBASubtleBrush}" 
                     FontSize="{StaticResource PhoneFontSizeSmall}" 
                     Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" 
                     />
@@ -107,7 +102,7 @@
 
     </view:AViewPage.Resources>
 
-    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="70"/>
             <RowDefinition Height="*"/>
@@ -116,7 +111,7 @@
 
         <Grid Grid.Row="0" x:Name="TitleGrid">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="48"  Margin="15" />
+                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="48"  Margin="15" />
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -124,8 +119,8 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" x:Name="RouteName" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
-                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Text="{Binding Path=CurrentViewState.CurrentStop.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="0" x:Name="RouteName" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentStop.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
                 </Grid>
             </StackPanel>
         </Grid>
@@ -141,7 +136,7 @@
                                 <m:MapPolyline 
                                 Locations="{Binding}" 
                                 StrokeThickness="5"
-                                Stroke="{StaticResource PhoneAccentBrush}"
+                                Stroke="{StaticResource OBAAccentBrush}"
                                 />
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
@@ -202,12 +197,13 @@
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
+            Foreground="{StaticResource OBALightBrush}"
             />
 
     </Grid>
 
-    <navigation:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True">
+    <navigation:PhoneApplicationPage.ApplicationBar >
+        <shell:ApplicationBar ForegroundColor="{StaticResource OBAForegroundColor}" IsVisible="True" IsMenuEnabled="True"  BackgroundColor="{StaticResource OBADarkColor}">
             <shell:ApplicationBarIconButton x:Name="appbar_favorite" IconUri="/Images/appbar.favs.addto.rest.png" Text="Favorite" Click="appbar_favorite_Click" />
         </shell:ApplicationBar>
     </navigation:PhoneApplicationPage.ApplicationBar>

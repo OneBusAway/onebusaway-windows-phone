@@ -6,6 +6,7 @@ using System.Net;
 using System.Collections.Generic;
 using System.Windows;
 using System.Threading;
+using System.Text;
 
 namespace OneBusAway.WP7.Model
 {
@@ -78,9 +79,16 @@ namespace OneBusAway.WP7.Model
             {
                 CacheMisses++;
                 // not found, request data
+#if WEBCLIENT
                 WebClient client = new WebClient();
                 client.DownloadStringCompleted += new CacheCallback(this, callback, address).Callback;
                 client.DownloadStringAsync(address);
+#else
+                HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(address);
+                requestGetter.BeginGetResponse(
+                    new AsyncCallback(new CacheCallback(this, callback, address).Callback),
+                    requestGetter);
+#endif
             }
         }
 
@@ -389,7 +397,9 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes[filename] = when;
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
-                IsolatedStorageSettings.ApplicationSettings.Save();
+
+                //TODO: this was throwing, temporarily disabled
+              //  IsolatedStorageSettings.ApplicationSettings.Save();
             }
 
             public void RemoveUpdateTime(string filename)
@@ -449,6 +459,38 @@ namespace OneBusAway.WP7.Model
                     owner.CacheAddResult(requestedAddress, eventArgs.Result);
                     // and fire our event
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Result);
+                    callback(this, newArgs);
+                }
+            }
+
+            public void Callback(IAsyncResult asyncResult)
+            {
+                HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
+                HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
+
+                string statusDescr = response.StatusDescription; 
+                long totalBytes = response.ContentLength;
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs("HTTP Request failed: " + response.StatusCode);
+                    callback(this, newArgs);
+                }
+                else if (totalBytes == 0)
+                {
+                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs("Request returned no data");
+                    callback(this, newArgs);
+                }
+                else
+                {
+                    Stream s = response.GetResponseStream();
+                    StreamReader sr = new StreamReader(s);
+                    string results = sr.ReadToEnd(); ;
+                    // no errors -- add data to the cache
+                    owner.CacheAddResult(requestedAddress, results);
+                    // and fire our event
+
+                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(results);
                     callback(this, newArgs);
                 }
             }

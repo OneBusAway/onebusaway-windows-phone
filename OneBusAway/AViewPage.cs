@@ -157,7 +157,7 @@ namespace OneBusAway.WP7.View
                     EmailComposeTask emailComposeTask = new EmailComposeTask();
                     emailComposeTask.To = AViewModel.FeedbackEmailAddress;
                     emailComposeTask.Body = string.Format(
-                        "Please tell us a few details about what you were doing when the error occured: \r\n\r\n\r\n" +
+                        "Please tell us a few details about what you were doing when the error occurred: \r\n\r\n\r\n" +
                         "Debugging info for us: \r\n{0}",
                         e.error
                         );

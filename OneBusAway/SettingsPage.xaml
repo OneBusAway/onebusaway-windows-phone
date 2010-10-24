@@ -13,7 +13,7 @@
     tilt:TiltEffect.IsTiltEnabled="True"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
-    Foreground="{StaticResource PhoneForegroundBrush}"
+    Foreground="{StaticResource OBAForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True">
@@ -23,7 +23,7 @@
     </view:AViewPage.Resources>
     
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="Transparent">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -31,13 +31,16 @@
 
         <!--TitlePanel contains the name of the application and page title-->
         <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,16,0,27">
-            <TextBlock x:Name="ApplicationTitle" Text="ONE BUS AWAY" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock x:Name="PageTitle" Text="settings" Margin="9,-8,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+            <TextBlock x:Name="PageTitle" Text="settings" 
+                Foreground="{StaticResource OBAForegroundBrush}"
+                Margin="9,-8,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <Button Content="clear history" Name="clear_history_button"  Click="appbar_clear_history_Click" 
+            <Button Content="clear history" Name="clear_history_button"  Click="appbar_clear_history_Click"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    BorderBrush="{StaticResource OBAForegroundBrush}"
                     Height="72" HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" />
         </Grid>
     </Grid>
