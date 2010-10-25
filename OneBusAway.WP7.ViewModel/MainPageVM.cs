@@ -275,34 +275,38 @@ namespace OneBusAway.WP7.ViewModel
             if (e.error == null)
             {
                 e.stops.Sort(new StopDistanceComparer(e.location));
-                StopsForLocation.Clear();
-
-                int stopCount = 0;
-                foreach (Stop stop in e.stops)
-                {
-                    if (stopCount > maxStops)
-                    {
-                        break;
-                    }
-
-                    StopsForLocation.Add(stop);
-                    stopCount++;
-                }
-
                 e.routes.Sort(new RouteDistanceComparer(e.location));
-                RoutesForLocation.Clear();
 
-                int routeCount = 0;
-                foreach (Route route in e.routes)
-                {
-                    if (routeCount > maxRoutes)
+                UIAction(() =>
                     {
-                        break;
-                    }
+                        StopsForLocation.Clear();
 
-                    RoutesForLocation.Add(route);
-                    routeCount++;
-                }
+                        int stopCount = 0;
+                        foreach (Stop stop in e.stops)
+                        {
+                            if (stopCount > maxStops)
+                            {
+                                break;
+                            }
+
+                            StopsForLocation.Add(stop);
+                            stopCount++;
+                        }
+
+                        RoutesForLocation.Clear();
+
+                        int routeCount = 0;
+                        foreach (Route route in e.routes)
+                        {
+                            if (routeCount > maxRoutes)
+                            {
+                                break;
+                            }
+
+                            RoutesForLocation.Add(route);
+                            routeCount++;
+                        }
+                    });
             }
             else
             {
