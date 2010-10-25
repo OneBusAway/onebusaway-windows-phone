@@ -70,6 +70,8 @@ namespace OneBusAway.WP7.ViewModel
             busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(callback.busServiceModel_StopsForRoute_Completed);
 
             busServiceModel.StopsForRoute(new Route() { id = arrival.routeId });
+
+            LoadTripsForArrivals(ArrivalsForStop.ToList(), new Route() { id = arrival.routeId });
         }
 
         public void SwitchToStop(Stop stop)
@@ -80,7 +82,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop)
         {
-            LoadArrivalsForStop(stop, null);
+            LoadArrivalsForStop(stop, routeFilter);
         }
 
         public void LoadArrivalsForStop(Stop stop, Route routeFilter)
@@ -98,6 +100,20 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.routeFilter = routeFilter;
             FilterArrivals();
+        }
+
+        public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals, Route selectedRoute)
+        {
+            List<ArrivalAndDeparture> arrivalsForSelectedRoute = new List<ArrivalAndDeparture>();
+            ArrivalsForStop.ToList().ForEach(arrival =>
+            {
+                if (arrival.routeId == selectedRoute.id)
+                {
+                    arrivalsForSelectedRoute.Add(arrival);
+                }
+            }
+            );
+            LoadTripsForArrivals(arrivalsForSelectedRoute);
         }
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
@@ -189,10 +205,13 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            operationTracker.DoneWithOperation("ArrivalsForStop");
+            // We have a selected route, so load trips for that route
+            if (CurrentViewState.CurrentRoute != null)
+            {
+                LoadTripsForArrivals(ArrivalsForStop.ToList(), CurrentViewState.CurrentRoute);
+            }
 
-            if (ArrivalsForStop.Count > 0)
-                LoadTripsForArrivals(ArrivalsForStop.ToList());
+            operationTracker.DoneWithOperation("ArrivalsForStop");
         }
 
         void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)

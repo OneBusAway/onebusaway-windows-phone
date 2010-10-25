@@ -46,7 +46,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             lock (pendingOperationsLock)
             {
-                Debug.Assert(!pendingOperationsList.Contains(operationName), "Someone has told us to wait for operation " + operationName + ", but we're already waiting for it");
                 bool wasEmpty = pendingOperationsList.Count == 0;
                 pendingOperationsList.Add(operationName);
                 if (wasEmpty && waitingCallback != null)
