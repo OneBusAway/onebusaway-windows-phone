@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Threading;
 using System.Text;
+using OneBusAway.WP7.ViewModel;
 
 namespace OneBusAway.WP7.Model
 {
@@ -473,12 +474,8 @@ namespace OneBusAway.WP7.Model
 
                 if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs("HTTP Request failed: " + response.StatusCode);
-                    callback(this, newArgs);
-                }
-                else if (totalBytes == 0)
-                {
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs("Request returned no data");
+                    Exception error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), response.ToString(), null);
+                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(error);
                     callback(this, newArgs);
                 }
                 else

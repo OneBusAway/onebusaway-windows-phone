@@ -97,12 +97,7 @@ namespace OneBusAway.WP7.Model
 
             public void RoutesForLocation_Completed(object sender, DownloadStringCompletedEventArgs e)
             {
-                Exception error = e.Error;
-
-                if (error == null)
-                {
-                    ParseRoutesForLocation(e.Result);
-                }
+                ParseRoutesForLocation(e.Result, e.Error);
             }
 
             public void RoutesForLocation_Completed(IAsyncResult asyncResult)
@@ -110,18 +105,20 @@ namespace OneBusAway.WP7.Model
                 HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                Exception error = null;
 
-                    ParseRoutesForLocation(results);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), results, null);
                 }
+
+                ParseRoutesForLocation(results, error);
             }
 
-            public void ParseRoutesForLocation(string result)
+            public void ParseRoutesForLocation(string result, Exception error)
             {
                 List<Route> routes = null;
-                Exception error = null;
 
                 try
                 {
@@ -132,10 +129,6 @@ namespace OneBusAway.WP7.Model
                         (from route in xmlDoc.Descendants("route")
                          select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
                 }
-                catch (WebserviceResponseException ex)
-                {
-                    error = ex;
-                }
                 catch (Exception ex)
                 {
                     error = new WebserviceParsingException(requestUrl, result, ex);
@@ -145,8 +138,6 @@ namespace OneBusAway.WP7.Model
 
                 callback(routes, error);
             }
-
-           
         }
 
 
@@ -383,12 +374,7 @@ namespace OneBusAway.WP7.Model
 
             public void ArrivalsForStop_Completed(object sender, DownloadStringCompletedEventArgs e)
             {
-                Exception error = e.Error;
-
-                if (error == null)
-                {
-                    ParseArrivalsForStop(e.Result);
-                }
+                ParseArrivalsForStop(e.Result, e.Error);
             }
 
             public void ArrivalsForStop_Completed(IAsyncResult asyncResult)
@@ -396,20 +382,21 @@ namespace OneBusAway.WP7.Model
                 HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                Exception error = null;
 
-                    ParseArrivalsForStop(results);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), results, null);
                 }
 
-              
+                ParseArrivalsForStop(results, error);
+
             }
 
-            public void ParseArrivalsForStop(string result)
+            public void ParseArrivalsForStop(string result, Exception error)
             {
                 List<ArrivalAndDeparture> arrivals = null;
-                Exception error = null;
 
                 try
                 {
@@ -423,10 +410,6 @@ namespace OneBusAway.WP7.Model
                             (from arrival in xmlDoc.Descendants("arrivalAndDeparture")
                              select ParseArrivalAndDeparture(arrival)).ToList<ArrivalAndDeparture>();
                     }
-                }
-                catch (WebserviceResponseException ex)
-                {
-                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -474,14 +457,7 @@ namespace OneBusAway.WP7.Model
 
             public void ScheduleForStop_Completed(object sender, DownloadStringCompletedEventArgs e)
             {
-                Exception error = e.Error;
-                List<RouteSchedule> schedules = null;
-
-                if (error == null)
-                {
-                    ParseScheduleForStop(e.Result);
-                }
-              
+                ParseScheduleForStop(e.Result, e.Error);
             }
 
             public void ScheduleForStop_Completed(IAsyncResult asyncResult)
@@ -489,19 +465,18 @@ namespace OneBusAway.WP7.Model
                 HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
 
-                if (response.StatusCode == HttpStatusCode.OK)
+                string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                Exception error = null;
+
+                if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
-
-                    ParseScheduleForStop(results);
+                    error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), results, null);
                 }
-
-
+                ParseScheduleForStop(results, error);
             }
 
-            public void ParseScheduleForStop(string result)
+            public void ParseScheduleForStop(string result, Exception error)
             {
-                Exception error = null;
                 List<RouteSchedule> schedules = null;
 
                 try
@@ -530,10 +505,6 @@ namespace OneBusAway.WP7.Model
 
                              }).ToList<RouteSchedule>();
                     }
-                }
-                catch (WebserviceResponseException ex)
-                {
-                    error = ex;
                 }
                 catch (Exception ex)
                 {
@@ -582,34 +553,7 @@ namespace OneBusAway.WP7.Model
 
             public void TripDetailsForArrival_Completed(object sender, DownloadStringCompletedEventArgs e)
             {
-                Exception error = e.Error;
-                TripDetails tripDetail = null;
-
-                try
-                {
-                    if (error == null)
-                    {
-                        CheckResponseCode(e.Result, requestUrl);
-
-                        XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
-
-                        tripDetail =
-                            (from trip in xmlDoc.Descendants("entry")
-                             select ParseTripDetails(trip)).First();
-                    }
-                }
-                catch (WebserviceResponseException ex)
-                {
-                    error = ex;
-                }
-                catch (Exception ex)
-                {
-                    error = new WebserviceParsingException(requestUrl, e.Result, ex);
-                }
-
-                Debug.Assert(error == null);
-
-                callback(tripDetail, error);
+                ParseTripDetailsForArrival(e.Result, e.Error);
             }
 
             public void TripDetailsForArrival_Completed(IAsyncResult asyncResult)
@@ -617,19 +561,18 @@ namespace OneBusAway.WP7.Model
                 HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
                 HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
 
-                if (response.StatusCode == HttpStatusCode.OK)
+                string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
+                Exception error = null;
+
+                if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
-
-                    ParseTripDetailsForArrival(results);
+                    error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), results, null);
                 }
-
-
+                ParseTripDetailsForArrival(results, error);
             }
 
-            public void ParseTripDetailsForArrival(string result)
+            public void ParseTripDetailsForArrival(string result, Exception error)
             {
-                Exception error = null;
                 TripDetails tripDetail = null;
 
                 try
