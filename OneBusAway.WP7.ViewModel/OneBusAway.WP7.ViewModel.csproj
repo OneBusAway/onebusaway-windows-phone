@@ -63,6 +63,7 @@
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
     <Compile Include="BusServiceDataStructures\PolyLine.cs" />
+    <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
     <Compile Include="EventArgs\AModelEventArgs.cs" />
     <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
     <Compile Include="EventArgs\ErrorHandlerEventArgs.cs" />

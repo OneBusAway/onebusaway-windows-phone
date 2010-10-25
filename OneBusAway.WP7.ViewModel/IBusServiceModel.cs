@@ -9,6 +9,11 @@ namespace OneBusAway.WP7.ViewModel
 {
     public interface IBusServiceModel
     {
+        event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
+        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters);
+        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
+        void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
+
         event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
         void StopsForLocation(GeoCoordinate location, int radiusInMeters);
         void StopsForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);

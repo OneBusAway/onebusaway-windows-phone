@@ -26,6 +26,7 @@ namespace OneBusAway.WP7.Model
 
         #region Events
 
+        public event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
         public event EventHandler<StopsForLocationEventArgs> StopsForLocation_Completed;
         public event EventHandler<RoutesForLocationEventArgs> RoutesForLocation_Completed;
         public event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
@@ -51,6 +52,62 @@ namespace OneBusAway.WP7.Model
         #endregion
 
         #region Public Methods
+
+        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters)
+        {
+            CombinedInfoForLocation(location, radiusInMeters, -1);
+        }
+
+        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount)
+        {
+            CombinedInfoForLocation(location, radiusInMeters, maxCount, false);
+        }
+
+        public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache)
+        {
+            webservice.StopsForLocation(
+                location,
+                null,
+                radiusInMeters,
+                maxCount,
+                invalidateCache,
+                delegate(List<Stop> stops, Exception e)
+                {
+                    Exception error = e;
+                    List<Route> routes = new List<Route>();
+
+                    try
+                    {
+                        if (error == null)
+                        {
+                            stops.Sort(new StopDistanceComparer(location));
+
+                            foreach (Stop stop in stops)
+                            {
+                                foreach (Route route in stop.routes)
+                                {
+                                    if (routes.Contains(route) == false)
+                                    {
+                                        route.closestStop = stop;
+                                        routes.Add(route);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Assert(false);
+                        error = ex;
+                    }
+
+                    if (CombinedInfoForLocation_Completed != null)
+                    {
+                        CombinedInfoForLocation_Completed(this, new ViewModel.EventArgs.CombinedInfoForLocationEventArgs(stops, routes, location, error));
+                    }
+                }
+            );
+        }
 
         public void StopsForLocation(GeoCoordinate location, int radiusInMeters)
         {
