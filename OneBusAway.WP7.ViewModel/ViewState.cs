@@ -70,10 +70,13 @@ namespace OneBusAway.WP7.ViewModel
 
         protected void OnPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
-            }
+            UIAction(() => 
+                {
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    }
+                });
         }
     }
 }
