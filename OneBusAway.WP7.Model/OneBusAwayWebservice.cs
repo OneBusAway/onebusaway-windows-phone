@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel;
+using System.Globalization;
 
 namespace OneBusAway.WP7.Model
 {
@@ -55,8 +56,8 @@ namespace OneBusAway.WP7.Model
                 WEBSERVICE,
                 "routes-for-location",
                 KEY,
-                location.Latitude,
-                location.Longitude,
+                location.Latitude.ToString(NumberFormatInfo.InvariantInfo),
+                location.Longitude.ToString(NumberFormatInfo.InvariantInfo),
                 radiusInMeters,
                 APIVERSION
                 );
@@ -155,8 +156,8 @@ namespace OneBusAway.WP7.Model
                 WEBSERVICE,
                 "stops-for-location",
                 KEY,
-                roundedLocation.Latitude,
-                roundedLocation.Longitude,
+                roundedLocation.Latitude.ToString(NumberFormatInfo.InvariantInfo),
+                roundedLocation.Longitude.ToString(NumberFormatInfo.InvariantInfo),
                 radiusInMeters,
                 APIVERSION
                 );
@@ -621,8 +622,8 @@ namespace OneBusAway.WP7.Model
                     int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
                 location = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
                         new GeoCoordinate(
-                            double.Parse(trip.Element("status").Element("position").Element("lat").Value),
-                            double.Parse(trip.Element("status").Element("position").Element("lon").Value)
+                            double.Parse(trip.Element("status").Element("position").Element("lat").Value, NumberFormatInfo.InvariantInfo),
+                            double.Parse(trip.Element("status").Element("position").Element("lon").Value, NumberFormatInfo.InvariantInfo)
                             )
                     :
                         null
@@ -678,8 +679,8 @@ namespace OneBusAway.WP7.Model
                 id = SafeGetValue(stop.Element("id")),
                 direction = SafeGetValue(stop.Element("direction")),
                 location = new GeoCoordinate(
-                    double.Parse(SafeGetValue(stop.Element("lat"))),
-                    double.Parse(SafeGetValue(stop.Element("lon")))
+                    double.Parse(SafeGetValue(stop.Element("lat")), NumberFormatInfo.InvariantInfo),
+                    double.Parse(SafeGetValue(stop.Element("lon")), NumberFormatInfo.InvariantInfo)
                     ),
                 name = SafeGetValue(stop.Element("name")),
                 routes = routes
