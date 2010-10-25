@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Net;
-using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
-using System.Reflection;
-using System.Diagnostics;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows;
-using OneBusAway.WP7.ViewModel.EventArgs;
+using System.Collections.ObjectModel;
+using System.Device.Location;
+using System.Diagnostics;
 using System.Windows.Threading;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.WP7.ViewModel.EventArgs;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -72,18 +68,12 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadInfoForLocation(int radiusInMeters, bool invalidateCache)
         {
             StopsForLocation.Clear();
-            operationTracker.WaitForOperation("StopsForLocation");
-            locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
-                {
-                    busServiceModel.StopsForLocation(location, radiusInMeters, -1, invalidateCache);
-                });
-
             RoutesForLocation.Clear();
-            operationTracker.WaitForOperation("RoutesForLocation");
+            operationTracker.WaitForOperation("CombinedInfoForLocation");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
-                {
-                    busServiceModel.RoutesForLocation(location, radiusInMeters, -1, invalidateCache);
-                });
+            {
+                busServiceModel.CombinedInfoForLocation(location, radiusInMeters, -1, invalidateCache);
+            });
         }
 
         public void LoadFavorites()
@@ -159,10 +149,8 @@ namespace OneBusAway.WP7.ViewModel
         {
             base.RegisterEventHandlers(dispatcher);
 
-            this.busServiceModel.RoutesForLocation_Completed += new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.StopsForLocation_Completed += new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+            this.busServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed += new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
-
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -172,10 +160,8 @@ namespace OneBusAway.WP7.ViewModel
         {
             base.UnregisterEventHandlers();
 
-            this.busServiceModel.RoutesForLocation_Completed -= new EventHandler<EventArgs.RoutesForLocationEventArgs>(busServiceModel_RoutesForLocation_Completed);
-            this.busServiceModel.StopsForLocation_Completed -= new EventHandler<EventArgs.StopsForLocationEventArgs>(busServiceModel_StopsForLocation_Completed);
+            this.busServiceModel.CombinedInfoForLocation_Completed -= new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed -= new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
-
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -280,6 +266,50 @@ namespace OneBusAway.WP7.ViewModel
 
                 viewModel.operationTracker.DoneWithOperation("SearchByStop");
             }
+        }
+
+        void busServiceModel_CombinedInfoForLocation_Completed(object sender, EventArgs.CombinedInfoForLocationEventArgs e)
+        {
+            Debug.Assert(e.error == null);
+
+            if (e.error == null)
+            {
+                e.stops.Sort(new StopDistanceComparer(e.location));
+                StopsForLocation.Clear();
+
+                int stopCount = 0;
+                foreach (Stop stop in e.stops)
+                {
+                    if (stopCount > maxStops)
+                    {
+                        break;
+                    }
+
+                    StopsForLocation.Add(stop);
+                    stopCount++;
+                }
+
+                e.routes.Sort(new RouteDistanceComparer(e.location));
+                RoutesForLocation.Clear();
+
+                int routeCount = 0;
+                foreach (Route route in e.routes)
+                {
+                    if (routeCount > maxRoutes)
+                    {
+                        break;
+                    }
+
+                    RoutesForLocation.Add(route);
+                    routeCount++;
+                }
+            }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
+
+            operationTracker.DoneWithOperation("CombinedInfoForLocation");
         }
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
