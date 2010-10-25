@@ -43,7 +43,7 @@ namespace OneBusAway.WP7.View
 
         private ApplicationBarIconButton appbar_allroutes;
 
-        private DispatcherTimer busLocationUpdateTimer;
+        private DispatcherTimer busArrivalUpdateTimer;
 
         public DetailsPage()
             : base()
@@ -54,7 +54,9 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
-
+            busArrivalUpdateTimer = new DispatcherTimer();
+            busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
+            busArrivalUpdateTimer.Tick += new EventHandler(busArrivalUpdateTimer_Tick);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -85,21 +87,17 @@ namespace OneBusAway.WP7.View
 
             isFavorite = viewModel.IsFavorite(currentInfo);
             SetFavoriteIcon();
-
-            busLocationUpdateTimer = new DispatcherTimer();
-            busLocationUpdateTimer.Interval = new TimeSpan(0, 0, 1, 0, 0); // 1 min 
-            busLocationUpdateTimer.Tick += new EventHandler(busLocationUpdateTimer_Tick);
-            busLocationUpdateTimer.Start();
         }
 
-        void busLocationUpdateTimer_Tick(object sender, EventArgs e)
+        void busArrivalUpdateTimer_Tick(object sender, EventArgs e)
         {
-            viewModel.LoadTripsForArrivals(viewModel.ArrivalsForStop.ToList());
+            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
         }
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
             viewModel.RegisterEventHandlers(Dispatcher);
+
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
 
             // When we enter this page after tombstoning often the location won't be available when the map
@@ -130,13 +128,15 @@ namespace OneBusAway.WP7.View
             recent.stop = viewModel.CurrentViewState.CurrentStop;
 
             viewModel.AddRecent(recent);
+
+            busArrivalUpdateTimer.Start();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
 
-            busLocationUpdateTimer.Stop();
+            busArrivalUpdateTimer.Stop();
 
             viewModel.UnregisterEventHandlers();
         }
@@ -245,6 +245,11 @@ namespace OneBusAway.WP7.View
                 Debug.Assert(selectedStop != null);
 
             }
+        }
+
+        private void appbar_refresh_Click(object sender, EventArgs e)
+        {
+            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
         }
     }
 }
