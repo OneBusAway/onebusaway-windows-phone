@@ -466,28 +466,32 @@ namespace OneBusAway.WP7.Model
 
             public void Callback(IAsyncResult asyncResult)
             {
-                HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
-                HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
-
-                string statusDescr = response.StatusDescription; 
-                long totalBytes = response.ContentLength;
-
-                if (response.StatusCode != HttpStatusCode.OK)
+                try
                 {
-                    Exception error = new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), response.ToString(), null);
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(error);
-                    callback(this, newArgs);
-                }
-                else
-                {
+                    HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
+                    HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
+
+                    string statusDescr = response.StatusDescription;
+                    long totalBytes = response.ContentLength;
+
+                    if (response.StatusCode != HttpStatusCode.OK)
+                    {
+                        throw new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), response.ToString(), null);
+                    }
+
                     Stream s = response.GetResponseStream();
                     StreamReader sr = new StreamReader(s);
-                    string results = sr.ReadToEnd(); ;
+                    string results = sr.ReadToEnd();
                     // no errors -- add data to the cache
                     owner.CacheAddResult(requestedAddress, results);
                     // and fire our event
 
                     CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(results);
+                    callback(this, newArgs);
+                }
+                catch (Exception e)
+                {
+                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(e);
                     callback(this, newArgs);
                 }
             }
