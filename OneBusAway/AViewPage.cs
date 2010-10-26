@@ -14,6 +14,7 @@ using Microsoft.Phone.Tasks;
 using System.Windows.Threading;
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace OneBusAway.WP7.View
 {
@@ -153,12 +154,17 @@ namespace OneBusAway.WP7.View
                     // Sending the email will take OBA out of the foreground, so leave reportingErorr set to true 
                     // to make sure we don't try to send any more error reports from the background which will hit an exception.
                     // When the app is un-tombstoned the constructor will set reportingError back to false.
+                    
+                    Version version = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
 
                     EmailComposeTask emailComposeTask = new EmailComposeTask();
                     emailComposeTask.To = AViewModel.FeedbackEmailAddress;
                     emailComposeTask.Body = string.Format(
                         "Please tell us a few details about what you were doing when the error occurred: \r\n\r\n\r\n" +
-                        "Debugging info for us: \r\n{0}",
+                        "Debugging info for us: \r\n" +
+                        "OneBusAway Version: {0} \r\n" +
+                        "{1}",
+                        version,
                         e.error
                         );
 
