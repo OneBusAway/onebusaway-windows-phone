@@ -91,7 +91,7 @@ namespace OneBusAway.WP7.View
 
         void busArrivalUpdateTimer_Tick(object sender, EventArgs e)
         {
-            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
+            viewModel.RefreshArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
         }
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
