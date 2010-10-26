@@ -10,6 +10,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Threading;
+using System.Threading;
 
 
 namespace OneBusAway.WP7.ViewModel
@@ -21,6 +22,7 @@ namespace OneBusAway.WP7.ViewModel
 
         private Route routeFilter;
         private List<ArrivalAndDeparture> unfilteredArrivals;
+        private Object arrivalsLock;
 
         #endregion
 
@@ -49,6 +51,7 @@ namespace OneBusAway.WP7.ViewModel
             TripDetailsForArrivals = new ObservableCollection<TripDetails>();
             unfilteredArrivals = new List<ArrivalAndDeparture>();
             routeFilter = null;
+            arrivalsLock = new Object();
         }
 
         #endregion
@@ -87,12 +90,19 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadArrivalsForStop(Stop stop, Route routeFilter)
         {
+            lock (arrivalsLock)
+            {
+                unfilteredArrivals.Clear();
+                ArrivalsForStop.Clear();
+            }
+
+            this.routeFilter = routeFilter;
+            RefreshArrivalsForStop(stop);
+        }
+
+        public void RefreshArrivalsForStop(Stop stop)
+        {
             operationTracker.WaitForOperation("ArrivalsForStop");
-
-            unfilteredArrivals.Clear();
-            ArrivalsForStop.Clear();
-            ChangeFilterForArrivals(routeFilter);
-
             busServiceModel.ArrivalsForStop(stop);
         }
 
@@ -105,7 +115,8 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals, Route selectedRoute)
         {
             List<ArrivalAndDeparture> arrivalsForSelectedRoute = new List<ArrivalAndDeparture>();
-            ArrivalsForStop.ToList().ForEach(arrival =>
+
+            arrivals.ForEach(arrival =>
             {
                 if (arrival.routeId == selectedRoute.id)
                 {
@@ -113,6 +124,7 @@ namespace OneBusAway.WP7.ViewModel
                 }
             }
             );
+       
             LoadTripsForArrivals(arrivalsForSelectedRoute);
         }
 
@@ -197,8 +209,63 @@ namespace OneBusAway.WP7.ViewModel
         
             if (e.error == null)
             {
-                unfilteredArrivals = e.arrivals;
-                FilterArrivals();
+                // We are loading arrivals fresh, add all of them
+                if (unfilteredArrivals.Count == 0)
+                {
+                    lock (arrivalsLock)
+                    {
+                        unfilteredArrivals = e.arrivals;
+                    }
+                    FilterArrivals();
+                }
+                else
+                {
+                    // We already have arrivals in the list, so just refresh them
+                    UIAction(() =>
+                        {
+                            lock (arrivalsLock)
+                            {
+                                // Start by updating all the times for all of the arrivals currently in the list,
+                                // and find any arrivals that have timed out for this stop
+                                List<ArrivalAndDeparture> arrivalsToRemove = new List<ArrivalAndDeparture>();
+                                foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+                                {
+                                    int index = e.arrivals.IndexOf(arrival);
+                                    if (index >= 0)
+                                    {
+                                        arrival.predictedArrivalTime = e.arrivals[index].predictedArrivalTime;
+                                        arrival.predictedDepartureTime = e.arrivals[index].predictedDepartureTime;
+                                    }
+                                    else
+                                    {
+                                        // The latest collection no longer has this arrival, delete it from the 
+                                        // list.  Otherwise we will keep it around forever, no longer updating
+                                        // its time
+                                        arrivalsToRemove.Add(arrival);
+                                    }
+                                }
+
+                                arrivalsToRemove.ForEach(arrival =>
+                                    {
+                                        ArrivalsForStop.Remove(arrival);
+                                        unfilteredArrivals.Remove(arrival);
+                                    }
+                                    );
+
+                                // Now add any new arrivals that just starting showing up for this stop
+                                foreach (ArrivalAndDeparture arrival in e.arrivals)
+                                {
+                                    // Ensure that we aren't adding routes that are filtered out
+                                    if ((routeFilter == null || routeFilter.id == arrival.routeId) 
+                                        && ArrivalsForStop.Contains(arrival) == false)
+                                    {
+                                        ArrivalsForStop.Add(arrival);
+                                        unfilteredArrivals.Add(arrival);
+                                    }
+                                }
+                            }
+                        });
+                }
             }
             else
             {
@@ -208,7 +275,13 @@ namespace OneBusAway.WP7.ViewModel
             // We have a selected route, so load trips for that route
             if (CurrentViewState.CurrentRoute != null)
             {
-                LoadTripsForArrivals(ArrivalsForStop.ToList(), CurrentViewState.CurrentRoute);
+                lock (arrivalsLock)
+                {
+                    // Kick off the new request from a different thread since we are
+                    // on the HttpWebRequest thread currently
+                    new Thread(() =>
+                        LoadTripsForArrivals(ArrivalsForStop.ToList(), CurrentViewState.CurrentRoute)).Start();
+                }
             }
 
             operationTracker.DoneWithOperation("ArrivalsForStop");
@@ -247,16 +320,20 @@ namespace OneBusAway.WP7.ViewModel
         {
             UIAction(() =>
                 {
-                    ArrivalsForStop.Clear();
-
-                    foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+                    lock (arrivalsLock)
                     {
-                        if (routeFilter != null && routeFilter.id != arrival.routeId)
-                        {
-                            continue;
-                        }
+                        ArrivalsForStop.Clear();
 
-                        ArrivalsForStop.Add(arrival);
+                        unfilteredArrivals.Sort(new ArrivalTimeComparer());
+                        foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
+                        {
+                            if (routeFilter != null && routeFilter.id != arrival.routeId)
+                            {
+                                continue;
+                            }
+
+                            ArrivalsForStop.Add(arrival);
+                        }
                     }
                 });
         }

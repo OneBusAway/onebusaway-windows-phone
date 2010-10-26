@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
-    public class ArrivalAndDeparture
+    public class ArrivalAndDeparture : INotifyPropertyChanged
     {
         [DataMember()]
         public string routeId { get; set; }
@@ -19,12 +20,35 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         public string tripHeadsign { get; set; }
         [DataMember()]
         public string stopId { get; set; }
+
         [DataMember()]
-        public DateTime? predictedArrivalTime { get; set; }
+        public DateTime? predictedArrivalTime 
+        {
+            get { return privatePredictedArrivalTime; }
+            set 
+            { 
+                privatePredictedArrivalTime = value;
+                OnPropertyChanged("predictedArrivalTime");
+                OnPropertyChanged("nextKnownArrival");
+            }
+        }
+        private DateTime? privatePredictedArrivalTime;
+        
         [DataMember()]
         public DateTime scheduledArrivalTime { get; set; }
+        
         [DataMember()]
-        public DateTime? predictedDepartureTime { get; set; }
+        public DateTime? predictedDepartureTime 
+        {
+            get { return privatePredictedDepartureTime; }
+            set
+            {
+                privatePredictedDepartureTime = value;
+                OnPropertyChanged("predictedDepartureTime");
+            }
+        }
+        private DateTime? privatePredictedDepartureTime;
+
         [DataMember()]
         public DateTime scheduledDepartureTime { get; set; }
         [DataMember()]
@@ -46,6 +70,27 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
                 tripHeadsign,
                 nextKnownArrival.ToString("HH:mm")
                 );
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ArrivalAndDeparture == false)
+            {
+                return false;
+            }
+
+            return ((ArrivalAndDeparture)obj).tripId == this.tripId 
+                && ((ArrivalAndDeparture)obj).routeId == this.routeId;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 
