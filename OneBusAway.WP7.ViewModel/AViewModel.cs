@@ -53,6 +53,7 @@ namespace OneBusAway.WP7.ViewModel
             locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             
             Loading = false;
+            LoadingText = "Determining your location";
             eventsRegistered = false;
 
             // Set up the default action, just execute in the same thread
@@ -109,6 +110,7 @@ namespace OneBusAway.WP7.ViewModel
 
         private bool eventsRegistered;
         private bool loading;
+        private string loadingText;
 
         #endregion
 
@@ -172,6 +174,21 @@ namespace OneBusAway.WP7.ViewModel
             { 
                 return locationTracker; 
             } 
+        }
+
+        public string LoadingText { 
+            get 
+            { 
+                return loadingText; 
+            }
+            protected set
+            {
+                if (loadingText != value)
+                {
+                    loadingText = value;
+                    OnPropertyChanged("LoadingText");
+                }
+            }
         }
 
         public bool Loading

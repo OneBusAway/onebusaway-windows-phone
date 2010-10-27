@@ -69,6 +69,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             StopsForLocation.Clear();
             RoutesForLocation.Clear();
+            this.LoadingText = "Loading bus data for your location";
             operationTracker.WaitForOperation("CombinedInfoForLocation");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {

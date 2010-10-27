@@ -102,6 +102,16 @@ namespace OneBusAway.WP7.ViewModel
 
         public void RefreshArrivalsForStop(Stop stop)
         {
+            if (this.routeFilter == null)
+            {
+                this.LoadingText = "Loading upcoming arrivals at your stop";
+            }
+            else
+            {
+                // if we have a route selected, the route text overlaps with where the loading bar is.
+                // just don't display any loading text
+                this.LoadingText = null;
+            }
             operationTracker.WaitForOperation("ArrivalsForStop");
             busServiceModel.ArrivalsForStop(stop);
         }
