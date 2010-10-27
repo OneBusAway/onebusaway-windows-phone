@@ -60,6 +60,7 @@ namespace OneBusAway.WP7.ViewModel
             radiusInMeters = Math.Max(radiusInMeters, 250);
             radiusInMeters = Math.Min(radiusInMeters, 3000);
 
+            this.LoadingText = "Loading stops";
             operationTracker.WaitForOperation("StopsForLocation");
             busServiceModel.StopsForLocation(center, radiusInMeters);
         }
