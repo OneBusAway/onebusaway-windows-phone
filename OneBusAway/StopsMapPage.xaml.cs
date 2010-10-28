@@ -179,14 +179,36 @@ namespace OneBusAway.WP7.View
                 Stop stop = item as Stop;
                 if (stop != null && stop.id == selectedStopId)
                 {
-                    viewModel.CurrentViewState.CurrentStop = stop;
-                    viewModel.CurrentViewState.CurrentRoute = null;
-                    viewModel.CurrentViewState.CurrentRouteDirection = null;
-                    NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
-
+                    if (selectedStopId.Equals(StopInfoBox.Tag))
+                    {
+                        // popup is already open for this stop.  navigate to the details page
+                        StopInfoBox.Visibility = Visibility.Collapsed;
+                        StopInfoBox.Tag = null;
+                        viewModel.CurrentViewState.CurrentStop = stop;
+                        viewModel.CurrentViewState.CurrentRoute = null;
+                        viewModel.CurrentViewState.CurrentRouteDirection = null;
+                        NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                    }
+                    else
+                    {
+                        // open the popup with details about the stop
+                        StopName.Text = stop.name;
+                        StopRoutes.Text = (string)new StopRoutesConverter().Convert(stop, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
+                        StopDirection.Text = (string)new StopDirectionConverter().Convert(stop, typeof(string), null, System.Globalization.CultureInfo.InvariantCulture);
+                        StopInfoBox.Visibility = Visibility.Visible;
+                        StopInfoBox.Location = stop.location;
+                        StopInfoBox.PositionOrigin = PositionOrigin.BottomLeft;
+                        StopInfoBox.Tag = stop.id;
+                    }                    
                     break;
                 }
             }
+        }
+
+        private void btnClose_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            StopInfoBox.Visibility = Visibility.Collapsed;
+            StopInfoBox.Tag = null;
         }
     }
 
