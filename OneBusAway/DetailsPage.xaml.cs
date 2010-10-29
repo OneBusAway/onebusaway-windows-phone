@@ -62,7 +62,15 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            DetailsMap.MapResolved += new EventHandler(DetailsMap_MapResolved);
+
             UpdateAppBar();
+        }
+
+        void DetailsMap_MapResolved(object sender, EventArgs e)
+        {
+            DetailsMap_MapZoom(this, null);
         }
 
         void UpdateAppBar()
