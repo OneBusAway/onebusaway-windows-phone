@@ -219,7 +219,7 @@
             Height="32"
             Fill="{StaticResource OBADarkBrush}"
             VerticalAlignment="Top"
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}}"
+            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             />
 
         <TextBlock 
