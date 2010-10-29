@@ -62,15 +62,27 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            UpdateAppBar();
+        }
 
+        void UpdateAppBar()
+        {
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
             {
-                appbar_allroutes = new ApplicationBarIconButton(unfilterRoutesIcon);
+                if (appbar_allroutes == null)
+                {
+                    appbar_allroutes = new ApplicationBarIconButton();
+                    appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
+                }
+                appbar_allroutes.IconUri = unfilterRoutesIcon;
                 appbar_allroutes.Text = unfilterRoutesText;
-                appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
-                ApplicationBar.Buttons.Add(appbar_allroutes);
+                if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
+                {
+                    // this has to be done after setting the icon
+                    ApplicationBar.Buttons.Add(appbar_allroutes);
+                }
 
                 isFiltered = true;
             }
@@ -211,7 +223,7 @@ namespace OneBusAway.WP7.View
             if (e.AddedItems.Count != 0)
             {
                 ArrivalAndDeparture arrival = (ArrivalAndDeparture)e.AddedItems[0];
-                viewModel.SwitchToRouteByArrival(arrival);
+                viewModel.SwitchToRouteByArrival(arrival, UpdateAppBar);
             }
         }
 
