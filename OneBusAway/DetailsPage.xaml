@@ -187,15 +187,6 @@
                 SelectionChanged="ArrivalsListBox_SelectionChanged"
                 />
         </Grid>
-
-        <TextBlock 
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            VerticalAlignment="Top" Text="{Binding Path=LoadingText, Source={StaticResource ViewModel}}"
-            Foreground="{StaticResource OBAForegroundBrush}">
-            <TextBlock.RenderTransform>
-                <CompositeTransform TranslateY="4"/>
-            </TextBlock.RenderTransform>
-        </TextBlock>
         
         <ProgressBar 
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
