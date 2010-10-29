@@ -125,26 +125,16 @@
         there should probably only be one of these "too many stops" indicators.
         having two of them and making either one visible based on different conditions is ugly.
         -->
-        <Border Background="{StaticResource PhoneBackgroundBrush}" Grid.Row="1"
+        <Border Background="{StaticResource OBADarkBrush}" Grid.Row="1"
                        Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}, ConverterParameter=true}">
-            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" 
+            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
                        Text="Too may stops. Zoom in to see nearby stops." />
         </Border>
-        <Border Background="{StaticResource PhoneBackgroundBrush}" Grid.Row="1"
+        <Border Background="{StaticResource OBADarkBrush}" Grid.Row="1"
                        Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}">
-            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" 
+            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
                        Text="Too may stops. Zoom in to see nearby stops." />
         </Border>
-
-        <TextBlock 
-            Grid.Row="1"
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            VerticalAlignment="Top" Text="{Binding Path=LoadingText, Source={StaticResource ViewModel}}"
-            Foreground="{StaticResource OBADarkBrush}">
-            <TextBlock.RenderTransform>
-                <CompositeTransform TranslateY="4"/>
-            </TextBlock.RenderTransform>
-        </TextBlock>
         
         <ProgressBar  Grid.Row="0"
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
