@@ -130,8 +130,7 @@
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
-        <!--<Rectangle Height="50" HorizontalAlignment="Center" Name="rectangle1" Fill="#78AA36" VerticalAlignment="Top" Width="480" />-->
-
+        
         <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}" >
             <pivot:PivotItem Header="routes">
                 <ListBox 
@@ -215,15 +214,22 @@
 			</TextBlock.RenderTransform>
             </TextBlock>
         </StackPanel>
-        
+
+        <Rectangle
+            Height="32"
+            Fill="{StaticResource OBADarkBrush}"
+            VerticalAlignment="Top"
+            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}}"
+            />
+
         <TextBlock 
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            VerticalAlignment="Top" Text="{Binding Path=LoadingText, Source={StaticResource ViewModel}}"
-            Foreground="{StaticResource OBAForegroundBrush}">
-            <TextBlock.RenderTransform>
-                <CompositeTransform TranslateY="4"/>
-            </TextBlock.RenderTransform>
-        </TextBlock>
+            Text="{Binding Path=LoadingText, Source={StaticResource ViewModel}}"
+            Foreground="{StaticResource OBAForegroundBrush}"
+            VerticalAlignment="Top"
+            FontSize="20"
+            Margin="23,0,0,0"
+            />
         
         <ProgressBar 
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
@@ -234,7 +240,7 @@
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
-            Foreground="{StaticResource OBALightBrush}"            
+            Foreground="{StaticResource OBALightBrush}" 
             />
     </Grid>
 

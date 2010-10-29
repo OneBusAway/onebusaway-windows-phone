@@ -44,6 +44,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.lazyBusServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
+            Loading = false;
 
             operationTracker = new AsyncOperationTracker(
                 () => { Loading = false; }, 
@@ -52,8 +53,7 @@ namespace OneBusAway.WP7.ViewModel
             locationTracker = new LocationTracker(operationTracker);
             locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             
-            Loading = false;
-            LoadingText = "Determining your location";
+            LoadingText = "Finding your location...";
             eventsRegistered = false;
 
             // Set up the default action, just execute in the same thread
