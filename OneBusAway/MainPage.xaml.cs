@@ -191,27 +191,24 @@ namespace OneBusAway.WP7.View
             }
             else
             {
-                SearchStoryboard.Seek(TimeSpan.Zero);
-                SearchStoryboard.Stop();
-                this.Focus();
+                ProcessSearch(SearchInputBox.Text);
             }
         }
 
 
         private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            viewModel.LoadInfoForLocation(1000);
-
-            SearchStoryboard.Seek(TimeSpan.Zero);
-            SearchStoryboard.Stop();
             this.Focus();
         }
 
         private void SearchByRouteCallback(List<Route> routes, Exception error)
         {
-            SearchStoryboard.Seek(TimeSpan.Zero);
-            SearchStoryboard.Stop();
-            this.Focus();
+            Dispatcher.BeginInvoke(() =>
+                {
+                    SearchStoryboard.Seek(TimeSpan.Zero);
+                    SearchStoryboard.Stop();
+                    this.Focus();
+                });
 
             if (error != null)
             {
@@ -219,13 +216,15 @@ namespace OneBusAway.WP7.View
             }
             else if (routes.Count == 0)
             {
-                MessageBox.Show("No results found");
+                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
             }
             else
             {
-                viewModel.CurrentViewState.CurrentRoutes = routes;
-
-                NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoutes = routes;
+                        NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+                    });
             }
         }
 
@@ -259,34 +258,41 @@ namespace OneBusAway.WP7.View
 
             if (e.Key == Key.Enter)
             {
-                int routeNumber = 0;
-
-                bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
-                if (canConvert == true) //it's a route or stop number
-                {
-                    int number = int.Parse(searchString);
-                    if (number < 1000) //route number
-                    {
-                        viewModel.SearchByRoute(searchString, SearchByRouteCallback);
-                    }
-                    else //stop number
-                    {
-                        viewModel.SearchByStop(searchString, SearchByStopCallback);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Try typing a route or stop number, for example '48' or '11132'." );
-                }
-
-                //TODO: add this back when we implement search by address 
-                //else
-                //{
-                    //try geocoding
-                    //viewModel.SearchByAddress(searchString, null);
-                //}
-
+                ProcessSearch(searchString);
             }
+        }
+
+        private void ProcessSearch(string searchString)
+        {
+            int routeNumber = 0;
+
+            bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+            if (canConvert == true) //it's a route or stop number
+            {
+                int number = int.Parse(searchString);
+                if (number < 1000) //route number
+                {
+                    viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+                }
+                else //stop number
+                {
+                    viewModel.SearchByStop(searchString, SearchByStopCallback);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Try typing a route or stop number, for example '48' or '11132'.");
+            }
+
+            //TODO: add this back when we implement search by address 
+            //else
+            //{
+            //try geocoding
+            //viewModel.SearchByAddress(searchString, null);
+            //}
+
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
         }
 
         private void appbar_settings_Click(object sender, EventArgs e)
