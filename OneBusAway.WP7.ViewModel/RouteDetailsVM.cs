@@ -65,16 +65,18 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Methods
 
-        public void SwitchToRouteByArrival(ArrivalAndDeparture arrival)
+        public void SwitchToRouteByArrival(ArrivalAndDeparture arrival, Action uiCallback)
         {
             operationTracker.WaitForOperation("StopsForRoute");
 
-            StopsForRouteCompleted callback = new StopsForRouteCompleted(this, arrival);
+            StopsForRouteCompleted callback = new StopsForRouteCompleted(this, arrival, uiCallback);
             busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(callback.busServiceModel_StopsForRoute_Completed);
 
-            busServiceModel.StopsForRoute(new Route() { id = arrival.routeId });
+            Route placeholder = new Route() { id = arrival.routeId };
+            busServiceModel.StopsForRoute(placeholder);
 
-            LoadTripsForArrivals(ArrivalsForStop.ToList(), new Route() { id = arrival.routeId });
+            ChangeFilterForArrivals(placeholder);
+            LoadTripsForArrivals(ArrivalsForStop.ToList(), placeholder);
         }
 
         public void SwitchToStop(Stop stop)
@@ -172,11 +174,13 @@ namespace OneBusAway.WP7.ViewModel
         {
             ArrivalAndDeparture arrival;
             RouteDetailsVM viewModel;
+            Action uiCallback;
 
-            public StopsForRouteCompleted(RouteDetailsVM viewModel, ArrivalAndDeparture arrival)
+            public StopsForRouteCompleted(RouteDetailsVM viewModel, ArrivalAndDeparture arrival, Action uiCallback)
             {
                 this.viewModel = viewModel;
                 this.arrival = arrival;
+                this.uiCallback = uiCallback;
             }
 
             public void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
@@ -200,6 +204,11 @@ namespace OneBusAway.WP7.ViewModel
                              );
 
                             Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
+
+                            if (uiCallback != null)
+                            {
+                                uiCallback.Invoke();
+                            }
                         });
                 }
                 else
