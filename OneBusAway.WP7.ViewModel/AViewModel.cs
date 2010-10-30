@@ -45,19 +45,18 @@ namespace OneBusAway.WP7.ViewModel
             this.lazyBusServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
             Loading = false;
-
-            operationTracker = new AsyncOperationTracker(
-                () => { Loading = false; }, 
-                () => { Loading = true; }
-                );
-            locationTracker = new LocationTracker(operationTracker);
-            locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
-            
-            LoadingText = "Finding your location...";
-            eventsRegistered = false;
+            locationTracker = new LocationTracker();
 
             // Set up the default action, just execute in the same thread
             UIAction = (uiAction => uiAction());
+            
+            operationTracker = new AsyncOperationTracker(
+                () => { UIAction(() => Loading = false); },
+                () => { UIAction(() => Loading = true); }
+                );
+
+            LoadingText = "Finding your location...";
+            eventsRegistered = false;
         }
 
         void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
@@ -133,7 +132,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 
@@ -219,6 +218,9 @@ namespace OneBusAway.WP7.ViewModel
             // Set the UI Actions to occur on the UI thread
             UIAction = (uiAction => dispatcher.BeginInvoke(() => uiAction()));
 
+            locationTracker.Initialize(operationTracker);
+            locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
+
             Debug.Assert(eventsRegistered == false);
             eventsRegistered = true;
         }
@@ -229,6 +231,9 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         public virtual void UnregisterEventHandlers()
         {
+            locationTracker.ErrorHandler -= new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
+            locationTracker.Uninitialize();
+
             Debug.Assert(eventsRegistered == true);
             eventsRegistered = false;
         }

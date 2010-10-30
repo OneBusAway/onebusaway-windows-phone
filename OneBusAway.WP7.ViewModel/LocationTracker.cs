@@ -32,10 +32,10 @@ namespace OneBusAway.WP7.ViewModel
         {
             // The location service will return the last known location of the phone when it first starts up.  Since
             // we can't refresh the home screen wait until a recent location value is found before using it.  The
-            // location must be less than 1 minute old.
+            // location must be less than 5 minute old.
             if (e.Position.Location.IsUnknown == false)
             {
-                if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 1, 0))
+                if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 5, 0))
                 {
                     lastKnownLocation = e.Position.Location;
                 }
@@ -55,11 +55,10 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
-        #region Constructors
+        #region Constructor & Initializers
 
-        public LocationTracker(AsyncOperationTracker operationTracker)
+        public LocationTracker()
         {
-            this.operationTracker = operationTracker;
             locationLoading = false;
 
             // Set up the default action, just execute in the same thread
@@ -69,6 +68,11 @@ namespace OneBusAway.WP7.ViewModel
             methodsRequiringLocationLock = new Object();
             // Create the timer but don't run it until methods are added to the queue
             methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
+        }
+
+        public void Initialize(AsyncOperationTracker operationTracker)
+        {
+            this.operationTracker = operationTracker;
 
             if (LocationKnown == false)
             {
@@ -77,13 +81,24 @@ namespace OneBusAway.WP7.ViewModel
                 locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                 locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
             }
+            else
+            {
+                locationWatcher_PositionChanged_NotifyPropertyChanged(this, new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, CurrentLocation)));
+            }
 
             locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
         }
 
+        public void Uninitialize()
+        {
+            locationWatcher.PositionChanged -= LocationWatcher_LocationKnown;
+            locationWatcher.StatusChanged -= LocationWatcher_StatusChanged;
+            locationWatcher.PositionChanged -= locationWatcher_PositionChanged_NotifyPropertyChanged;
+        }
+
         #endregion
 
-        #region Public Properties
+        #region Public Members
 
         public Action<Action> UIAction { get; set; }
         public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
@@ -242,6 +257,8 @@ namespace OneBusAway.WP7.ViewModel
                         }
                         catch(Exception e)
                         {
+                            Debug.Assert(false);
+
                             // Queue up errors so that all methods will be executed the and list will be 
                             // cleared even if exceptions occur.  If there is more than one error, just report the last one
                             error = e;

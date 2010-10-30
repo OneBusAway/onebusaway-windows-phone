@@ -72,7 +72,7 @@ namespace OneBusAway.WP7.ViewModel
             operationTracker.WaitForOperation("CombinedInfoForLocation");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
-                this.LoadingText = "Searching for buses...";
+                UIAction(() => this.LoadingText = "Searching for buses...");
                 busServiceModel.CombinedInfoForLocation(location, radiusInMeters, -1, invalidateCache);
             });
         }
@@ -196,21 +196,21 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                    viewModel.UIAction(() =>
+                    viewModel.UIAction(() => viewModel.RoutesForLocation.Clear());
+                    
+                    int count = 0;
+                    foreach (Route route in e.routes)
+                    {
+                        if (count > viewModel.maxRoutes)
                         {
-                            viewModel.RoutesForLocation.Clear();
-                            int count = 0;
-                            foreach (Route route in e.routes)
-                            {
-                                if (count > viewModel.maxRoutes)
-                                {
-                                    break;
-                                }
+                            break;
+                        }
 
-                                viewModel.RoutesForLocation.Add(route);
-                                count++;
-                            }
-                        });
+                        Route currentRoute = route;
+                        viewModel.UIAction(() => viewModel.RoutesForLocation.Add(currentRoute));
+                        count++;
+                    }
+                        
                 }
                 else
                 {
@@ -245,17 +245,15 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     e.stops.Sort(new StopDistanceComparer(e.location));
 
-                    viewModel.UIAction(() =>
-                        {
-                            viewModel.StopsForLocation.Clear();
-                            int count = 0;
-                            foreach (Stop stop in e.stops)
-                            {
+                    viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
 
-                                viewModel.StopsForLocation.Add(stop);
-                                count++;
-                            }
-                        });
+                    int count = 0;
+                    foreach (Stop stop in e.stops)
+                    {
+                        Stop currentStop = stop;
+                        viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
+                        count++;
+                    }
                 }
                 else
                 {
@@ -278,36 +276,31 @@ namespace OneBusAway.WP7.ViewModel
                 e.stops.Sort(new StopDistanceComparer(e.location));
                 e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                UIAction(() =>
+                int stopCount = 0;
+                foreach (Stop stop in e.stops)
+                {
+                    if (stopCount > maxStops)
                     {
-                        StopsForLocation.Clear();
+                        break;
+                    }
 
-                        int stopCount = 0;
-                        foreach (Stop stop in e.stops)
-                        {
-                            if (stopCount > maxStops)
-                            {
-                                break;
-                            }
+                    Stop currentStop = stop;
+                    UIAction(() => StopsForLocation.Add(currentStop));
+                    stopCount++;
+                }
 
-                            StopsForLocation.Add(stop);
-                            stopCount++;
-                        }
+                int routeCount = 0;
+                foreach (Route route in e.routes)
+                {
+                    if (routeCount > maxRoutes)
+                    {
+                        break;
+                    }
 
-                        RoutesForLocation.Clear();
-
-                        int routeCount = 0;
-                        foreach (Route route in e.routes)
-                        {
-                            if (routeCount > maxRoutes)
-                            {
-                                break;
-                            }
-
-                            RoutesForLocation.Add(route);
-                            routeCount++;
-                        }
-                    });
+                    Route currentRoute = route;
+                    UIAction(() => RoutesForLocation.Add(currentRoute));
+                    routeCount++;
+                }
             }
             else
             {
@@ -315,71 +308,6 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             operationTracker.DoneWithOperation("CombinedInfoForLocation");
-        }
-
-        void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
-        {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
-            {
-                e.stops.Sort(new StopDistanceComparer(e.location));
-
-                UIAction(() =>
-                        {
-                            StopsForLocation.Clear();
-                            int count = 0;
-                            foreach (Stop stop in e.stops)
-                            {
-                                if (count > maxStops)
-                                {
-                                    break;
-                                }
-
-                                StopsForLocation.Add(stop);
-                                count++;
-                            }
-                        });
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
-
-            operationTracker.DoneWithOperation("StopsForLocation");
-        }
-
-        void busServiceModel_RoutesForLocation_Completed(object sender, EventArgs.RoutesForLocationEventArgs e)
-        {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
-            {
-                e.routes.Sort(new RouteDistanceComparer(e.location));
-
-                UIAction(() =>
-                    {
-                        RoutesForLocation.Clear();
-
-                        int count = 0;
-                        foreach (Route route in e.routes)
-                        {
-                            if (count > maxRoutes)
-                            {
-                                break;
-                            }
-
-                            RoutesForLocation.Add(route);
-                            count++;
-                        }
-                    });
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
-
-            operationTracker.DoneWithOperation("RoutesForLocation");
         }
 
         void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
@@ -409,11 +337,8 @@ namespace OneBusAway.WP7.ViewModel
                     e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
                 }
 
-                UIAction(() =>
-                    {
-                        Favorites.Clear();
-                        e.newFavorites.ForEach(favorite => Favorites.Add(favorite));
-                    });
+                UIAction(() => Favorites.Clear());
+                e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
             }
             else
             {
@@ -429,11 +354,8 @@ namespace OneBusAway.WP7.ViewModel
             {
                 e.newFavorites.Sort(new RecentLastAccessComparer());
 
-                UIAction(() =>
-                    {
-                        Recents.Clear();
-                        e.newFavorites.ForEach(recent => Recents.Add(recent));
-                    });
+                UIAction(() => Recents.Clear());
+                e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
             }
             else
             {

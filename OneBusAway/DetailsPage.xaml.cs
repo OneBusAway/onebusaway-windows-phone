@@ -75,7 +75,7 @@ namespace OneBusAway.WP7.View
 
         void UpdateAppBar()
         {
-            appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
+            Dispatcher.BeginInvoke(() => appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]));
 
             if (viewModel.CurrentViewState.CurrentRouteDirection != null)
             {
@@ -84,13 +84,17 @@ namespace OneBusAway.WP7.View
                     appbar_allroutes = new ApplicationBarIconButton();
                     appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
                 }
-                appbar_allroutes.IconUri = unfilterRoutesIcon;
-                appbar_allroutes.Text = unfilterRoutesText;
-                if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
-                {
-                    // this has to be done after setting the icon
-                    ApplicationBar.Buttons.Add(appbar_allroutes);
-                }
+
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        appbar_allroutes.IconUri = unfilterRoutesIcon;
+                        appbar_allroutes.Text = unfilterRoutesText;
+                        if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
+                        {
+                            // this has to be done after setting the icon
+                            ApplicationBar.Buttons.Add(appbar_allroutes);
+                        }
+                    });
 
                 isFiltered = true;
             }
@@ -117,7 +121,6 @@ namespace OneBusAway.WP7.View
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
             viewModel.RegisterEventHandlers(Dispatcher);
-
             viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
 
             // When we enter this page after tombstoning often the location won't be available when the map
@@ -216,13 +219,19 @@ namespace OneBusAway.WP7.View
         {
             if (isFavorite == true)
             {
-                appbar_favorite.IconUri = deleteFavoriteIcon;
-                appbar_favorite.Text = deleteFavoriteText;
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        appbar_favorite.IconUri = deleteFavoriteIcon;
+                        appbar_favorite.Text = deleteFavoriteText;
+                    });
             }
             else
             {
-                appbar_favorite.IconUri = addFavoriteIcon;
-                appbar_favorite.Text = addFavoriteText;
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        appbar_favorite.IconUri = addFavoriteIcon;
+                        appbar_favorite.Text = addFavoriteText;
+                    });
             }
         }
 

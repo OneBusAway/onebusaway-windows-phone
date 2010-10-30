@@ -8,6 +8,7 @@ using System.Windows;
 using System.Threading;
 using System.Text;
 using OneBusAway.WP7.ViewModel;
+using System.Diagnostics;
 
 namespace OneBusAway.WP7.Model
 {
@@ -466,6 +467,8 @@ namespace OneBusAway.WP7.Model
 
             public void Callback(IAsyncResult asyncResult)
             {
+                CacheDownloadStringCompletedEventArgs newArgs;
+
                 try
                 {
                     HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
@@ -484,16 +487,16 @@ namespace OneBusAway.WP7.Model
                     string results = sr.ReadToEnd();
                     // no errors -- add data to the cache
                     owner.CacheAddResult(requestedAddress, results);
-                    // and fire our event
-
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(results);
-                    callback(this, newArgs);
+                    
+                    newArgs = new CacheDownloadStringCompletedEventArgs(results);
                 }
                 catch (Exception e)
                 {
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(e);
-                    callback(this, newArgs);
+                    Debug.Assert(false);
+                    newArgs = new CacheDownloadStringCompletedEventArgs(e);
                 }
+
+                callback(this, newArgs);
             }
         }
 

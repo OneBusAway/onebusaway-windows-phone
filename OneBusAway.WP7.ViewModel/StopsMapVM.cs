@@ -105,21 +105,16 @@ namespace OneBusAway.WP7.ViewModel
                         }
                     }
 
-                    UIAction(() =>
-                        {
-                            foreach (Stop stop in stopsToRemove)
-                            {
-                                StopsForLocation.Remove(stop);
-                            }
+                    stopsToRemove.ForEach(stop => UIAction(() => StopsForLocation.Remove(stop)));
 
-                            foreach (Stop stop in e.stops)
-                            {
-                                if (StopsForLocation.Contains(stop) == false)
-                                {
-                                    StopsForLocation.Add(stop);
-                                }
-                            }
-                        });
+                    foreach (Stop stop in e.stops)
+                    {
+                        if (StopsForLocation.Contains(stop) == false)
+                        {
+                            Stop currentStop = stop;
+                            UIAction(() => StopsForLocation.Add(currentStop));
+                        }
+                    }
                 }
             }
             else
