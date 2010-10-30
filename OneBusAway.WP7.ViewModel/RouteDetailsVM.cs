@@ -104,16 +104,6 @@ namespace OneBusAway.WP7.ViewModel
 
         public void RefreshArrivalsForStop(Stop stop)
         {
-            if (this.routeFilter == null)
-            {
-                this.LoadingText = "Loading upcoming arrivals at your stop";
-            }
-            else
-            {
-                // if we have a route selected, the route text overlaps with where the loading bar is.
-                // just don't display any loading text
-                this.LoadingText = null;
-            }
             operationTracker.WaitForOperation("ArrivalsForStop");
             busServiceModel.ArrivalsForStop(stop);
         }
@@ -189,27 +179,28 @@ namespace OneBusAway.WP7.ViewModel
 
                 if (e.error == null)
                 {
-                    viewModel.UIAction(() =>
+                    viewModel.UIAction(() => viewModel.CurrentViewState.CurrentRouteDirection = null);
+
+                    e.routeStops.ForEach(routeStop =>
                         {
-                            viewModel.CurrentViewState.CurrentRouteDirection = null;
-                            e.routeStops.ForEach(routeStop =>
-                                {
-                                    // These aren't always the same, hopefully this comparison will work
-                                    if (routeStop.name.Contains(arrival.tripHeadsign) || arrival.tripHeadsign.Contains(routeStop.name))
+                            // These aren't always the same, hopefully this comparison will work
+                            if (routeStop.name.Contains(arrival.tripHeadsign) || arrival.tripHeadsign.Contains(routeStop.name))
+                            {
+                                viewModel.UIAction(() =>
                                     {
                                         viewModel.CurrentViewState.CurrentRouteDirection = routeStop;
                                         viewModel.CurrentViewState.CurrentRoute = routeStop.route;
-                                    }
-                                }
-                             );
-
-                            Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
-
-                            if (uiCallback != null)
-                            {
-                                uiCallback.Invoke();
+                                    });
                             }
-                        });
+                        }
+                        );
+
+                    Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
+
+                    if (uiCallback != null)
+                    {
+                        uiCallback.Invoke();
+                    }
                 }
                 else
                 {
@@ -240,50 +231,52 @@ namespace OneBusAway.WP7.ViewModel
                 else
                 {
                     // We already have arrivals in the list, so just refresh them
-                    UIAction(() =>
+                    lock (arrivalsLock)
+                    {
+                        // Start by updating all the times for all of the arrivals currently in the list,
+                        // and find any arrivals that have timed out for this stop
+                        List<ArrivalAndDeparture> arrivalsToRemove = new List<ArrivalAndDeparture>();
+                        foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
                         {
-                            lock (arrivalsLock)
+                            int index = e.arrivals.IndexOf(arrival);
+                            if (index >= 0)
                             {
-                                // Start by updating all the times for all of the arrivals currently in the list,
-                                // and find any arrivals that have timed out for this stop
-                                List<ArrivalAndDeparture> arrivalsToRemove = new List<ArrivalAndDeparture>();
-                                foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
-                                {
-                                    int index = e.arrivals.IndexOf(arrival);
-                                    if (index >= 0)
+                                ArrivalAndDeparture currentArrival = e.arrivals[index];
+                                UIAction(() =>
                                     {
-                                        arrival.predictedArrivalTime = e.arrivals[index].predictedArrivalTime;
-                                        arrival.predictedDepartureTime = e.arrivals[index].predictedDepartureTime;
-                                    }
-                                    else
-                                    {
-                                        // The latest collection no longer has this arrival, delete it from the 
-                                        // list.  Otherwise we will keep it around forever, no longer updating
-                                        // its time
-                                        arrivalsToRemove.Add(arrival);
-                                    }
-                                }
-
-                                arrivalsToRemove.ForEach(arrival =>
-                                    {
-                                        ArrivalsForStop.Remove(arrival);
-                                        unfilteredArrivals.Remove(arrival);
-                                    }
-                                    );
-
-                                // Now add any new arrivals that just starting showing up for this stop
-                                foreach (ArrivalAndDeparture arrival in e.arrivals)
-                                {
-                                    // Ensure that we aren't adding routes that are filtered out
-                                    if ((routeFilter == null || routeFilter.id == arrival.routeId) 
-                                        && ArrivalsForStop.Contains(arrival) == false)
-                                    {
-                                        ArrivalsForStop.Add(arrival);
-                                        unfilteredArrivals.Add(arrival);
-                                    }
-                                }
+                                        arrival.predictedArrivalTime = currentArrival.predictedArrivalTime;
+                                        arrival.predictedDepartureTime = currentArrival.predictedDepartureTime;
+                                    });
                             }
-                        });
+                            else
+                            {
+                                // The latest collection no longer has this arrival, delete it from the 
+                                // list.  Otherwise we will keep it around forever, no longer updating
+                                // its time
+                                arrivalsToRemove.Add(arrival);
+                            }
+                        }
+
+                        arrivalsToRemove.ForEach(arrival =>
+                            {
+                                UIAction(() => ArrivalsForStop.Remove(arrival));
+                                unfilteredArrivals.Remove(arrival);
+                            }
+                            );
+
+                        // Now add any new arrivals that just starting showing up for this stop
+                        foreach (ArrivalAndDeparture arrival in e.arrivals)
+                        {
+                            // Ensure that we aren't adding routes that are filtered out
+                            if ((routeFilter == null || routeFilter.id == arrival.routeId) 
+                                && ArrivalsForStop.Contains(arrival) == false)
+                            {
+                                ArrivalAndDeparture currentArrival = arrival;
+                                UIAction(() => ArrivalsForStop.Add(currentArrival));
+                                unfilteredArrivals.Add(currentArrival);
+                            }
+                        }
+                    }
                 }
             }
             else
@@ -312,18 +305,16 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                UIAction(() =>
-                    {
-                        TripDetailsForArrivals.Clear();
+                UIAction(() => TripDetailsForArrivals.Clear());
 
-                        foreach (TripDetails tripDetail in e.tripDetails)
-                        {
-                            if (tripDetail.location != null)
-                            {
-                                TripDetailsForArrivals.Add(tripDetail);
-                            }
-                        }
-                    });
+                foreach (TripDetails tripDetail in e.tripDetails)
+                {
+                    if (tripDetail.location != null)
+                    {
+                        TripDetails currentTrip = tripDetail;
+                        UIAction(() => TripDetailsForArrivals.Add(currentTrip));
+                    }
+                }
             }
             else
             {
@@ -337,24 +328,22 @@ namespace OneBusAway.WP7.ViewModel
 
         private void FilterArrivals()
         {
-            UIAction(() =>
+            lock (arrivalsLock)
+            {
+                UIAction(() => ArrivalsForStop.Clear());
+
+                unfilteredArrivals.Sort(new ArrivalTimeComparer());
+                foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
                 {
-                    lock (arrivalsLock)
+                    if (routeFilter != null && routeFilter.id != arrival.routeId)
                     {
-                        ArrivalsForStop.Clear();
-
-                        unfilteredArrivals.Sort(new ArrivalTimeComparer());
-                        foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
-                        {
-                            if (routeFilter != null && routeFilter.id != arrival.routeId)
-                            {
-                                continue;
-                            }
-
-                            ArrivalsForStop.Add(arrival);
-                        }
+                        continue;
                     }
-                });
+
+                    ArrivalAndDeparture currentArrival = arrival;
+                    UIAction(() => ArrivalsForStop.Add(currentArrival));
+                }
+            }
         }
 
         public override void RegisterEventHandlers(Dispatcher dispatcher)

@@ -142,6 +142,15 @@
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>
                 </m:MapLayer>
+                <m:MapLayer x:Name="BusTripsLayer">
+                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=TripDetailsForArrivals, Source={StaticResource ViewModel}}">
+                        <m:MapItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusTripPushpinStyle}"  />
+                            </DataTemplate>
+                        </m:MapItemsControl.ItemTemplate>
+                    </m:MapItemsControl>
+                </m:MapLayer>
                 <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
                     <m:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
                         <m:MapItemsControl.ItemTemplate>
@@ -160,22 +169,13 @@
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>
                 </m:MapLayer>
-                <m:MapLayer x:Name="BusTripsLayer">
-                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=TripDetailsForArrivals, Source={StaticResource ViewModel}}">
-                        <m:MapItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusTripPushpinStyle}"  />
-                            </DataTemplate>
-                        </m:MapItemsControl.ItemTemplate>
-                    </m:MapItemsControl>
-                </m:MapLayer>
-                <m:MapLayer x:Name="MyLocationLayer">
-                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
-                </m:MapLayer>
                 <m:MapLayer x:Name="SelectedStopLayer">
                     <m:Pushpin Location="{Binding Path=CurrentViewState.CurrentStop.location, Source={StaticResource ViewModel}}" PositionOrigin="BottomLeft">
                         <Image Source="/Bus_Icon.png" Width="25" Height="25" />
                     </m:Pushpin>
+                </m:MapLayer>
+                <m:MapLayer x:Name="MyLocationLayer">
+                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
                 </m:MapLayer>
             </m:Map>
         </Grid>

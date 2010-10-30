@@ -84,10 +84,7 @@ namespace OneBusAway.WP7.ViewModel
                             pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
                         }
 
-                        UIAction(() =>
-                            {
-                                pendingRouteDirections.ForEach(route => RouteDirections.Add(route));
-                            });
+                        pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
                     }
                 }
             }
