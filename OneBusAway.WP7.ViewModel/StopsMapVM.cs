@@ -19,6 +19,7 @@ namespace OneBusAway.WP7.ViewModel
 {
     public class StopsMapVM : AViewModel
     {
+        private Object stopsForLocationCompletedLock;
         private Object stopsForLocationLock;
 
         #region Constructors
@@ -37,6 +38,7 @@ namespace OneBusAway.WP7.ViewModel
 
         private void Initialize()
         {
+            stopsForLocationCompletedLock = new Object();
             stopsForLocationLock = new Object();
             StopsForLocation = new ObservableCollection<Stop>();
         }
@@ -92,27 +94,46 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                lock (stopsForLocationLock)
+                lock (stopsForLocationCompletedLock)
                 {
                     // TODO: This algorithm is pretty slow, around ~1/4 second under debugger
                     // We should try to find a more efficient way to do this
                     List<Stop> stopsToRemove = new List<Stop>();
-                    foreach (Stop stop in StopsForLocation)
+                    lock (stopsForLocationLock)
                     {
-                        if (e.stops.Contains(stop) == false)
+                        foreach (Stop stop in StopsForLocation)
                         {
-                            stopsToRemove.Add(stop);
+                            if (e.stops.Contains(stop) == false)
+                            {
+                                stopsToRemove.Add(stop);
+                            }
                         }
                     }
 
-                    stopsToRemove.ForEach(stop => UIAction(() => StopsForLocation.Remove(stop)));
+                    stopsToRemove.ForEach(stop => 
+                        UIAction(() => 
+                    {
+                        lock (stopsForLocationLock) 
+                        { 
+                            StopsForLocation.Remove(stop);
+                        }
+                    }));
 
                     foreach (Stop stop in e.stops)
                     {
-                        if (StopsForLocation.Contains(stop) == false)
+                        lock (stopsForLocationLock)
                         {
-                            Stop currentStop = stop;
-                            UIAction(() => StopsForLocation.Add(currentStop));
+                            if (StopsForLocation.Contains(stop) == false)
+                            {
+                                Stop currentStop = stop;
+                                UIAction(() =>
+                                    {
+                                        lock (stopsForLocationLock)
+                                        {
+                                            StopsForLocation.Add(currentStop);
+                                        }
+                                    });
+                            }
                         }
                     }
                 }

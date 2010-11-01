@@ -32,7 +32,7 @@ namespace OneBusAway.WP7.View
         private Object mapHasMovedLock;
         private bool mapHasMoved;
 
-        private const int minZoomLevel = 14; //below this level we don't even bother querying
+        internal static int minZoomLevel = 15; //below this level we don't even bother querying
 
         public StopsMapPage()
             : base()
@@ -97,10 +97,13 @@ namespace OneBusAway.WP7.View
                     }
                 }
 
-                if (DetailsMap.ZoomLevel > minZoomLevel)
+                if (DetailsMap.ZoomLevel > minZoomLevel )
                 {
-                    //TODO: add this back. It was causing problems when the map was zoomed from a layer that we didn't query on to a layer that we should
-                    //if (LocationRectContainedBy(previousMapView, DetailsMap.BoundingRectangle) == false)   
+                    // TODO: Fix this logic, I think it has threading issues that can cause it to break
+                    // If the layer isn't visible, that means there were too many stops found by our previous query
+                    // so we should always fire a new query, even if they are inside of the previous rectangle
+                    //if (BusStopsLayer.Visibility == Visibility.Collapsed || 
+                    //    LocationRectContainedBy(previousMapView, DetailsMap.BoundingRectangle) == false)   
                     {
                         viewModel.LoadStopsForLocation(
                             new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.North, Longitude = DetailsMap.BoundingRectangle.West },
@@ -236,15 +239,12 @@ namespace OneBusAway.WP7.View
 
     public class MaxZoomConverter : IValueConverter
     {
-        private const double maxZoom = 14; //maximum number of stops we show at a time
-
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             double zoom = (double)value;
-            bool visibility = (zoom <= maxZoom);
+            bool visibility = (zoom <= StopsMapPage.minZoomLevel);
 
             return visibility ? Visibility.Visible : Visibility.Collapsed;
-
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
