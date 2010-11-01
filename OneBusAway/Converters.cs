@@ -240,17 +240,17 @@ namespace OneBusAway.WP7.View
                 if (delay.Minutes < 0)
                 {
                     // Bus is running late
-                    return new SolidColorBrush(Colors.Blue);
+                    return Application.Current.Resources["OBABlueBrush"];
                 }
                 else if (delay.Minutes == 0)
                 {
                     // Bus is on time
-                    return new SolidColorBrush(Colors.Green);
+                    return Application.Current.Resources["OBADarkBrush"];
                 }
                 else
                 {
                     // Bus is running early
-                    return new SolidColorBrush(Colors.Red);
+                    return Application.Current.Resources["OBARedBrush"];
                 }
             }
             else

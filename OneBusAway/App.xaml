@@ -26,6 +26,8 @@
         <Color x:Key="OBAForegroundColor">White</Color>
         <Color x:Key="OBABackgroundColor">Black</Color>
         <Color x:Key="OBAAccentColor">#A7ED4C</Color>
+        <Color x:Key="OBARedColor">#BA513B</Color>
+        <Color x:Key="OBABlueColor">#6B2A7B</Color>
 
         <!--<Color x:Key="OBADarkColor">Purple</Color>
         <Color x:Key="OBALightColor">Yellow</Color>
@@ -43,7 +45,9 @@
         <SolidColorBrush x:Key="OBAPrimaryBrush" Color="{StaticResource OBAPrimaryColor}"/>
         <SolidColorBrush x:Key="OBAAccentBrush" Color="{StaticResource OBAAccentColor}"/>
         <SolidColorBrush x:Key="OBALightBrush" Color="{StaticResource OBALightColor}"/>
-
+        <SolidColorBrush x:Key="OBARedBrush" Color="{StaticResource OBARedColor}"/>
+        <SolidColorBrush x:Key="OBABlueBrush" Color="{StaticResource OBABlueColor}"/>
+        
         <Style x:Key="PerformanceProgressBar" TargetType="ProgressBar">
             <Setter Property="Foreground" Value="{StaticResource PhoneAccentBrush}"/>
             <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
