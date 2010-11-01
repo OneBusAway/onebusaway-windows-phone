@@ -716,7 +716,7 @@ namespace OneBusAway.WP7.Model
             try
             {
                 XDocument xmlDoc = XDocument.Load(new StringReader(xmlResponse));
-                HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("coasdfde").Value);
+                HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
 
                 if (code != HttpStatusCode.OK)
                 {
