@@ -51,14 +51,14 @@ namespace OneBusAway.WP7.ViewModel
 
     public class WebserviceParsingException : Exception
     {
-        private string requestUrl;
-        private string serverResponse;
+        public string RequestUrl { get; private set; }
+        public string ServerResponse { get; private set; }
 
         public WebserviceParsingException(string requestUrl, string serverResponse, Exception innerException)
             : base("There was an error parsing the server response", innerException)
         {
-            this.requestUrl = requestUrl;
-            this.serverResponse = serverResponse;
+            this.RequestUrl = requestUrl;
+            this.ServerResponse = serverResponse;
         }
 
         public override string ToString()
@@ -66,24 +66,24 @@ namespace OneBusAway.WP7.ViewModel
             return string.Format(
                 "{0}\r\nRequestURL: '{1}'\r\nResponse:\r\n{2}",
                 base.ToString(),
-                requestUrl,
-                serverResponse
+                RequestUrl,
+                ServerResponse
                 );
         }
     }
 
     public class WebserviceResponseException : Exception
     {
-        private string requestUrl;
-        private string serverResponse;
-        private HttpStatusCode serverStatusCode;
+        public string RequestUrl { get; private set; }
+        public string ServerResponse { get; private set; }
+        public HttpStatusCode ServerStatusCode { get; private set; }
 
         public WebserviceResponseException(HttpStatusCode serverStatusCode, string requestUrl, string serverResponse, Exception innerException)
             : base("We were able to contact the webservice but the service returned an error", innerException)
         {
-            this.requestUrl = requestUrl;
-            this.serverResponse = serverResponse;
-            this.serverStatusCode = serverStatusCode;
+            this.RequestUrl = requestUrl;
+            this.ServerResponse = serverResponse;
+            this.ServerStatusCode = serverStatusCode;
         }
 
         public override string ToString()
@@ -91,9 +91,9 @@ namespace OneBusAway.WP7.ViewModel
             return string.Format(
                 "{0}\r\nHttpErrorCode: '{1}'\r\nRequestURL: '{2}'\r\nResponse:\r\n{3}",
                 base.ToString(),
-                serverStatusCode,
-                requestUrl,
-                serverResponse
+                ServerStatusCode,
+                RequestUrl,
+                ServerResponse
                 );
         }
     }

@@ -135,10 +135,24 @@ namespace OneBusAway.WP7.View
                 }
                 else if (e.error is WebserviceResponseException)
                 {
-                    errorMessage +=
-                        "We were able to contact OneBusAway but the service returned an error. " +
-                        "We don't think this is our fault, but would you like to report this error so we can make sure?";
-                    messageBoxType = MessageBoxButton.OKCancel;
+                    // If the error code is set to "unused" then we couldn't even parse the return code
+                    // from the OBA resopnse
+                    if (((WebserviceResponseException)e.error).ServerStatusCode == HttpStatusCode.Unused)
+                    {
+                        errorMessage +=
+                            "The data we received from OneBusAway isn't correct; " +
+                            "are you connected to a public WIFI network which requires you " +
+                            "to log in before accessing the internet?" +
+                            " If not, would you like to report this error so we can try and fix it?";
+                        messageBoxType = MessageBoxButton.OKCancel;
+                    }
+                    else
+                    {
+                        errorMessage +=
+                            "We were able to contact OneBusAway but the service returned an error. " +
+                            "We don't think this is our fault, but would you like to report this error so we can make sure?";
+                        messageBoxType = MessageBoxButton.OKCancel;
+                    }
                 }
                 else
                 {
