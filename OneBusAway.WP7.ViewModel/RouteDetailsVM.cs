@@ -195,7 +195,9 @@ namespace OneBusAway.WP7.ViewModel
                         }
                         );
 
-                    Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null);
+#if DEBUG
+                    viewModel.UIAction(() => Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null));
+#endif
 
                     if (uiCallback != null)
                     {

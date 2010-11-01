@@ -41,6 +41,20 @@ namespace OneBusAway.WP7.View
         private bool isFavorite;
         private bool isFiltered;
 
+        private string isFilteredStateId
+        {
+            get
+            {
+                string s = string.Format("DetailsPage-IsFiltered-{0}", viewModel.CurrentViewState.CurrentStop.id);
+                if (viewModel.CurrentViewState.CurrentRouteDirection != null && viewModel.CurrentViewState.CurrentRoute != null)
+                {
+                    s += string.Format("-{0}-{1}", viewModel.CurrentViewState.CurrentRoute.id, viewModel.CurrentViewState.CurrentRouteDirection.name);
+                }
+
+                return s;
+            }
+        }
+
         private ApplicationBarIconButton appbar_allroutes;
 
         private DispatcherTimer busArrivalUpdateTimer;
@@ -65,7 +79,7 @@ namespace OneBusAway.WP7.View
 
             DetailsMap.MapResolved += new EventHandler(DetailsMap_MapResolved);
 
-            UpdateAppBar();
+            UpdateAppBar(true);
         }
 
         void DetailsMap_MapResolved(object sender, EventArgs e)
@@ -73,11 +87,31 @@ namespace OneBusAway.WP7.View
             DetailsMap_MapZoom(this, null);
         }
 
-        void UpdateAppBar()
+        // Only want to use the state variable on the initial call
+        void UpdateAppBar(bool useStateVariable)
         {
             Dispatcher.BeginInvoke(() => appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]));
 
-            if (viewModel.CurrentViewState.CurrentRouteDirection != null)
+            bool addFilterButton = false;
+            if (useStateVariable == true &&
+                PhoneApplicationService.Current.State.ContainsKey(isFilteredStateId) == true 
+                && viewModel.CurrentViewState.CurrentRouteDirection != null)
+            {
+                // This page was tombstoned and is now reloading, use the previous filter status.
+                isFiltered = (bool)PhoneApplicationService.Current.State[isFilteredStateId];
+                addFilterButton = true;
+            }
+            else
+            {
+                // No filter override, this is the first load of this details page. If
+                // there is a specific route direction filter based on it and add the 
+                // filter button, otherwise we are just displaying a stop, don't show
+                // the filter button.
+                isFiltered = viewModel.CurrentViewState.CurrentRouteDirection != null;
+                addFilterButton = isFiltered;
+            }
+
+            if (addFilterButton == true)
             {
                 if (appbar_allroutes == null)
                 {
@@ -85,23 +119,26 @@ namespace OneBusAway.WP7.View
                     appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
                 }
 
+                bool localIsFiltered = isFiltered;
                 Dispatcher.BeginInvoke(() =>
                     {
-                        appbar_allroutes.IconUri = unfilterRoutesIcon;
-                        appbar_allroutes.Text = unfilterRoutesText;
+                        if (localIsFiltered == true)
+                        {
+                            appbar_allroutes.IconUri = unfilterRoutesIcon;
+                            appbar_allroutes.Text = unfilterRoutesText;
+                        }
+                        else
+                        {
+                            appbar_allroutes.IconUri = filterRoutesIcon;
+                            appbar_allroutes.Text = filterRoutesText;
+                        }
+
                         if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
                         {
                             // this has to be done after setting the icon
                             ApplicationBar.Buttons.Add(appbar_allroutes);
                         }
                     });
-
-                isFiltered = true;
-            }
-            else
-            {
-                // There isn't a specific route, just load up info on this bus stop
-                isFiltered = false;
             }
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
@@ -121,7 +158,15 @@ namespace OneBusAway.WP7.View
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
             viewModel.RegisterEventHandlers(Dispatcher);
-            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
+
+            if (isFiltered == true)
+            {
+                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
+            }
+            else
+            {
+                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, null);
+            }
 
             // When we enter this page after tombstoning often the location won't be available when the map
             // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
@@ -160,6 +205,7 @@ namespace OneBusAway.WP7.View
             base.OnNavigatedFrom(e);
 
             busArrivalUpdateTimer.Stop();
+            PhoneApplicationService.Current.State[isFilteredStateId] = isFiltered;
 
             viewModel.UnregisterEventHandlers();
         }
@@ -240,7 +286,7 @@ namespace OneBusAway.WP7.View
             if (e.AddedItems.Count != 0)
             {
                 ArrivalAndDeparture arrival = (ArrivalAndDeparture)e.AddedItems[0];
-                viewModel.SwitchToRouteByArrival(arrival, UpdateAppBar);
+                viewModel.SwitchToRouteByArrival(arrival, () => UpdateAppBar(false));
             }
         }
 
