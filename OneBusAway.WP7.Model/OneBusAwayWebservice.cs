@@ -713,13 +713,22 @@ namespace OneBusAway.WP7.Model
 
         private static void CheckResponseCode(string xmlResponse, string requestUrl)
         {
-            XDocument xmlDoc = XDocument.Load(new StringReader(xmlResponse));
-            HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+            try
+            {
+                XDocument xmlDoc = XDocument.Load(new StringReader(xmlResponse));
+                HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("coasdfde").Value);
 
-            if (code != HttpStatusCode.OK)
+                if (code != HttpStatusCode.OK)
+                {
+                    Debug.Assert(false);
+                    throw new WebserviceResponseException(code, requestUrl, xmlResponse, null);
+                }
+            }
+            catch (Exception e)
             {
                 Debug.Assert(false);
-                throw new WebserviceResponseException(code, requestUrl, xmlResponse, null);
+
+                throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, xmlResponse, e);
             }
         }
 
