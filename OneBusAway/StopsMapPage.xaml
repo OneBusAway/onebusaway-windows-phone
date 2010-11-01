@@ -23,8 +23,6 @@
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         <view:MaxZoomConverter x:Key="MaxZoomConverter"></view:MaxZoomConverter>
 
-        
-
         <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
             <Setter Property="Template">
                 <Setter.Value>
@@ -125,15 +123,15 @@
         there should probably only be one of these "too many stops" indicators.
         having two of them and making either one visible based on different conditions is ugly.
         -->
-        <Border Background="{StaticResource OBADarkBrush}" Grid.Row="1"
+        <Border x:Name="TooManyStops1" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
                        Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}, ConverterParameter=true}">
             <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
-                       Text="Too may stops. Zoom in to see nearby stops." />
+                       Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
-        <Border Background="{StaticResource OBADarkBrush}" Grid.Row="1"
+        <Border x:Name="TooManyStops2" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
                        Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}">
             <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
-                       Text="Too may stops. Zoom in to see nearby stops." />
+                       Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
         
         <ProgressBar  Grid.Row="0"
