@@ -207,12 +207,6 @@ namespace OneBusAway.WP7.View
                 }
             }
         }
-
-        private void btnClose_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            StopInfoBox.Visibility = Visibility.Collapsed;
-            StopInfoBox.Tag = null;
-        }
     }
 
     public class MaxStopsConverter : IValueConverter
