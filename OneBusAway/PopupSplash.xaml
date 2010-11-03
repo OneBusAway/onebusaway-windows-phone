@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="OneBusAway.WP7.View.PopupSplash"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    d:DesignHeight="800" d:DesignWidth="480">
+
+    <Grid x:Name="LayoutRoot" Background="#78AA36" Width="480" Height="800">
+        <ProgressBar Foreground="White" Name="progressBar1" HorizontalAlignment="Left" Margin="47,544,0,237" Width="383"  IsIndeterminate="True" Style="{StaticResource PerformanceProgressBar}"/>
+
+        <Image HorizontalAlignment="Center"  Stretch="None" Name="image1" VerticalAlignment="Top" Source="SplashImage.png" />
+        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Loading..." Foreground="White" FontSize="22" Margin="193,510,193,260" />
+    </Grid>
+</UserControl>

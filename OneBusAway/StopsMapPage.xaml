@@ -1,0 +1,119 @@
+﻿<view:AViewPage
+    x:Class="OneBusAway.WP7.View.StopsMapPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:phone="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
+    xmlns:view="clr-namespace:OneBusAway.WP7.View"
+    FontFamily="{StaticResource PhoneFontFamilyNormal}"
+    FontSize="{StaticResource PhoneFontSizeNormal}"
+    Foreground="{StaticResource PhoneForegroundBrush}"
+    SupportedOrientations="Portrait" Orientation="Portrait"
+    mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
+    shell:SystemTray.IsVisible="True">
+
+    <view:AViewPage.Resources>
+        <view:MaxStopsConverter x:Key="MaxStopsConverter"></view:MaxStopsConverter>
+
+        <data:StopsMapVM x:Key="ViewModel" />
+        <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
+        <view:MaxZoomConverter x:Key="MaxZoomConverter"></view:MaxZoomConverter>
+
+        <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button 
+                            Width="65" Height="65"
+                            HorizontalContentAlignment="Stretch" 
+                            VerticalContentAlignment="Stretch" 
+                            BorderThickness="0" 
+                            Padding="0" 
+                            Click="BusStopPushpin_Click"
+                            Tag="{TemplateBinding Tag}"
+                            >
+                            <Image Source="/Bus_Icon.png" Margin="-3"/>
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+    </view:AViewPage.Resources>
+
+    <Grid x:Name="LayoutRoot" Background="{StaticResource PhoneBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="27"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <!--ScaleVisibility="Collapsed"-->
+        <m:Map Grid.Row="1" Grid.RowSpan="2" Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed"  CredentialsProvider="{StaticResource MapCredentials}"
+                Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" >
+            <m:MapLayer x:Name="BusStopsLayer" Canvas.ZIndex="2">
+                <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}"
+                                    Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}}">
+                    <m:MapItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopLargePushpinStyle}" Tag="{Binding id}" />
+                        </DataTemplate>
+                    </m:MapItemsControl.ItemTemplate>
+                </m:MapItemsControl>
+            </m:MapLayer>
+            <m:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10">
+                <m:Pushpin x:Name="StopInfoBox" Visibility="Collapsed">
+                    <Grid>
+                        <Grid.Background>
+                            <SolidColorBrush Color="{StaticResource OBAPrimaryColor}"/>
+                        </Grid.Background>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Name="StopName" Grid.Row="0" Foreground="{StaticResource OBAForegroundBrush}" Margin="2,2,4,2" />
+                        <TextBlock Name="StopRoutes" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2"/>
+                        <TextBlock Name="StopDirection" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2,0,2,2"/>
+                    </Grid>
+                </m:Pushpin>
+            </m:MapLayer>
+            <m:MapLayer x:Name="MyLocationLayer" Canvas.ZIndex="8">
+                <m:MapLayer.Children>
+                    <m:Pushpin Location="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}" PositionOrigin="Center" Style="{StaticResource MyLocationPushpinStyle}" />
+                </m:MapLayer.Children>
+            </m:MapLayer>
+        </m:Map>
+        
+        <!-- 
+        there should probably only be one of these "too many stops" indicators.
+        having two of them and making either one visible based on different conditions is ugly.
+        -->
+        <Border x:Name="TooManyStops1" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
+                       Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}, ConverterParameter=true}">
+            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
+                       Text="Too many stops. Zoom in to see nearby stops." />
+        </Border>
+        <Border x:Name="TooManyStops2" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
+                       Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}">
+            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
+                       Text="Too many stops. Zoom in to see nearby stops." />
+        </Border>
+        
+        <ProgressBar  Grid.Row="0"
+            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            IsIndeterminate="True" 
+            Height="4" 
+            HorizontalAlignment="Left" 
+            x:Name="LoadingProgressBar" 
+            VerticalAlignment="Top" 
+            Width="480" 
+            Style="{StaticResource PerformanceProgressBar}"
+            Foreground="{StaticResource OBAPrimaryBrush}"            
+            />
+    </Grid>
+
+</view:AViewPage>

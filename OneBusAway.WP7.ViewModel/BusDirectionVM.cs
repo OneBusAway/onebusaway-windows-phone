@@ -13,48 +13,57 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Reflection;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Collections.Generic;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
-    public class BusDirectionVM : IViewModel
+    public class BusDirectionVM : AViewModel
     {
-        private IBusServiceModel busServiceModel;
-
+        private Object routeDirectionsLock;
         public ObservableCollection<RouteStops> RouteDirections { get; private set; }
-        public Route CurrentRoute
-        {
-            get
-            {
-                return CurrentViewState.CurrentRoute;
-            }
-        }
-        public ViewState CurrentViewState
-        {
-            get
-            {
-                return ViewState.Instance;
-            }
-        }
+
+        private int pendingRouteDirectionsCount;
+        private List<RouteStops> pendingRouteDirections;
+
+        #region Constructors
 
         public BusDirectionVM()
-            : this((IBusServiceModel)Assembly.Load("OneBusAway.WP7.Model")
-                .GetType("OneBusAway.WP7.Model.BusServiceModel")
-                .GetField("Singleton")
-                .GetValue(null))
+            : base()
         {
-
+            Initialize();
         }
 
         public BusDirectionVM(IBusServiceModel busServiceModel)
+            : base(busServiceModel)
         {
-            RouteDirections = new ObservableCollection<RouteStops>();
-            this.busServiceModel = busServiceModel;
+            Initialize();
         }
 
-        public void LoadRouteDirections(Route route)
+        private void Initialize()
         {
-            RouteDirections.Clear();
-            busServiceModel.StopsForRoute(route);
+            routeDirectionsLock = new Object();
+            pendingRouteDirections = new List<RouteStops>();
+            pendingRouteDirectionsCount = 0;
+            RouteDirections = new ObservableCollection<RouteStops>();
+        }
+
+        #endregion
+
+        public void LoadRouteDirections(List<Route> routes)
+        {
+            lock (routeDirectionsLock)
+            {
+                RouteDirections.Clear();
+                pendingRouteDirections.Clear();
+            }
+
+            pendingRouteDirectionsCount += routes.Count;
+            foreach(Route route in routes)
+            {
+                operationTracker.WaitForOperation("StopsForRoute_" + route.id);
+                busServiceModel.StopsForRoute(route);
+            }
         }
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
@@ -63,25 +72,44 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                e.routeStops.ForEach(routeStop => RouteDirections.Add(routeStop));
+                lock (routeDirectionsLock)
+                {
+                    e.routeStops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
+
+                    // Subtract 1 because we haven't decremented the count yet
+                    if (pendingRouteDirectionsCount - 1 == 0)
+                    {
+                        if (LocationTracker.LocationKnown == true)
+                        {
+                            pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
+                        }
+
+                        pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
+                    }
+                }
             }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
+
+            pendingRouteDirectionsCount--;
+            operationTracker.DoneWithOperation("StopsForRoute_" + e.route.id);
         }
 
-        public void RegisterEventHandlers()
+        public override void RegisterEventHandlers(Dispatcher dispatcher)
         {
+            base.RegisterEventHandlers(dispatcher);
+
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
         }
 
-        public void UnregisterEventHandlers()
+        public override void UnregisterEventHandlers()
         {
-            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-        }
+            base.UnregisterEventHandlers();
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
+            this.operationTracker.ClearOperations();
         }
     }
 }

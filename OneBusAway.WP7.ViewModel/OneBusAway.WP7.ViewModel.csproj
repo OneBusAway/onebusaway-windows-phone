@@ -45,6 +45,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Phone" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Device" />
     <Reference Include="System.Runtime.Serialization" />
@@ -56,18 +57,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
+    <Compile Include="AppDataDataStructures\RecentRouteAndStop.cs" />
+    <Compile Include="AsyncOperationTracker.cs" />
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
     <Compile Include="BusServiceDataStructures\PolyLine.cs" />
-    <Compile Include="EventArgs\ABusServiceEventArgs.cs" />
+    <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
+    <Compile Include="EventArgs\AModelEventArgs.cs" />
     <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
+    <Compile Include="EventArgs\ErrorHandlerEventArgs.cs" />
     <Compile Include="EventArgs\FavoritesChangedEventArgs.cs" />
+    <Compile Include="EventArgs\LocationForAddressEventArgs.cs" />
     <Compile Include="EventArgs\ScheduleForStopEventArgs.cs" />
+    <Compile Include="EventArgs\SearchForRoutesEventArgs.cs" />
     <Compile Include="EventArgs\StopsForRouteEventArgs.cs" />
     <Compile Include="EventArgs\RoutesForLocationEventArgs.cs" />
     <Compile Include="EventArgs\StopsForLocationEventArgs.cs" />
     <Compile Include="EventArgs\TripDetailsForArrivalEventArgs.cs" />
+    <Compile Include="StopsMapVM.cs" />
     <Compile Include="IAppDataModel.cs" />
     <Compile Include="IBusServiceModel.cs" />
     <Compile Include="BusServiceDataStructures\DirectionSchedule.cs" />
@@ -76,10 +84,12 @@
     <Compile Include="BusServiceDataStructures\RouteSchedule.cs" />
     <Compile Include="BusServiceDataStructures\Stop.cs" />
     <Compile Include="BusServiceDataStructures\TripDetails.cs" />
-    <Compile Include="IViewModel.cs" />
+    <Compile Include="AViewModel.cs" />
+    <Compile Include="LocationTracker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MainPageVM.cs" />
     <Compile Include="RouteDetailsVM.cs" />
+    <Compile Include="SettingsVM.cs" />
     <Compile Include="ViewState.cs" />
   </ItemGroup>
   <ItemGroup />

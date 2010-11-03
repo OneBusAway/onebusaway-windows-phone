@@ -14,38 +14,45 @@ using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Windows.Navigation;
 using System.Collections.Specialized;
+using System.Device.Location;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class BusDirectionPage : PhoneApplicationPage
+    public partial class BusDirectionPage : AViewPage
     {
         private BusDirectionVM viewModel;
         private bool informationLoaded;
 
         public BusDirectionPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
 
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 
-            ProgressBar.Visibility = Visibility.Visible;
             informationLoaded = false;
-
-            viewModel.RouteDirections.CollectionChanged += new NotifyCollectionChangedEventHandler(CollectionChanged);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            viewModel.RegisterEventHandlers();
+            viewModel.RegisterEventHandlers(Dispatcher);
 
             // This prevents us from refreshing the data when someone comes back to this page
             // since the bus directions aren't going to change
             if (informationLoaded == false)
             {
-                viewModel.LoadRouteDirections(viewModel.CurrentViewState.CurrentRoute);
+                viewModel.LoadRouteDirections(viewModel.CurrentViewState.CurrentRoutes);
                 informationLoaded = true;
+            }
+            else
+            {
+                // If the information was already loaded clear the selection
+                // This way if they navigated back to this page one entry
+                // won't already be selected
+                BusDirectionListBox.SelectedIndex = -1;
             }
         }
 
@@ -56,24 +63,21 @@ namespace OneBusAway.WP7.View
             viewModel.UnregisterEventHandlers();
         }
 
-        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                ProgressBar.Visibility = Visibility.Collapsed;
-            }
-        }
-
         private void BusDirectionListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
+                viewModel.CurrentViewState.CurrentRoute = ((RouteStops)e.AddedItems[0]).route;
                 viewModel.CurrentViewState.CurrentRouteDirection = (RouteStops)e.AddedItems[0];
 
                 viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];
                 foreach (Stop stop in viewModel.CurrentViewState.CurrentRouteDirection.stops)
                 {
-                    if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(MainPage.CurrentLocation) > stop.CalculateDistanceInMiles(MainPage.CurrentLocation))
+                    // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
+                    // at this point during a tombstoning scenario
+                    GeoCoordinate location = viewModel.LocationTracker.CurrentLocation;
+
+                    if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
                     {
                         viewModel.CurrentViewState.CurrentStop = stop;
                     }

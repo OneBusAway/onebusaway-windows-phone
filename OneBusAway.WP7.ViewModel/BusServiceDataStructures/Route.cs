@@ -61,6 +61,21 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 
         public int Compare(Route x, Route y)
         {
+            if (x.closestStop == null && y.closestStop == null)
+            {
+                return 0;
+            }
+
+            if (x.closestStop == null)
+            {
+                return -1;
+            }
+
+            if (y.closestStop == null)
+            {
+                return 1;
+            }
+
             int result = x.closestStop.location.GetDistanceTo(center).CompareTo(y.closestStop.location.GetDistanceTo(center));
 
             // If the bus routes have the same closest stop sort by route number
