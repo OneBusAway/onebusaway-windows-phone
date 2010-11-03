@@ -42,6 +42,7 @@ namespace OneBusAway.WP7.Test
             model.ScheduleForStop_Completed += new EventHandler<ScheduleForStopEventArgs>(callback.callback_Completed);
             model.StopsForRoute_Completed += new EventHandler<StopsForRouteEventArgs>(callback.callback_Completed);
             model.TripDetailsForArrival_Completed += new EventHandler<TripDetailsForArrivalEventArgs>(callback.callback_Completed);
+            model.SearchForRoutes_Completed += new EventHandler<SearchForRoutesEventArgs>(callback.callback_Completed);
         }
 
         [TestInitialize]
@@ -62,7 +63,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void RoutesForLocation()
         {
-            ModelTest(() => model.RoutesForLocation(fakeData.HOME, 1000));
+            ModelTest(() => model.RoutesForLocation(fakeData.GREENLAKE_PR, 1000));
         }
 
         [TestMethod]
@@ -76,14 +77,28 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void StopsForLocation()
         {
-            ModelTest(() => model.StopsForLocation(fakeData.HOME, 1000));
+            ModelTest(() => model.StopsForLocation(fakeData.GREENLAKE_PR, 1000));
         }
 
         [TestMethod]
         [Asynchronous]
         public void StopsForRoute()
         {
-            ModelTest(() => model.StopsForRoute(fakeData.ROUTE));
+            ModelTest(() => model.StopsForRoute(fakeData.ROUTE_30));
+        }
+
+        [TestMethod]
+        [Asynchronous]
+        public void SearchForRoutes()
+        {
+            ModelTest(() => model.SearchForRoutes(fakeData.GREENLAKE_PR, "48"));
+        }
+
+        [TestMethod]
+        [Asynchronous]
+        public void SearchForRoutes_NoRouteFound()
+        {
+            ModelTest(() => model.SearchForRoutes(fakeData.GREENLAKE_PR, "RouteDoesNotExist"));
         }
 
         [TestMethod]

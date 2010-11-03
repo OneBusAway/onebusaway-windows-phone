@@ -20,26 +20,54 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember]
         public string id { get; set; }
         [DataMember]
-        public GeoCoordinate location { get; set; }
-        [DataMember]
         public string direction { get; set; }
         [DataMember]
         public string name { get; set; }
         public List<Route> routes { get; set; }
+        [DataMember]
+        public Coordinate coordinate { get; set; }
+
+        public GeoCoordinate location
+        {
+            get
+            {
+                if (coordinate != null)
+                {
+                    return new GeoCoordinate
+                    {
+                        Latitude = coordinate.Latitude,
+                        Longitude = coordinate.Longitude
+                    };
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            set
+            {
+                if (value != null)
+                {
+                    coordinate = new Coordinate
+                    {
+                        Latitude = value.Latitude,
+                        Longitude = value.Longitude
+                    };
+                }
+                else
+                {
+                    coordinate = null;
+                }
+            }
+        }
+
+        private const double kmPerMile = 1.60934400000644;
 
         public double CalculateDistanceInMiles(GeoCoordinate location2)
         {
-            double R = 3950; //mile conversion, 6371 for km
-
-            double dLat = toRadian(location.Latitude - location2.Latitude);
-            double dLon = toRadian(location.Longitude - location2.Longitude);
-            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                Math.Cos(toRadian(location2.Latitude)) * Math.Cos(toRadian(location.Latitude)) *
-                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-            double c = 2 * Math.Asin(Math.Min(1, Math.Sqrt(a)));
-            double d = R * c;
-
-            return d;
+            double meters = location.GetDistanceTo(location2);
+            return meters / (1000.0 * kmPerMile);
         }
 
         private static double toRadian(double val)

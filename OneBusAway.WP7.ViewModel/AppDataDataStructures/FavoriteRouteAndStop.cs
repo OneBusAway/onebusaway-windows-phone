@@ -18,12 +18,21 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
     [DataContract()]
     public class FavoriteRouteAndStop
     {
+        public const int CurrentVersion = 2;
+
         [DataMember]
         public Route route { get; set; }
         [DataMember]
         public RouteStops routeStops { get; set; }
         [DataMember]
         public Stop stop { get; set; }
+        [DataMember]
+        public int version { get; set; }
+
+        public FavoriteRouteAndStop()
+        {
+            version = CurrentVersion;
+        }
 
         public string Title
         {
@@ -64,10 +73,11 @@ namespace OneBusAway.WP7.ViewModel.AppDataDataStructures
             if (obj is FavoriteRouteAndStop)
             {
                 FavoriteRouteAndStop otherFavorite = (FavoriteRouteAndStop)obj;
+                
                 if (
-                    this.route == otherFavorite.route &&
-                    this.stop == otherFavorite.stop &&
-                    this.routeStops == otherFavorite.routeStops
+                    Object.Equals(this.route, otherFavorite.route) &&
+                    Object.Equals(this.stop, otherFavorite.stop) &&
+                    Object.Equals(this.routeStops, otherFavorite.routeStops)
                     )
                 {
                     return true;

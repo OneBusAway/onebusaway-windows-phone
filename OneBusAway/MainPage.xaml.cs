@@ -1,142 +1,146 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Device.Location;
 using System.Net;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
-using System.Device.Location;
-using Microsoft.Devices;
-using System.Windows.Data;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using Microsoft.Phone.Controls.Maps;
+using Microsoft.Phone.Controls.Maps.Core;
+using Microsoft.Phone.Shell;
 using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
-using Microsoft.Phone.Shell;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.View
 {
-    public partial class MainPage : PhoneApplicationPage
+    public partial class MainPage : AViewPage
     {
-        private static GeoCoordinateWatcher locationWatcher = new GeoCoordinateWatcher();
-
         private MainPageVM viewModel;
-        private bool informationLoaded;
-        private int selectedPivotIndex = 0;
-
-        public static GeoCoordinate CurrentLocation
-        {
-            get
-            {
-                if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-                {
-                    return new GeoCoordinate(47.67652682262796, -122.3183012008667); // Home
-                }
-
-                if (locationWatcher.Status == GeoPositionStatus.Ready)
-                {
-                    return locationWatcher.Position.Location;
-                }
-
-                // default to downtown Seattle
-                return new GeoCoordinate(47.644385, -122.135353);
-            }
-        }
-
-        private static GeoPositionStatus LocationStatus
-        {
-            get
-            {
-                if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-                {
-                    return GeoPositionStatus.Ready;
-                }
-
-                return locationWatcher.Status;
-            }
-        }
+        private bool firstLoad;
+        private Popup popup;
 
         public MainPage()
+            : base()
         {
             InitializeComponent();
+            base.Initialize();
 
-            viewModel = Resources["ViewModel"] as MainPageVM;
-            informationLoaded = false;
+            // It is the first launch of the app if this key doesn't exist.  Otherwise we are returning
+            // to the main page after tombstoning and showing the splash screen looks bad
+            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == false)
+            {
+                ShowLoadingSplash();
+            }
 
-            locationWatcher.Start();
-            locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
-
-            viewModel.StopsForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.RoutesForLocation.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
-            viewModel.Favorites.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(CollectionChanged);
+            viewModel = aViewModel as MainPageVM;
+            firstLoad = true;
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
         }
 
-        void MainPage_Loaded(object sender, RoutedEventArgs e)
+        private void ShowLoadingSplash()
         {
-            PC.SelectedIndex = selectedPivotIndex;
+            ApplicationBar.IsVisible = false;
+
+            this.popup = new Popup();
+            this.popup.Child = new PopupSplash();
+            this.popup.IsOpen = true;
+
+            DispatcherTimer splashTimer = new DispatcherTimer();
+            splashTimer.Interval = new TimeSpan(0, 0, 0, 3, 0); // 5 secs
+            splashTimer.Tick += new EventHandler(splashTimer_Tick);
+            splashTimer.Start();
         }
 
-        void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
+        void splashTimer_Tick(object sender, EventArgs e)
         {
-            if (LocationStatus == GeoPositionStatus.Ready && informationLoaded == false)
-            {
-                ProgressBar.Visibility = Visibility.Visible;
+            this.Dispatcher.BeginInvoke(() => { HideLoadingSplash(); });
 
-                viewModel.LoadInfoForLocation(CurrentLocation, 1000);
-                informationLoaded = true;
+            (sender as DispatcherTimer).Stop();
+        }
+
+        private void HideLoadingSplash()
+        {
+            if (this.popup != null)
+            {
+                this.popup.IsOpen = false;
             }
+
+            ApplicationBar.IsVisible = true;
+            SystemTray.IsVisible = true;
+        }
+
+        void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewModel.RegisterEventHandlers(Dispatcher);
+            viewModel.LoadFavorites();
+            viewModel.LoadInfoForLocation(1000);
+
+            viewModel.CheckForLocalTransitData(delegate(bool hasData)
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        if (hasData == false)
+                        {
+                            MessageBox.Show(
+                                "Currently the OneBusAway service only supports Seattle and the surrounding counties. " +
+                                "Many functions of this app will not work in your current location."
+                                );
+                        }
+                    });
+            });
+
+            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+                {
+                    Dispatcher.BeginInvoke(() => StopsMap.Center = location);
+                }
+            );
+
+            HideLoadingSplash();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
-            viewModel.RegisterEventHandlers();
-
-            // Ensure the location changed method is called each time this page is loaded
-            informationLoaded = false;
-            locationWatcher_StatusChanged(this, new GeoPositionStatusChangedEventArgs(LocationStatus));
-            viewModel.LoadFavorites(CurrentLocation);
-
-            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
+            if (firstLoad == true && PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
             {
-                selectedPivotIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
+                PC.SelectedIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
+                firstLoad = false;
             }
-            else
-            {
-                selectedPivotIndex = 0;
-            }
+
+            // We refresh this info every load so clear the lists now
+            // to avoid a flicker as the page comes back
+            viewModel.RoutesForLocation.Clear();
+            viewModel.StopsForLocation.Clear();
+            viewModel.Favorites.Clear();
+            viewModel.Recents.Clear();
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
 
-            viewModel.UnregisterEventHandlers();
-        }
+            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = PC.SelectedIndex;
 
-        void CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            {
-                ProgressBar.Visibility = Visibility.Collapsed;
-            }
+            viewModel.UnregisterEventHandlers();
         }
 
         private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
-                viewModel.CurrentViewState.CurrentRoute = (Route)e.AddedItems[0];
-                viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRoute.closestStop;
+                viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)e.AddedItems[0] };
 
                 NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
             }
@@ -144,8 +148,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            ProgressBar.Visibility = Visibility.Visible;
-            viewModel.LoadInfoForLocation(CurrentLocation, 1000);
+            viewModel.LoadInfoForLocation(1000, true);
         }
 
         private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -161,6 +164,11 @@ namespace OneBusAway.WP7.View
             }
         }
 
+        private void RecentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FavoritesListBox_SelectionChanged(sender, e);
+        }
+
         private void StopsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -173,10 +181,133 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void appbar_search_Click(object sender, EventArgs e)
         {
-            Pivot pivot = sender as Pivot;
-            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = pivot.SelectedIndex.ToString();
+            if (SearchPanel.Opacity == 0)
+            {
+                SearchStoryboard.Begin();
+                SearchInputBox.Focus();
+                SearchInputBox.SelectAll();
+            }
+            else
+            {
+                ProcessSearch(SearchInputBox.Text);
+            }
+        }
+
+
+        private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            this.Focus();
+        }
+
+        private void SearchByRouteCallback(List<Route> routes, Exception error)
+        {
+            Dispatcher.BeginInvoke(() =>
+                {
+                    SearchStoryboard.Seek(TimeSpan.Zero);
+                    SearchStoryboard.Stop();
+                    this.Focus();
+                });
+
+            if (error != null)
+            {
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
+            }
+            else if (routes.Count == 0)
+            {
+                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoutes = routes;
+                        NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+                    });
+            }
+        }
+
+        private void SearchByStopCallback(List<Stop> stops, Exception error)
+        {
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+            this.Focus();
+
+            if (error != null)
+            {
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
+            }
+            else if (stops.Count == 0)
+            {
+                MessageBox.Show("No results found");
+            }
+            else
+            {
+                viewModel.CurrentViewState.CurrentRoute = null;
+                viewModel.CurrentViewState.CurrentRouteDirection = null;
+                viewModel.CurrentViewState.CurrentStop = stops[0];
+
+                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            }
+        }
+
+        private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            string searchString = SearchInputBox.Text;
+
+            if (e.Key == Key.Enter)
+            {
+                ProcessSearch(searchString);
+            }
+        }
+
+        private void ProcessSearch(string searchString)
+        {
+            int routeNumber = 0;
+
+            bool canConvert = int.TryParse(searchString, out routeNumber); //check if it's a number
+            if (canConvert == true) //it's a route or stop number
+            {
+                int number = int.Parse(searchString);
+                if (number < 1000) //route number
+                {
+                    viewModel.SearchByRoute(searchString, SearchByRouteCallback);
+                }
+                else //stop number
+                {
+                    viewModel.SearchByStop(searchString, SearchByStopCallback);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Try typing a route or stop number, for example '48' or '11132'.");
+            }
+
+            //TODO: add this back when we implement search by address 
+            //else
+            //{
+            //try geocoding
+            //viewModel.SearchByAddress(searchString, null);
+            //}
+
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+        }
+
+        private void appbar_settings_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
+        }
+
+        private void appbar_about_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
+
+        private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 
     }
