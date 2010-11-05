@@ -53,6 +53,11 @@ namespace OneBusAway.WP7.Model
 
         #region Public Methods
 
+        public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
+        {
+            return webservice.GetRoundedLocation(location1) == webservice.GetRoundedLocation(location2);
+        }
+
         public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters)
         {
             CombinedInfoForLocation(location, radiusInMeters, -1);
@@ -71,7 +76,7 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, Exception e)
+                delegate(List<Stop> stops, bool limitExceeded, Exception e)
                 {
                     Exception error = e;
                     List<Route> routes = new List<Route>();
@@ -127,11 +132,11 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, Exception error)
+                delegate(List<Stop> stops, bool limitExceeded, Exception error)
                 {
                     if (StopsForLocation_Completed != null)
                     {
-                        StopsForLocation_Completed(this, new ViewModel.EventArgs.StopsForLocationEventArgs(stops, location, error));
+                        StopsForLocation_Completed(this, new ViewModel.EventArgs.StopsForLocationEventArgs(stops, location, limitExceeded, error));
                     }
                 }
             );
@@ -155,7 +160,7 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, Exception e)
+                delegate(List<Stop> stops, bool limitExceeded, Exception e)
                 {
                     Exception error = e;
                     List<Route> routes = new List<Route>();
@@ -316,7 +321,7 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 false,
-                delegate(List<Stop> stops, Exception error)
+                delegate(List<Stop> stops, bool limitExceeded, Exception error)
                 {
                     if (SearchForStops_Completed != null)
                     {

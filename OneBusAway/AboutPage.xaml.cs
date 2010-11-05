@@ -25,6 +25,18 @@ namespace OneBusAway.WP7.View
             VersionTextBlock.Text = "Version " + "1.7.0.0";
         }
 
+        // Methods overridden for analytics purposes
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+        }
+
+        // Methods overridden for analytics purposes
+        protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+        }
+
         private void FeedbackButton_Click(object sender, RoutedEventArgs e)
         {
             EmailComposeTask emailComposeTask = new EmailComposeTask();

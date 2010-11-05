@@ -21,6 +21,14 @@ namespace OneBusAway.WP7.Model
         private const string KEY = "v1_C5%2Baiesgg8DxpmG1yS2F%2Fpj2zHk%3Dc3BoZW5yeUBnbWFpbC5jb20%3D=";
         private const int APIVERSION = 2;
 
+        // This decides which decimal place we round
+        // Ex: roundingLevel = 2, -122.123 -> -122.12
+        private const int roundingLevel = 2;
+        // This decides what fraction of a whole number we round to
+        // Ex: multiplier = 2, we round to the nearest 0.5
+        // Ex: multipler = 3, we round to the nearest 0.33
+        private const int multiplier = 3;
+
         private HttpCache stopsCache;
         private HttpCache directionCache;
 
@@ -28,7 +36,7 @@ namespace OneBusAway.WP7.Model
 
         #region Delegates
 
-        public delegate void StopsForLocation_Callback(List<Stop> stops, Exception error);
+        public delegate void StopsForLocation_Callback(List<Stop> stops, bool limitExceeded, Exception error);
         public delegate void RoutesForLocation_Callback(List<Route> routes, Exception error);
         public delegate void StopsForRoute_Callback(List<RouteStops> routeStops, Exception error);
         public delegate void ArrivalsForStop_Callback(List<ArrivalAndDeparture> arrivals, Exception error);
@@ -150,12 +158,7 @@ namespace OneBusAway.WP7.Model
 
         public void StopsForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
         {
-            // Round off coordinates so that we can exploit caching.
-            // At Seattle's latitude, rounding to 3 decimal places moves the location by at most 50 or so meters.
-            GeoCoordinate roundedLocation = new GeoCoordinate(
-                Math.Round(location.Latitude, 3),
-                Math.Round(location.Longitude, 3)
-            );
+            GeoCoordinate roundedLocation = GetRoundedLocation(location);
 
             string requestString = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
@@ -204,6 +207,7 @@ namespace OneBusAway.WP7.Model
             {
                 Exception error = e.Error;
                 List<Stop> stops = null;
+                bool limitExceeded = false;
 
                 try
                 {
@@ -223,6 +227,14 @@ namespace OneBusAway.WP7.Model
                                      where SafeGetValue(route.Element("id")) == SafeGetValue(routeId)
                                      select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
                                 )).ToList<Stop>();
+
+                        IEnumerable<XElement> descendants = xmlDoc.Descendants("data");
+                        if (descendants.Count() != 0)
+                        {
+                            limitExceeded = bool.Parse(SafeGetValue(descendants.First().Element("limitExceeded")));
+                        }
+
+                        Debug.Assert(limitExceeded == false);
                     }
                 }
                 catch (WebserviceResponseException ex)
@@ -243,7 +255,7 @@ namespace OneBusAway.WP7.Model
                     stopsCache.Invalidate(new Uri(requestUrl));
                 }
 
-                callback(stops, error);
+                callback(stops, limitExceeded, error);
             }
         }
 
@@ -751,7 +763,23 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
-        #region Private Methods
+        #region Internal/Private Methods
+
+        internal GeoCoordinate GetRoundedLocation(GeoCoordinate location)
+        {
+            //// Round off coordinates so that we can exploit caching
+            double lat = Math.Round(location.Latitude * multiplier, roundingLevel) / multiplier;
+            double lon = Math.Round(location.Longitude * multiplier, roundingLevel) / multiplier;
+
+            // Round off the extra decimal places to prevent double precision issues
+            // from causing multiple cache entires
+            GeoCoordinate roundedLocation = new GeoCoordinate(
+                Math.Round(lat, roundingLevel + 1),
+                Math.Round(lon, roundingLevel + 1)
+            );
+
+            return roundedLocation;
+        }
 
         private static DateTime UnixTimeToDateTime(long unixTime)
         {
