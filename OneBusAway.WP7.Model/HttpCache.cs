@@ -24,6 +24,7 @@ namespace OneBusAway.WP7.Model
         private object fileAccessSync = new object();
 
         private CacheMetadata metadata;
+        private Timer reportingTimer;
 
         /// <summary>
         /// Allows multiple caches to coexist in storage.
@@ -58,6 +59,8 @@ namespace OneBusAway.WP7.Model
             CacheMisses = 0;
             CacheExpirations = 0;
             CacheEvictions = 0;
+
+            reportingTimer = new Timer(new TimerCallback(CacheReportTrigger), null, new TimeSpan(0, 1, 0), new TimeSpan(0, 1, 0));
         }
 
         #region public methods
@@ -147,6 +150,27 @@ namespace OneBusAway.WP7.Model
         public int CacheMisses { get; private set; }
         public int CacheExpirations { get; private set; }
         public int CacheEvictions { get; private set; }
+
+        private IDictionary<string, string> ReportCacheStats()
+        {
+            IDictionary<string, string> cacheStats = new Dictionary<string, string>();
+            cacheStats.Add("name", Name);
+            cacheStats.Add("calls", CacheCalls.ToString());
+            cacheStats.Add("hits", CacheHits.ToString());
+            cacheStats.Add("misses", CacheMisses.ToString());
+            cacheStats.Add("expirations", CacheExpirations.ToString());
+            cacheStats.Add("evictions", CacheEvictions.ToString());
+
+            return cacheStats;
+        }
+
+        // This method will be called by the timer, and have an attribute attached
+        // which will cause the analytics to call ReportCacheStats() and gather
+        // the analytics
+        private void CacheReportTrigger(object param)
+        {
+            
+        }
 
         #endregion
 
@@ -492,6 +516,9 @@ namespace OneBusAway.WP7.Model
                 }
                 catch (Exception e)
                 {
+                    // TODO: Web exceptions will be caught here, and we just pass up
+                    // that exception instead of recasting it to a WebserviceResponseException().
+                    // This will result in the loss of the RequestUrl.
                     Debug.Assert(false);
                     newArgs = new CacheDownloadStringCompletedEventArgs(e);
                 }

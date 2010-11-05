@@ -84,7 +84,7 @@ namespace OneBusAway.WP7.View
         {
             viewModel.RegisterEventHandlers(Dispatcher);
             viewModel.LoadFavorites();
-            viewModel.LoadInfoForLocation(1000);
+            viewModel.LoadInfoForLocation();
 
             viewModel.CheckForLocalTransitData(delegate(bool hasData)
             {
@@ -148,7 +148,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            viewModel.LoadInfoForLocation(1000, true);
+            viewModel.LoadInfoForLocation(true);
         }
 
         private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

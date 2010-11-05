@@ -21,6 +21,7 @@ namespace OneBusAway.WP7.ViewModel
     {
         private Object stopsForLocationCompletedLock;
         private Object stopsForLocationLock;
+        private GeoCoordinate previousQuery;
 
         #region Constructors
 
@@ -41,6 +42,7 @@ namespace OneBusAway.WP7.ViewModel
             stopsForLocationCompletedLock = new Object();
             stopsForLocationLock = new Object();
             StopsForLocation = new ObservableCollection<Stop>();
+            previousQuery = new GeoCoordinate();
         }
 
         #endregion
@@ -49,22 +51,20 @@ namespace OneBusAway.WP7.ViewModel
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
 
-        public void LoadStopsForLocation(GeoCoordinate topLeft, GeoCoordinate bottomRight)
+        public void LoadStopsForLocation(GeoCoordinate center)
         {
-            GeoCoordinate center = new GeoCoordinate()
+            // If the two queries are being rounded to the same coordinate, no 
+            // reason to re-parse the data out of the cache
+            if (busServiceModel.AreLocationsEquivalent(previousQuery, center) == true)
             {
-                Latitude = (topLeft.Latitude + bottomRight.Latitude) / 2,
-                Longitude = (topLeft.Longitude + bottomRight.Longitude) / 2
-            };
-
-            int radiusInMeters = ((int)topLeft.GetDistanceTo(bottomRight)) / 2;
-            // Query for at least a 250m radius and less than a 1km radius
-            radiusInMeters = Math.Max(radiusInMeters, 250);
-            radiusInMeters = Math.Min(radiusInMeters, 3000);
+                return;
+            }
 
             this.LoadingText = "Loading stops";
             operationTracker.WaitForOperation("StopsForLocation");
-            busServiceModel.StopsForLocation(center, radiusInMeters);
+
+            previousQuery = center;
+            busServiceModel.StopsForLocation(center, defaultSearchRadius);
         }
 
         public override void RegisterEventHandlers(Dispatcher dispatcher)

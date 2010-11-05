@@ -55,9 +55,9 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Methods
 
-        public void LoadInfoForLocation(int radiusInMeters)
+        public void LoadInfoForLocation()
         {
-            LoadInfoForLocation(radiusInMeters, false);
+            LoadInfoForLocation(false);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         /// <param name="radiusInMeters"></param>
         /// <param name="invalidateCache">If true, will discard any cached result and requery the server</param>
-        public void LoadInfoForLocation(int radiusInMeters, bool invalidateCache)
+        public void LoadInfoForLocation(bool invalidateCache)
         {
             StopsForLocation.Clear();
             RoutesForLocation.Clear();
@@ -73,7 +73,7 @@ namespace OneBusAway.WP7.ViewModel
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
                 UIAction(() => this.LoadingText = "Searching for buses...");
-                busServiceModel.CombinedInfoForLocation(location, radiusInMeters, -1, invalidateCache);
+                busServiceModel.CombinedInfoForLocation(location, defaultSearchRadius, -1, invalidateCache);
             });
         }
 
@@ -316,7 +316,7 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                LoadInfoForLocation(1000);
+                LoadInfoForLocation();
             }
             else
             {

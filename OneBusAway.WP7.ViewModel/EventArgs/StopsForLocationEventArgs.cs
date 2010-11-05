@@ -11,12 +11,14 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
     {
         public List<Stop> stops { get; private set; }
         public GeoCoordinate location { get; private set; }
+        public bool limitExceeded { get; private set; }
 
-        public StopsForLocationEventArgs(List<Stop> stops, GeoCoordinate searchLocation, Exception error)
+        public StopsForLocationEventArgs(List<Stop> stops, GeoCoordinate searchLocation, bool limitExceeded, Exception error)
         {
             this.error = error;
             this.stops = stops;
             this.location = searchLocation;
+            this.limitExceeded = limitExceeded;
         }
     }
 }
