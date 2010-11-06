@@ -49,8 +49,8 @@ namespace OneBusAway.WP7.Model
 
         public OneBusAwayWebservice()
         {
-            stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(7).TotalSeconds, 300);
-            directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(7).TotalSeconds, 100);
+            stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
+            directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(15).TotalSeconds, 100);
         }
 
         #endregion

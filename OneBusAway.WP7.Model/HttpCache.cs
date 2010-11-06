@@ -154,12 +154,12 @@ namespace OneBusAway.WP7.Model
         private IDictionary<string, string> ReportCacheStats()
         {
             IDictionary<string, string> cacheStats = new Dictionary<string, string>();
-            cacheStats.Add("name", Name);
-            cacheStats.Add("calls", CacheCalls.ToString());
-            cacheStats.Add("hits", CacheHits.ToString());
-            cacheStats.Add("misses", CacheMisses.ToString());
-            cacheStats.Add("expirations", CacheExpirations.ToString());
-            cacheStats.Add("evictions", CacheEvictions.ToString());
+            cacheStats.Add(string.Format("{0}-calls", Name), CacheCalls.ToString());
+            cacheStats.Add(string.Format("{0}-hits", Name), CacheHits.ToString());
+            cacheStats.Add(string.Format("{0}-misses", Name), CacheMisses.ToString());
+            cacheStats.Add(string.Format("{0}-expirations", Name), CacheExpirations.ToString());
+            cacheStats.Add(string.Format("{0}-evictions", Name), CacheEvictions.ToString());
+            cacheStats.Add(string.Format("{0}-numberEntires", Name), metadata.GetNumberEntries().ToString());
 
             return cacheStats;
         }
@@ -261,35 +261,46 @@ namespace OneBusAway.WP7.Model
         /// <param name="iso"></param>
         private void EvictIfNecessary(IsolatedStorageFile iso)
         {
-            string[] filesInCache = iso.GetFileNames(this.Name + "\\*");
-            if (filesInCache.Length >= this.Capacity)
+            if (metadata.GetNumberEntries() >= this.Capacity)
             {
-                DateTime oldestFileTime = DateTime.MaxValue;
-                string oldestFileName = null;
-                foreach (string filename in filesInCache)
+                string[] filesInCache = iso.GetFileNames(this.Name + "\\*");
+
+                // This should never happen, but if the file count doesn't match
+                // go and clean up the cache
+                if (filesInCache.Length != metadata.GetNumberEntries())
                 {
-                    // the GetFileNames call above does not return qualified paths, but we expect those for the rest of the calls
-                    string qualifiedFilename = Path.Combine(this.Name, filename);
-                    DateTime? updateTime = metadata.GetUpdateTime(qualifiedFilename);
-                    if (null == updateTime)
+                    Debug.Assert(false);
+
+                    foreach (string filename in filesInCache)
                     {
-                        // Then we have a file in the cache, but no record of it being put there... clean it up
-                        // Most common way to hit this would be that I changed the internal naming format between versions.
-                        iso.DeleteFile(qualifiedFilename);
-                    }
-                    else
-                    {
-                        if (updateTime.Value < oldestFileTime)
+                        // the GetFileNames call above does not return qualified paths, but we expect those for the rest of the calls
+                        string qualifiedFilename = Path.Combine(this.Name, filename);
+                        DateTime? updateTime = metadata.GetUpdateTime(qualifiedFilename);
+                        if (null == updateTime)
                         {
-                            oldestFileTime = updateTime.Value;
-                            oldestFileName = qualifiedFilename;
+                            // Then we have a file in the cache, but no record of it being put there... clean it up
+                            // Most common way to hit this would be that I changed the internal naming format between versions.
+                            lock (fileAccessSync)
+                            {
+                                iso.DeleteFile(qualifiedFilename);
+                            }
                         }
                     }
                 }
-                if (oldestFileName != null)
+
+                KeyValuePair<string, DateTime> oldestFile = metadata.GetOldestFile();
+
+                // If we are over capacity, there should always be at least one over-capacity file
+                Debug.Assert(string.IsNullOrEmpty(oldestFile.Key) == false);
+
+                if (string.IsNullOrEmpty(oldestFile.Key) == false)
                 {
-                    iso.DeleteFile(oldestFileName);
-                    metadata.RemoveUpdateTime(oldestFileName);
+                    lock (fileAccessSync)
+                    {
+                        iso.DeleteFile(oldestFile.Key);
+                    }
+
+                    metadata.RemoveUpdateTime(oldestFile.Key);
                     CacheEvictions++;
                 }
             }
@@ -353,7 +364,10 @@ namespace OneBusAway.WP7.Model
                 // purge the entry from the cache
                 using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    iso.DeleteFile(fileName);
+                    lock (fileAccessSync)
+                    {
+                        iso.DeleteFile(fileName);
+                    }
                 }
 
                 // and purge the metadata entry
@@ -424,8 +438,7 @@ namespace OneBusAway.WP7.Model
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
 
-                //TODO: this was throwing, temporarily disabled
-              //  IsolatedStorageSettings.ApplicationSettings.Save();
+                IsolatedStorageSettings.ApplicationSettings.Save();
             }
 
             public void RemoveUpdateTime(string filename)
@@ -434,6 +447,26 @@ namespace OneBusAway.WP7.Model
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
                 IsolatedStorageSettings.ApplicationSettings.Save();
+            }
+
+            public int GetNumberEntries()
+            {
+                return fileUpdateTimes.Count;
+            }
+
+            public KeyValuePair<string, DateTime> GetOldestFile()
+            {
+                KeyValuePair<string, DateTime> oldestFile = new KeyValuePair<string, DateTime>(string.Empty, DateTime.Now);
+
+                foreach (KeyValuePair<string, DateTime> fileUpdateTime in fileUpdateTimes)
+                {
+                    if (fileUpdateTime.Value < oldestFile.Value)
+                    {
+                        oldestFile = fileUpdateTime;
+                    }
+                }
+
+                return oldestFile;
             }
 
             public void Clear()
