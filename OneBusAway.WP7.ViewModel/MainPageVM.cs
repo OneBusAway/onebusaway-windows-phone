@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -37,7 +38,7 @@ namespace OneBusAway.WP7.ViewModel
         private void Initialize()
         {
             StopsForLocation = new ObservableCollection<Stop>();
-            RoutesForLocation = new ObservableCollection<Route>();
+            DisplayRouteForLocation = new ObservableCollection<DisplayRoute>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
             Recents = new ObservableCollection<FavoriteRouteAndStop>();
         }
@@ -47,7 +48,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Properties
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
-        public ObservableCollection<Route> RoutesForLocation { get; private set; }
+        public ObservableCollection<DisplayRoute> DisplayRouteForLocation { get; private set; } 
         public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
         public ObservableCollection<FavoriteRouteAndStop> Recents { get; private set; }
 
@@ -68,7 +69,7 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadInfoForLocation(bool invalidateCache)
         {
             StopsForLocation.Clear();
-            RoutesForLocation.Clear();
+            DisplayRouteForLocation.Clear();
             operationTracker.WaitForOperation("CombinedInfoForLocation");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
@@ -152,6 +153,7 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed += new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+            this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -163,6 +165,7 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.CombinedInfoForLocation_Completed -= new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
             this.busServiceModel.LocationForAddress_Completed -= new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+            this.busServiceModel.StopsForRoute_Completed -= new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -196,7 +199,8 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                    viewModel.UIAction(() => viewModel.RoutesForLocation.Clear());
+                    viewModel.UIAction(() => viewModel.DisplayRouteForLocation.Clear());
+
                     
                     int count = 0;
                     foreach (Route route in e.routes)
@@ -207,7 +211,6 @@ namespace OneBusAway.WP7.ViewModel
                         }
 
                         Route currentRoute = route;
-                        viewModel.UIAction(() => viewModel.RoutesForLocation.Add(currentRoute));
                         count++;
                     }
                         
@@ -298,7 +301,11 @@ namespace OneBusAway.WP7.ViewModel
                     }
 
                     Route currentRoute = route;
-                    UIAction(() => RoutesForLocation.Add(currentRoute));
+                    DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
+
+                    UIAction(() => DisplayRouteForLocation.Add(currentDisplayRoute));
+
+                    UIAction(() => busServiceModel.StopsForRoute(currentRoute));
                     routeCount++;
                 }
             }
@@ -308,6 +315,37 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             operationTracker.DoneWithOperation("CombinedInfoForLocation");
+        }
+        private object displayRouteLock = new Object();
+        void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
+        {
+            Debug.Assert(e.error == null);
+
+            if (e.error == null)
+            {
+                
+                lock (displayRouteLock)
+                {
+                    UIAction(() =>
+                    {
+                        foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
+                        {
+
+                            if (e.route.Equals(displayRoute.Route))
+                            {
+                                e.routeStops.ForEach(r => displayRoute.RouteStops.Add(r));
+                                //TODO only block on this section
+                                //UIAction(() => e.routeStops.ForEach(r => displayRoute.RouteStops.Add(r)));
+                            }
+                        }
+                    });
+                 }
+
+            }
+            else
+            {
+                ErrorOccured(this, e.error);
+            }
         }
 
         void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
@@ -365,5 +403,39 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
+    }
+
+    public class DisplayRoute : INotifyPropertyChanged
+    {
+        public ObservableCollection<RouteStops> routeStops = new ObservableCollection<RouteStops>();
+        public ObservableCollection<RouteStops> RouteStops { get { return routeStops; } }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
+            }
+        }
+
+        private Route route;
+        public Route Route
+        {
+            get
+            {
+                return this.route;
+            }
+
+            set
+            {
+                if (value != this.route)
+                {
+                    this.route = value;
+                    NotifyPropertyChanged("Route");
+                }
+            }
+        }
     }
 }

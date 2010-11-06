@@ -121,7 +121,7 @@ namespace OneBusAway.WP7.View
 
             // We refresh this info every load so clear the lists now
             // to avoid a flicker as the page comes back
-            viewModel.RoutesForLocation.Clear();
+            viewModel.DisplayRouteForLocation.Clear();
             viewModel.StopsForLocation.Clear();
             viewModel.Favorites.Clear();
             viewModel.Recents.Clear();
@@ -134,16 +134,6 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State["MainPageSelectedPivot"] = PC.SelectedIndex;
 
             viewModel.UnregisterEventHandlers();
-        }
-
-        private void RoutesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)e.AddedItems[0] };
-
-                NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
-            }
         }
 
         private void appbar_refresh_Click(object sender, EventArgs e)
@@ -308,6 +298,30 @@ namespace OneBusAway.WP7.View
         private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+        }
+
+        private void DirectionButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
+            viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
+
+            viewModel.CurrentViewState.CurrentRoute = routeStops.route;
+            viewModel.CurrentViewState.CurrentRouteDirection = routeStops;
+
+            viewModel.CurrentViewState.CurrentStop = viewModel.CurrentViewState.CurrentRouteDirection.stops[0];
+            foreach (Stop stop in viewModel.CurrentViewState.CurrentRouteDirection.stops)
+            {
+                // TODO: Make this call location-unknown safe.  The CurrentLocation could be unknown
+                // at this point during a tombstoning scenario
+                GeoCoordinate location = viewModel.LocationTracker.CurrentLocation;
+
+                if (viewModel.CurrentViewState.CurrentStop.CalculateDistanceInMiles(location) > stop.CalculateDistanceInMiles(location))
+                {
+                    viewModel.CurrentViewState.CurrentStop = stop;
+                }
+            }
+
+            NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
         }
 
     }
