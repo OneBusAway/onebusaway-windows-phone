@@ -438,7 +438,7 @@ namespace OneBusAway.WP7.Model
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
 
-                IsolatedStorageSettings.ApplicationSettings.Save();
+                //IsolatedStorageSettings.ApplicationSettings.Save();
             }
 
             public void RemoveUpdateTime(string filename)
