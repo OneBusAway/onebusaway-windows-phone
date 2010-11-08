@@ -122,7 +122,7 @@ namespace OneBusAway.WP7.View
 
         void DetailsMap_MapPan(object sender, MapDragEventArgs e)
         {
-            GeoCoordinate center = DetailsMap.Center;
+            GeoCoordinate center = DetailsMap.TargetCenter;
             mapHasMoved = true;
 
             if (DetailsMap.TargetZoomLevel >= minZoomLevel)
