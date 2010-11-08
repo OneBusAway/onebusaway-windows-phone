@@ -230,9 +230,12 @@ namespace OneBusAway.WP7.View
 
         private void SearchByStopCallback(List<Stop> stops, Exception error)
         {
-            SearchStoryboard.Seek(TimeSpan.Zero);
-            SearchStoryboard.Stop();
-            this.Focus();
+            Dispatcher.BeginInvoke(() =>
+                {
+                    SearchStoryboard.Seek(TimeSpan.Zero);
+                    SearchStoryboard.Stop();
+                    this.Focus();
+                });
 
             if (error != null)
             {
@@ -247,8 +250,42 @@ namespace OneBusAway.WP7.View
                 viewModel.CurrentViewState.CurrentRoute = null;
                 viewModel.CurrentViewState.CurrentRouteDirection = null;
                 viewModel.CurrentViewState.CurrentStop = stops[0];
+                viewModel.CurrentViewState.CurrentSearchLocation = null;
 
                 NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            }
+        }
+
+        private void SearchByLocationCallback(LocationForQuery location, Exception error)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                SearchStoryboard.Seek(TimeSpan.Zero);
+                SearchStoryboard.Stop();
+                this.Focus();
+            });
+
+            if (error != null)
+            {
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
+            }
+            else if (location == null)
+            {
+                string message = 
+                    "Search for a route: 44\r\n" +
+                    "Search by stop number: 11132\r\n" + 
+                    "Find a landmark: Space Needle\r\n" +
+                    "Or an address: 1 Microsoft Way";
+                MessageBox.Show(message, "No results found", MessageBoxButton.OK);
+            }
+            else
+            {
+                viewModel.CurrentViewState.CurrentRoute = null;
+                viewModel.CurrentViewState.CurrentRouteDirection = null;
+                viewModel.CurrentViewState.CurrentStop = null;
+                viewModel.CurrentViewState.CurrentSearchLocation = location;
+
+                NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
             }
         }
 
@@ -279,17 +316,10 @@ namespace OneBusAway.WP7.View
                     viewModel.SearchByStop(searchString, SearchByStopCallback);
                 }
             }
-            else
+            else // Try to find the location
             {
-                MessageBox.Show("Try typing a route or stop number, for example '48' or '11132'.");
+                viewModel.SearchByAddress(searchString, SearchByLocationCallback);
             }
-
-            //TODO: add this back when we implement search by address 
-            //else
-            //{
-            //try geocoding
-            //viewModel.SearchByAddress(searchString, null);
-            //}
 
             SearchStoryboard.Seek(TimeSpan.Zero);
             SearchStoryboard.Stop();
@@ -307,6 +337,11 @@ namespace OneBusAway.WP7.View
 
         private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
         {
+            viewModel.CurrentViewState.CurrentRoute = null;
+            viewModel.CurrentViewState.CurrentRouteDirection = null;
+            viewModel.CurrentViewState.CurrentSearchLocation = null;
+            viewModel.CurrentViewState.CurrentStop = null;
+
             NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 

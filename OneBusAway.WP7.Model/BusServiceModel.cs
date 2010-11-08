@@ -17,6 +17,7 @@ using System.IO;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using Microsoft.Phone.Controls.Maps;
 
 namespace OneBusAway.WP7.Model
 {
@@ -331,35 +332,38 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void LocationForAddress(string query)
+        public void LocationForAddress(string query, GeoCoordinate searchNearLocation)
         {
-            string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations/US/WA/-";
+            string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations";
             //http://dev.virtualearth.net/REST/v1/Locations/US/WA/Redmond/1%20Microsoft%20Way?output=xml&key=ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm
             string requestUrl = string.Format(
-                "{0}/{1}?output=xml&key={2}",
+                "{0}?query={1}&key={2}&o=xml&userLocation={3}",
                 bingMapAPIURL,
-                query,
-                "ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm"
+                query.Replace('&', ' '),
+                "ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm",
+                string.Format("{0},{1}", searchNearLocation.Latitude, searchNearLocation.Longitude)
             );
 
             WebClient client = new WebClient();
             client.DownloadStringCompleted += new DownloadStringCompletedEventHandler(
                 new GetLocationForAddressCompleted(requestUrl,
-                        delegate(GeoCoordinate location, Exception error)
+                        delegate(List<LocationForQuery> locations, Exception error)
                         {
-                            if (error == null)
+                            if (LocationForAddress_Completed != null)
                             {
-                                if (LocationForAddress_Completed != null)
-                                {
-                                    LocationForAddress_Completed(this, new ViewModel.EventArgs.LocationForAddressEventArgs(location, query, error));
-                                }
+                                LocationForAddress_Completed(this, new ViewModel.EventArgs.LocationForAddressEventArgs(
+                                        locations,
+                                        query,
+                                        searchNearLocation,
+                                        error
+                                        ));
                             }
                         }
                     ).LocationForAddress_Completed);
             client.DownloadStringAsync(new Uri(requestUrl));
         }
 
-        public delegate void LocationForAddress_Callback(GeoCoordinate location, Exception error);
+        public delegate void LocationForAddress_Callback(List<LocationForQuery> locations, Exception error);
         private class GetLocationForAddressCompleted
         {
             private LocationForAddress_Callback callback;
@@ -374,8 +378,8 @@ namespace OneBusAway.WP7.Model
             public void LocationForAddress_Completed(object sender, DownloadStringCompletedEventArgs e)
             {
                 Exception error = e.Error;
-                GeoCoordinate loc = null;
-
+                List<LocationForQuery> locations = null;
+                
                 try
                 {
                     if (error == null)
@@ -384,13 +388,26 @@ namespace OneBusAway.WP7.Model
 
                         XNamespace ns = "http://schemas.microsoft.com/search/local/ws/rest/v1";
 
-
-                        loc = (from location in xmlDoc.Descendants(ns + "Point")
-                               select new GeoCoordinate
+                        locations = (from location in xmlDoc.Descendants(ns + "Location")
+                               select new LocationForQuery
                                {
-                                   Latitude = Convert.ToDouble(location.Element(ns + "Latitude").Value),
-                                   Longitude = Convert.ToDouble(location.Element(ns + "Longitude").Value)
-                               }).First();
+                                   location = new GeoCoordinate(
+                                       Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Latitude").Value),
+                                       Convert.ToDouble(location.Element(ns + "Point").Element(ns + "Longitude").Value)
+                                       ),
+                                    name = location.Element(ns + "Name").Value,
+                                    confidence = (Confidence)Enum.Parse(
+                                        typeof(Confidence),
+                                        location.Element(ns + "Confidence").Value,
+                                        true
+                                        ),
+                                   boundingBox = new LocationRect(
+                                        Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "NorthLatitude").Value),
+                                        Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "WestLongitude").Value),
+                                        Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "SouthLatitude").Value),
+                                        Convert.ToDouble(location.Element(ns + "BoundingBox").Element(ns + "EastLongitude").Value)
+                                        )
+                               }).ToList();
 
                     }
                 }
@@ -401,7 +418,7 @@ namespace OneBusAway.WP7.Model
 
                 Debug.Assert(error == null);
 
-                callback(loc, error);
+                callback(locations, error);
             }
         }
 

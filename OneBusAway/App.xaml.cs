@@ -45,6 +45,7 @@ namespace OneBusAway.WP7.View
             viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
             viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
             viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
+            viewState.CurrentSearchLocation = (LocationForQuery)GetStateHelper("CurrentSearchLocation", typeof(LocationForQuery));
         }
 
         private object GetStateHelper(string key, Type type)
@@ -67,6 +68,7 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State["CurrentRoutes"] = Serialize(viewState.CurrentRoutes);
             PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
             PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
+            PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
         }
 
         private string Serialize(Object obj)
