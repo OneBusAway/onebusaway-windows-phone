@@ -198,6 +198,8 @@ namespace OneBusAway.WP7.View
 
         private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
             this.Focus();
         }
 
