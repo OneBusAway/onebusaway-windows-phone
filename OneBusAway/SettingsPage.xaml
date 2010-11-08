@@ -10,6 +10,7 @@
     xmlns:view="clr-namespace:OneBusAway.WP7.View;assembly=OneBusAway.WP7.View"
     xmlns:local="clr-namespace:OneBusAway.WP7.View"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
+    xmlns:toolbox="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit" 
     tilt:TiltEffect.IsTiltEnabled="True"
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
@@ -37,12 +38,44 @@
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <Button Content="clear history" Name="clear_history_button"  Click="appbar_clear_history_Click"
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock 
+                    Grid.Row="0"
+                    Margin="10,5,0,0"
+                    Text="Send feedback"
+                    Foreground="{StaticResource OBASubtleBrush}"
+                    />
+                
+                <toolbox:ToggleSwitch
+                    x:Name="ReportUsageTs"
+                    Grid.Row="0"
+                    IsChecked="{Binding Path=FeedbackEnabled, Source={StaticResource ViewModel}, Mode=TwoWay}"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    />
+
+                <TextBlock 
+                    Grid.Row="1"
+                    Margin="10,-20,0,0"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    FontSize="{StaticResource PhoneFontSizeMedium}"
+                    Text="Sending anonymous usage data allows us to better improve the OneBusAway app.  We will never report your location or any personally-identifying information. You must restart OneBusAway for any changes to this setting to take effect."
+                    TextWrapping="Wrap"
+                    />
+            </Grid>
+
+            <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"
                     Foreground="{StaticResource OBAForegroundBrush}"
                     BorderBrush="{StaticResource OBAForegroundBrush}"
-                    Height="72" HorizontalAlignment="Left" VerticalAlignment="Top" Width="190" />
-        </Grid>
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top"  
+                    Margin="0,30,0,0"
+                    />
+        </StackPanel>
     </Grid>
 
 </view:AViewPage>
