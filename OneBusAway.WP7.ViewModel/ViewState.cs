@@ -66,6 +66,18 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        LocationForQuery currentSearchLocation;
+        public LocationForQuery CurrentSearchLocation
+        {
+            get { return currentSearchLocation; }
+
+            set
+            {
+                currentSearchLocation = value;
+                OnPropertyChanged("CurrentSearchLocation");
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
