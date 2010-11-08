@@ -16,6 +16,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
 using System.Collections;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -78,37 +79,45 @@ namespace OneBusAway.WP7.View
 #if DEBUG
         void zoomOutBtn_Click(object sender, RoutedEventArgs e)
         {
-            double newZoomLevel = DetailsMap.ZoomLevel - 1;
-            DetailsMap.ZoomLevel = newZoomLevel;
+            DetailsMap.ZoomLevel--;
         }
 #endif
 
-        // This method will kick off the initial load of bus stops, and
-        // then unregister itself
-        void DetailsMap_MapResolved(object sender, EventArgs e)
-        {
-            this.DetailsMap.MapResolved -= new EventHandler(DetailsMap_MapResolved);
-            DetailsMap_MapPan(this, null);
-        }
-
         void FullScreenMapPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            if (viewModel.CurrentViewState.CurrentSearchLocation != null)
+            {
+                // Using mapHasMoved prevents us from relocating the map if the user reloads this
+                // page from the back stack
+                if (mapHasMoved == false)
                 {
                     Dispatcher.BeginInvoke(() =>
                         {
-                            // If the user has already moved the map, don't relocate it
-                            if (mapHasMoved == false)
-                            {
-                                // Now that we know where we are register the MapResolved event to load
-                                // the initial stops
-                                this.DetailsMap.MapResolved += new EventHandler(DetailsMap_MapResolved);
-                                DetailsMap.Center = location;
-                            }
+                            //DetailsMap.Center = viewModel.CurrentViewState.CurrentSearchLocation.location;
+                            DetailsMap.SetView(viewModel.CurrentViewState.CurrentSearchLocation.boundingBox);
+                            viewModel.LoadStopsForLocation(viewModel.CurrentViewState.CurrentSearchLocation.location);
                         }
-                        );
+                    );
                 }
-            );
+            }
+            else
+            {
+                viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+                    {
+                        Dispatcher.BeginInvoke(() =>
+                            {
+                                // If the user has already moved the map, don't relocate it
+                                if (mapHasMoved == false)
+                                {
+                                    DetailsMap.Center = location;
+                                }
+                                    
+                                viewModel.LoadStopsForLocation(location);
+                            }
+                            );
+                    }
+                );
+            }
         }
 
         void DetailsMap_MapPan(object sender, MapDragEventArgs e)
@@ -116,7 +125,7 @@ namespace OneBusAway.WP7.View
             GeoCoordinate center = DetailsMap.Center;
             mapHasMoved = true;
 
-            if (DetailsMap.ZoomLevel >= minZoomLevel)
+            if (DetailsMap.TargetZoomLevel >= minZoomLevel)
             {
                 viewModel.LoadStopsForLocation(center);
             }

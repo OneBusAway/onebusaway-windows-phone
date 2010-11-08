@@ -140,7 +140,7 @@ namespace OneBusAway.WP7.ViewModel
         /// Returns a default location to use when our current location is
         /// unavailable.  This is downtown Seattle.
         /// </summary>
-        public GeoCoordinate DefaultLocationStatic
+        public GeoCoordinate DefaultLocation
         {
             get
             {
@@ -158,7 +158,7 @@ namespace OneBusAway.WP7.ViewModel
                 }
                 else
                 {
-                    return DefaultLocationStatic;
+                    return DefaultLocation;
                 }
             }
         }
@@ -179,7 +179,7 @@ namespace OneBusAway.WP7.ViewModel
                     locationLoading = false;
                     operationTracker.DoneWithOperation("LoadLocation");
 
-                    lastKnownLocation = DefaultLocationStatic;
+                    lastKnownLocation = DefaultLocation;
                     OnPropertyChanged("CurrentLocation");
                     OnPropertyChanged("CurrentLocationSafe");
                     OnPropertyChanged("LocationKnown");

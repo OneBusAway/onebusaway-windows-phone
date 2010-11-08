@@ -119,11 +119,13 @@ namespace OneBusAway.WP7.ViewModel
             });
         }
 
-        public delegate void SearchByAddress_Callback(GeoCoordinate routes, Exception error);
+        public delegate void SearchByAddress_Callback(LocationForQuery location, Exception error);
         public void SearchByAddress(string addressString, SearchByAddress_Callback callback)
         {
             operationTracker.WaitForOperation("SearchByAddress");
-            busServiceModel.LocationForAddress(addressString);
+
+            busServiceModel.LocationForAddress_Completed += new LocationForAddressCompleted(this, callback).busServiceModel_LocationForAddress_Completed;
+            busServiceModel.LocationForAddress(addressString, locationTracker.CurrentLocationSafe);
         }
 
         public delegate void CheckForLocalTransitData_Callback(bool hasData);
@@ -133,7 +135,7 @@ namespace OneBusAway.WP7.ViewModel
             {
                 bool hasData;
                 // Ensure that their current location is within ~150 miles of Seattle
-                if (location.GetDistanceTo(LocationTracker.DefaultLocationStatic) > 250000)
+                if (location.GetDistanceTo(LocationTracker.DefaultLocation) > 250000)
                 {
                     hasData = false;
                 }
@@ -151,7 +153,7 @@ namespace OneBusAway.WP7.ViewModel
             base.RegisterEventHandlers(dispatcher);
 
             this.busServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
-            this.busServiceModel.LocationForAddress_Completed += new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+       
 
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -162,7 +164,7 @@ namespace OneBusAway.WP7.ViewModel
             base.UnregisterEventHandlers();
 
             this.busServiceModel.CombinedInfoForLocation_Completed -= new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
-            this.busServiceModel.LocationForAddress_Completed -= new EventHandler<EventArgs.LocationForAddressEventArgs>(busServiceModel_LocationForAddress_Completed);
+        
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
@@ -267,6 +269,59 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        private class LocationForAddressCompleted
+        {
+            private SearchByAddress_Callback callback;
+            private MainPageVM viewModel;
+
+            public LocationForAddressCompleted(MainPageVM viewModel, SearchByAddress_Callback callback)
+            {
+                this.callback = callback;
+                this.viewModel = viewModel;
+            }
+
+            public void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
+            {
+                Debug.Assert(e.error == null);
+
+                LocationForQuery location;
+                if (e.locations.Count > 1)
+                {
+                    location = e.locations[0];
+                    foreach (LocationForQuery l in e.locations)
+                    {
+                        // If the candidate is a higher confidence than the
+                        // current selected location, pick it instead
+                        if (l.confidence > location.confidence)
+                        {
+                            location = l;
+                        }
+                        // The candidate doesn't have a higher confidence, so confirm that it
+                        // is the same confidence, and then select whichever one is closest to Seattle
+                        else if (l.confidence == location.confidence &&
+                            l.location.GetDistanceTo(e.searchNearLocation) <
+                            location.location.GetDistanceTo(e.searchNearLocation))
+                        {
+                            location = l;
+                        }
+                    }
+                }
+                else if (e.locations.Count == 1)
+                {
+                    location = e.locations[0];
+                }
+                else
+                {
+                    location = null;
+                }
+
+                callback(location, e.error);
+                viewModel.busServiceModel.LocationForAddress_Completed -= this.busServiceModel_LocationForAddress_Completed;
+
+                viewModel.operationTracker.DoneWithOperation("SearchByAddress");
+            }
+        }
+
         void busServiceModel_CombinedInfoForLocation_Completed(object sender, EventArgs.CombinedInfoForLocationEventArgs e)
         {
             Debug.Assert(e.error == null);
@@ -308,22 +363,6 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             operationTracker.DoneWithOperation("CombinedInfoForLocation");
-        }
-
-        void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
-        {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
-            {
-                LoadInfoForLocation();
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
-
-            operationTracker.DoneWithOperation("SearchByAddress");
         }
 
         void appDataModel_Favorites_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)

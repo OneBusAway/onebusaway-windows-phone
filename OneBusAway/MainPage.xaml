@@ -207,7 +207,7 @@
             </StackPanel.RenderTransform>
             <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
             <TextBlock 
-				Text="By route (ex. '44') or stop number (ex. '11132')"  
+				Text="By route number, stop number, location, or address"  
 				Foreground="{StaticResource OBASubtleBrush}" FontSize="16" HorizontalAlignment="Center">
 				<TextBlock.RenderTransform>
 				<CompositeTransform TranslateY="-14"/>
