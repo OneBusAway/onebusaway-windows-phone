@@ -19,6 +19,7 @@ using Microsoft.Phone.Controls;
 using System.Windows.Navigation;
 using System.Windows.Controls.Primitives;
 using System.Threading;
+using System.IO.IsolatedStorage;
 
 namespace OneBusAway.WP7.View
 {
@@ -26,6 +27,22 @@ namespace OneBusAway.WP7.View
     {
         private ViewState viewState = ViewState.Instance;
         public PhoneApplicationFrame RootFrame { get; private set; }
+
+        private bool FeedbackEnabled
+        {
+            get
+            {
+                if (IsolatedStorageSettings.ApplicationSettings.Contains("FeedbackEnabled") == true)
+                {
+                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"].ToString());
+                }
+                else
+                {
+                    // We default to enabled if there is no user setting
+                    return true;
+                }
+            }
+        }
 
         public App()
         {
