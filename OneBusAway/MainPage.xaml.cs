@@ -272,16 +272,19 @@ namespace OneBusAway.WP7.View
             }
             else if (stops.Count == 0)
             {
-                MessageBox.Show("No results found");
+                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
             }
             else
             {
-                viewModel.CurrentViewState.CurrentRoute = null;
-                viewModel.CurrentViewState.CurrentRouteDirection = null;
-                viewModel.CurrentViewState.CurrentStop = stops[0];
-                viewModel.CurrentViewState.CurrentSearchLocation = null;
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoute = null;
+                        viewModel.CurrentViewState.CurrentRouteDirection = null;
+                        viewModel.CurrentViewState.CurrentStop = stops[0];
+                        viewModel.CurrentViewState.CurrentSearchLocation = null;
 
-                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                        NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                    });
             }
         }
 
@@ -300,21 +303,27 @@ namespace OneBusAway.WP7.View
             }
             else if (location == null)
             {
-                string message = 
-                    "Search for a route: 44\r\n" +
-                    "Search by stop number: 11132\r\n" + 
-                    "Find a landmark: Space Needle\r\n" +
-                    "Or an address: 1 Microsoft Way";
-                MessageBox.Show(message, "No results found", MessageBoxButton.OK);
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        string message =
+                            "Search for a route: 44\r\n" +
+                            "Search by stop number: 11132\r\n" +
+                            "Find a landmark: Space Needle\r\n" +
+                            "Or an address: 1 Microsoft Way";
+                        MessageBox.Show(message, "No results found", MessageBoxButton.OK);
+                    });
             }
             else
             {
-                viewModel.CurrentViewState.CurrentRoute = null;
-                viewModel.CurrentViewState.CurrentRouteDirection = null;
-                viewModel.CurrentViewState.CurrentStop = null;
-                viewModel.CurrentViewState.CurrentSearchLocation = location;
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoute = null;
+                        viewModel.CurrentViewState.CurrentRouteDirection = null;
+                        viewModel.CurrentViewState.CurrentStop = null;
+                        viewModel.CurrentViewState.CurrentSearchLocation = location;
 
-                NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                        NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                    });
             }
         }
 
