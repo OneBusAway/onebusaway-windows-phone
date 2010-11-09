@@ -14,6 +14,7 @@ using System.Device.Location;
 using OneBusAway.WP7.ViewModel;
 using Microsoft.Phone.Controls.Maps;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace OneBusAway.WP7.View
 {
@@ -398,5 +399,86 @@ namespace OneBusAway.WP7.View
         }
 
         #endregion
+    }
+
+    public class PivotNameConverter : IValueConverter
+    {
+        private const string favoritesPivot = "Favorites Pivot";
+        private const string recentsPivot = "Recent Pivot";
+        private const string stopsPivot = "Stops Pivot";
+        private const string routesPivot = "Routes Pivot";
+        private const string lastUsedPivot = "Previously Used Pivot";
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is ObservableCollection<MainPagePivots>)
+            {
+                List<string> list = new List<string>();
+                foreach (MainPagePivots pivot in (ObservableCollection<MainPagePivots>)value)
+                {
+                    list.Add(ConvertPivot(pivot));
+                }
+
+                return list;
+            }
+            else if (value is MainPagePivots)
+            {
+                return ConvertPivot((MainPagePivots)value);
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        private string ConvertPivot(MainPagePivots pivot)
+        {
+            switch (pivot)
+            {
+                case MainPagePivots.Favorites:
+                    return favoritesPivot;
+
+                case MainPagePivots.LastUsed:
+                    return lastUsedPivot;
+
+                case MainPagePivots.Recents:
+                    return recentsPivot;
+
+                case MainPagePivots.Routes:
+                    return routesPivot;
+
+                case MainPagePivots.Stops:
+                    return stopsPivot;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string selectedName = value.ToString();
+
+            switch (selectedName)
+            {
+                case favoritesPivot:
+                    return MainPagePivots.Favorites;
+
+                case lastUsedPivot:
+                    return MainPagePivots.LastUsed;
+
+                case recentsPivot:
+                    return MainPagePivots.Recents;
+
+                case routesPivot:
+                    return MainPagePivots.Routes;
+
+                case stopsPivot:
+                    return MainPagePivots.Stops;
+
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 }
