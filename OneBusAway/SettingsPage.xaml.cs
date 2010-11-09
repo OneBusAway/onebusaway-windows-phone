@@ -43,5 +43,17 @@ namespace OneBusAway.WP7.View
         {
             viewModel.Clear();
         }
+
+        // Created for analytics
+        private void ListPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        // Created for analytics
+        private void ReportUsageTs_Checked(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
