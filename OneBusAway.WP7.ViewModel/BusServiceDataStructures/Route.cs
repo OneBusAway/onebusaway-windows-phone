@@ -44,6 +44,11 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             }
         }
 
+        public override int GetHashCode()
+        {
+            return id.GetHashCode();
+        }
+
         public override string ToString()
         {
             return string.Format("Route: ID='{0}', description='{1}'", shortName, description);

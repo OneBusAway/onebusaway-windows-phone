@@ -85,6 +85,11 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             return ((Stop)obj).id == this.id;
         }
 
+        public override int GetHashCode()
+        {
+            return id.GetHashCode();
+        }
+
         public override string ToString()
         {
             return string.Format("Stop: name='{0}'", name);

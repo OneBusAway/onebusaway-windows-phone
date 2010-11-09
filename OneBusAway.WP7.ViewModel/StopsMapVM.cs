@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Device.Location;
+using System.Diagnostics;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,12 +12,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using System.Collections.ObjectModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Device.Location;
-using System.Diagnostics;
-using System.Collections.Generic;
 using System.Windows.Threading;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using OneBusAway.WP7.ViewModel.Data;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -21,6 +22,12 @@ namespace OneBusAway.WP7.ViewModel
     {
         private Object stopsForLocationCompletedLock;
         private Object stopsForLocationLock;
+
+        private ICache<string, Stop> stopsCache;
+
+        // this is just a map of id -> stop that mirrors StopsForLocation.
+        // used to do lookups.  too bad we can't bind directly to this object's Values property.
+        private IDictionary<string, Stop> stopsForLocationIndex;
 
         #region Constructors
 
@@ -40,7 +47,10 @@ namespace OneBusAway.WP7.ViewModel
         {
             stopsForLocationCompletedLock = new Object();
             stopsForLocationLock = new Object();
+            stopsForLocationIndex = new Dictionary<string, Stop>();
             StopsForLocation = new ObservableCollection<Stop>();
+
+            stopsCache = CacheFactory.Singleton.StopsCache;
         }
 
         #endregion
@@ -48,6 +58,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Methods/Properties
 
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
+        public String CacheCount { get; private set; }
 
         public void LoadStopsForLocation(GeoCoordinate topLeft, GeoCoordinate bottomRight)
         {
@@ -58,13 +69,88 @@ namespace OneBusAway.WP7.ViewModel
             };
 
             int radiusInMeters = ((int)topLeft.GetDistanceTo(bottomRight)) / 2;
-            // Query for at least a 250m radius and less than a 1km radius
+            // Query for at least a 250m radius and less than a 3km radius
             radiusInMeters = Math.Max(radiusInMeters, 250);
             radiusInMeters = Math.Min(radiusInMeters, 3000);
 
             this.LoadingText = "Loading stops";
             operationTracker.WaitForOperation("StopsForLocation");
+
+            // pull in cached data before firing off a background query
+            IDictionary<string, Stop> tempStops = new Dictionary<string,Stop>();
+            foreach (Pair<string, Stop> stopPair in stopsCache.GetAll())
+            {
+                if (stopPair.value.location.GetDistanceTo(center) <= radiusInMeters)
+                {
+                    tempStops.Add(stopPair.key, stopPair.value);
+                    stopsCache.Get(stopPair.key); // this Get is just to update the LRU information in the cache to keep this stop warm
+                }
+            }
+
+            // update the view with the cached data
+            UIAction(() =>
+            {
+                CacheCount = String.Format("DEBUG: {0} stops from in-memory cache", tempStops.Count);
+                OnPropertyChanged("CacheCount");
+            });
+            SetStopsForLocation(tempStops);
+
+            // and make the service call in the background
             busServiceModel.StopsForLocation(center, radiusInMeters);
+        }
+
+        /// <summary>
+        /// Sets the contents of StopsForLocation to the Values of the specified Dictionary.
+        /// </summary>
+        /// <remarks>
+        /// Implementation does not clear StopsForLocation (so as not to clear the screen).
+        /// Instead, removes all stops that don't belong and adds ones that do.
+        /// </remarks>
+        /// <param name="newStops"></param>
+        private void SetStopsForLocation(IDictionary<string,Stop> newStops)
+        {
+            // .NET for the phone doesn't support HashSet.... Dictionary is a poor-man's hashset
+            // linear pass to calculate the set of stops to remove
+            IDictionary<string, Stop> stopsToRemove = new Dictionary<string, Stop>();
+            lock (stopsForLocationLock)
+            {
+                foreach (string stopId in stopsForLocationIndex.Keys)
+                {
+                    if (!newStops.ContainsKey(stopId))
+                    {
+                        stopsToRemove.Add(stopId, stopsForLocationIndex[stopId]);
+                    }
+                }
+            }
+            // O(n^2) pass to remove them.  Too bad there isn't an ObservableSet
+            UIAction(() =>
+            {
+                lock (stopsForLocationLock)
+                {
+                    foreach (Stop s in stopsToRemove.Values)
+                    {
+                        StopsForLocation.Remove(s);
+                        stopsForLocationIndex.Remove(s.id);
+                    }
+                }
+            });
+            
+
+            // and a linear pass to add any new stops
+            UIAction(() =>
+            {
+                lock (stopsForLocationLock)
+                {
+                    foreach (Stop s in newStops.Values)
+                    {
+                        if (!stopsForLocationIndex.ContainsKey(s.id))
+                        {
+                            StopsForLocation.Add(s);
+                            stopsForLocationIndex.Add(s.id, s);
+                        }
+                    }
+                }
+            });
         }
 
         public override void RegisterEventHandlers(Dispatcher dispatcher)
@@ -94,54 +180,29 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
+                // this lock simply prevents multiple instances of this handler from running simultaneously
                 lock (stopsForLocationCompletedLock)
                 {
-                    // TODO: This algorithm is pretty slow, around ~1/4 second under debugger
-                    // We should try to find a more efficient way to do this
-                    List<Stop> stopsToRemove = new List<Stop>();
-                    lock (stopsForLocationLock)
+                    IDictionary<string, Stop> newStops = new Dictionary<string, Stop>();
+                    foreach(Stop s in e.stops)
                     {
-                        foreach (Stop stop in StopsForLocation)
-                        {
-                            if (e.stops.Contains(stop) == false)
-                            {
-                                stopsToRemove.Add(stop);
-                            }
-                        }
+                        newStops.Add(s.id, s);
+                        stopsCache.Put(s.id, s);
                     }
 
-                    stopsToRemove.ForEach(stop => 
-                        UIAction(() => 
-                    {
-                        lock (stopsForLocationLock) 
-                        { 
-                            StopsForLocation.Remove(stop);
-                        }
-                    }));
-
-                    foreach (Stop stop in e.stops)
-                    {
-                        lock (stopsForLocationLock)
-                        {
-                            if (StopsForLocation.Contains(stop) == false)
-                            {
-                                Stop currentStop = stop;
-                                UIAction(() =>
-                                    {
-                                        lock (stopsForLocationLock)
-                                        {
-                                            StopsForLocation.Add(currentStop);
-                                        }
-                                    });
-                            }
-                        }
-                    }
+                    SetStopsForLocation(newStops);
                 }
             }
             else
             {
                 ErrorOccured(this, e.error);
             }
+
+            UIAction(() =>
+            {
+                CacheCount = "DEBUG: All stops from the service.";
+                OnPropertyChanged("CacheCount");
+            });
 
             operationTracker.DoneWithOperation("StopsForLocation");
         }

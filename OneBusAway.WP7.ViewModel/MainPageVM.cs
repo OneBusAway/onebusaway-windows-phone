@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
+using OneBusAway.WP7.ViewModel.Data;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -17,6 +18,10 @@ namespace OneBusAway.WP7.ViewModel
 
         private int maxRoutes = 30;
         private int maxStops = 30;
+        private ICache<string, Route> routesCache;
+        private ICache<string, Stop> stopsCache;
+        private object routesForLocationLock = new object();
+        private object stopsForLocationLock = new object();
 
         #endregion
 
@@ -40,6 +45,9 @@ namespace OneBusAway.WP7.ViewModel
             RoutesForLocation = new ObservableCollection<Route>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
             Recents = new ObservableCollection<FavoriteRouteAndStop>();
+
+            stopsCache = CacheFactory.Singleton.StopsCache;
+            routesCache = CacheFactory.Singleton.RoutesCache;
         }
 
         #endregion
@@ -67,12 +75,65 @@ namespace OneBusAway.WP7.ViewModel
         /// <param name="invalidateCache">If true, will discard any cached result and requery the server</param>
         public void LoadInfoForLocation(int radiusInMeters, bool invalidateCache)
         {
-            StopsForLocation.Clear();
-            RoutesForLocation.Clear();
-            operationTracker.WaitForOperation("CombinedInfoForLocation");
+            lock (stopsForLocationLock)
+            {
+                StopsForLocation.Clear();
+            }
+            lock (routesForLocationLock)
+            {
+                RoutesForLocation.Clear();
+            }
+
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
                 UIAction(() => this.LoadingText = "Searching for buses...");
+                
+                List<Stop> tempStops = new List<Stop>();
+                foreach (Pair<string, Stop> stopPair in stopsCache.GetAll())
+                {
+                    if (stopPair.value.location.GetDistanceTo(location) <= radiusInMeters)
+                    {
+                        tempStops.Add(stopPair.value);
+                    }
+                }
+                tempStops.Sort(new StopDistanceComparer(location));
+
+                // yes, this is a loop on the UI thread.
+                // if you put just the body of the loop on the UI thread, 
+                // then you end up with a list that shows the same stop over and over again.
+                UIAction(() =>
+                {
+                    lock (stopsForLocationLock)
+                    {
+                        foreach (Stop s in tempStops)
+                        {
+                            StopsForLocation.Add(s);
+                        }
+                    }
+                });
+
+                List<Route> tempRoutes = new List<Route>();
+                foreach (Pair<string, Route> routePair in routesCache.GetAll())
+                {
+                    if (routePair.value.closestStop.location.GetDistanceTo(location) <= radiusInMeters)
+                    {
+                        tempRoutes.Add(routePair.value);
+                    }
+                }
+                tempRoutes.Sort(new RouteDistanceComparer(location));
+
+                UIAction(() =>
+                {
+                    lock (routesForLocationLock)
+                    {
+                        foreach (Route r in tempRoutes)
+                        {
+                            RoutesForLocation.Add(r);
+                        }
+                    }
+                });
+
+                operationTracker.WaitForOperation("CombinedInfoForLocation");
                 busServiceModel.CombinedInfoForLocation(location, radiusInMeters, -1, invalidateCache);
             });
         }
@@ -273,6 +334,21 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
+                UIAction(() => 
+                {
+                    lock (stopsForLocationLock)
+                    {
+                        StopsForLocation.Clear();
+                    }
+                });
+                UIAction(() =>
+                {
+                    lock (routesForLocationLock)
+                    {
+                        RoutesForLocation.Clear();
+                    }
+                });
+
                 e.stops.Sort(new StopDistanceComparer(e.location));
                 e.routes.Sort(new RouteDistanceComparer(e.location));
 
@@ -285,7 +361,14 @@ namespace OneBusAway.WP7.ViewModel
                     }
 
                     Stop currentStop = stop;
-                    UIAction(() => StopsForLocation.Add(currentStop));
+                    stopsCache.Put(currentStop.id, currentStop);
+                    UIAction(() => 
+                    {
+                        lock (stopsForLocationLock)
+                        {
+                            StopsForLocation.Add(currentStop);
+                        }
+                    });
                     stopCount++;
                 }
 
@@ -298,7 +381,14 @@ namespace OneBusAway.WP7.ViewModel
                     }
 
                     Route currentRoute = route;
-                    UIAction(() => RoutesForLocation.Add(currentRoute));
+                    routesCache.Put(currentRoute.id, currentRoute);
+                    UIAction(() =>
+                    {
+                        lock (routesForLocationLock)
+                        {
+                            RoutesForLocation.Add(currentRoute);
+                        }
+                    });
                     routeCount++;
                 }
             }
