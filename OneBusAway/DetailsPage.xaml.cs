@@ -118,26 +118,22 @@ namespace OneBusAway.WP7.View
                     appbar_allroutes.Click += new EventHandler(appbar_allroutes_Click);
                 }
 
-                bool localIsFiltered = isFiltered;
-                Dispatcher.BeginInvoke(() =>
-                    {
-                        if (localIsFiltered == true)
-                        {
-                            appbar_allroutes.IconUri = unfilterRoutesIcon;
-                            appbar_allroutes.Text = unfilterRoutesText;
-                        }
-                        else
-                        {
-                            appbar_allroutes.IconUri = filterRoutesIcon;
-                            appbar_allroutes.Text = filterRoutesText;
-                        }
+                if (isFiltered == true)
+                {
+                    appbar_allroutes.IconUri = unfilterRoutesIcon;
+                    appbar_allroutes.Text = unfilterRoutesText;
+                }
+                else
+                {
+                    appbar_allroutes.IconUri = filterRoutesIcon;
+                    appbar_allroutes.Text = filterRoutesText;
+                }
 
-                        if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
-                        {
-                            // this has to be done after setting the icon
-                            ApplicationBar.Buttons.Add(appbar_allroutes);
-                        }
-                    });
+                if (!ApplicationBar.Buttons.Contains(appbar_allroutes))
+                {
+                    // this has to be done after setting the icon
+                    ApplicationBar.Buttons.Add(appbar_allroutes);
+                }
             }
 
             FavoriteRouteAndStop currentInfo = new FavoriteRouteAndStop();
