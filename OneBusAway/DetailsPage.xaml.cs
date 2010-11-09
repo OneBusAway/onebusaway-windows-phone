@@ -66,6 +66,7 @@ namespace OneBusAway.WP7.View
             base.Initialize();
 
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+            appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
             busArrivalUpdateTimer = new DispatcherTimer();
@@ -90,8 +91,6 @@ namespace OneBusAway.WP7.View
         // Only want to use the state variable on the initial call
         void UpdateAppBar(bool useStateVariable)
         {
-            Dispatcher.BeginInvoke(() => appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]));
-
             bool addFilterButton = false;
             if (useStateVariable == true &&
                 PhoneApplicationService.Current.State.ContainsKey(isFilteredStateId) == true 
