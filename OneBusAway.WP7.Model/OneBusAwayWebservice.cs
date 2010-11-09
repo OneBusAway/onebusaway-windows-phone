@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Net;
-using System.Device.Location;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Xml.Linq;
+using System.Device.Location;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
+using System.Net;
+using System.Xml.Linq;
 using OneBusAway.WP7.ViewModel;
-using System.Globalization;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.Model
 {
@@ -157,6 +157,9 @@ namespace OneBusAway.WP7.Model
                 Math.Round(location.Longitude, 3)
             );
 
+            // ditto for the search radius -- nearest 50 meters for caching
+            int roundedRadius = (int)(Math.Round(radiusInMeters / 50.0) * 50);
+
             string requestString = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
@@ -164,7 +167,7 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 roundedLocation.Latitude.ToString(NumberFormatInfo.InvariantInfo),
                 roundedLocation.Longitude.ToString(NumberFormatInfo.InvariantInfo),
-                radiusInMeters,
+                roundedRadius,
                 APIVERSION
                 );
 
