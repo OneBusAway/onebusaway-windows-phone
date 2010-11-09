@@ -21,6 +21,7 @@
 
     <view:AViewPage.Resources>
         <data:SettingsVM x:Key="ViewModel" />
+        <view:PivotNameConverter x:Key="PivotNameConverter" />
     </view:AViewPage.Resources>
     
     <!--LayoutRoot is the root grid where all page content is placed-->
@@ -63,11 +64,22 @@
                     Grid.Row="1"
                     Margin="10,-20,0,0"
                     Foreground="{StaticResource OBAForegroundBrush}"
-                    FontSize="{StaticResource PhoneFontSizeMedium}"
+                    FontSize="{StaticResource PhoneFontSizeSmall}"
                     Text="Sending anonymous usage data allows us to better improve the OneBusAway app.  We will never report your location or any personally-identifying information. You must restart OneBusAway for any changes to this setting to take effect."
                     TextWrapping="Wrap"
                     />
             </Grid>
+
+            <TextBlock
+                Margin="10,20,0,-20"
+                Text="Default pivot when starting OneBusAway"
+                FontSize="{StaticResource PhoneFontSizeMedium}"
+                />
+            
+            <toolbox:ListPicker 
+                ItemsSource="{Binding Path=MainPagePivotOptions, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}}"
+                SelectedItem="{Binding Path=SelectedMainPagePivot, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}, Mode=TwoWay}"
+                />
 
             <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"
                     Foreground="{StaticResource OBAForegroundBrush}"
