@@ -26,32 +26,29 @@
     
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="11*" />
+            <ColumnDefinition Width="469*" />
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!--TitlePanel contains the name of the application and page title-->
-        <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,16,0,27">
+        <StackPanel x:Name="TitlePanel" Margin="1,16,0,27" Grid.Column="1">
             <TextBlock x:Name="PageTitle" Text="settings" 
                 Foreground="{StaticResource OBAForegroundBrush}"
                 Margin="9,-8,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
-        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="1,0,12,0" Grid.Column="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <TextBlock 
-                    Grid.Row="0"
-                    Margin="10,5,0,0"
-                    Text="Send feedback"
-                    Foreground="{StaticResource OBASubtleBrush}"
-                    />
                 
                 <toolbox:ToggleSwitch
                     x:Name="ReportUsageTs"
@@ -59,6 +56,7 @@
                     IsChecked="{Binding Path=FeedbackEnabled, Source={StaticResource ViewModel}, Mode=TwoWay}"
                     Foreground="{StaticResource OBAForegroundBrush}"
                     Checked="ReportUsageTs_Checked"
+                    Header="Send feedback"
                     />
 
                 <TextBlock 
@@ -70,24 +68,23 @@
                     TextWrapping="Wrap"
                     />
             </Grid>
-
-            <TextBlock
-                Margin="10,20,0,-20"
-                Text="Default pivot when starting OneBusAway"
-                FontSize="{StaticResource PhoneFontSizeMedium}"
-                />
             
             <toolbox:ListPicker 
                 ItemsSource="{Binding Path=MainPagePivotOptions, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}}"
                 SelectedItem="{Binding Path=SelectedMainPagePivot, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}, Mode=TwoWay}"
                 SelectionChanged="ListPicker_SelectionChanged"
+                Header="Default pivot when starting OneBusAway"
                 />
 
+            <TextBlock
+                Text="Clear recents and cache"
+                Foreground="{StaticResource OBASubtleBrush}"
+                Margin="10,0,0,0"
+                />
             <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"
                     Foreground="{StaticResource OBAForegroundBrush}"
                     BorderBrush="{StaticResource OBAForegroundBrush}"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Top"  
-                    Margin="0,30,0,0"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     />
         </StackPanel>
     </Grid>

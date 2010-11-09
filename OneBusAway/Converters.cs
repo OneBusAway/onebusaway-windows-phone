@@ -403,11 +403,11 @@ namespace OneBusAway.WP7.View
 
     public class PivotNameConverter : IValueConverter
     {
-        private const string favoritesPivot = "Favorites Pivot";
-        private const string recentsPivot = "Recent Pivot";
-        private const string stopsPivot = "Stops Pivot";
-        private const string routesPivot = "Routes Pivot";
-        private const string lastUsedPivot = "Previously Used Pivot";
+        private const string favoritesPivot = "Favorites pivot";
+        private const string recentsPivot = "Recent pivot";
+        private const string stopsPivot = "Stops pivot";
+        private const string routesPivot = "Routes pivot";
+        private const string lastUsedPivot = "Previously used pivot";
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
