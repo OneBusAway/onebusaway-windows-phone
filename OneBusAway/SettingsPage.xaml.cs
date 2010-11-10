@@ -24,7 +24,17 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
             base.Initialize();
 
+            this.Loaded += new RoutedEventHandler(SettingsPage_Loaded);
+
             viewModel = Resources["ViewModel"] as SettingsVM;
+        }
+
+        void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Add the event handlers here instead of in XAML so they aren't called when the initial
+            // selection is made on page load
+            ReportUsageTs.Click += new EventHandler<RoutedEventArgs>(ReportUsageTs_Click);
+            DefaultPivotLp.SelectionChanged += new SelectionChangedEventHandler(DefaultPivotLp_SelectionChanged);
         }
 
         // Methods overridden for analytics purposes
@@ -45,15 +55,15 @@ namespace OneBusAway.WP7.View
         }
 
         // Created for analytics
-        private void ListPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DefaultPivotLp_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
 
         // Created for analytics
-        private void ReportUsageTs_Checked(object sender, RoutedEventArgs e)
+        private void ReportUsageTs_Click(object sender, RoutedEventArgs e)
         {
-
+            
         }
     }
 }
