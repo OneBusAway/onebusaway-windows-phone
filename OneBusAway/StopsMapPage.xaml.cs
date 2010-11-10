@@ -214,11 +214,9 @@ namespace OneBusAway.WP7.View
                 {
                     if (selectedStopId.Equals(StopInfoBox.Tag))
                     {
-                        // popup is already open for this stop.  navigate to the details page
+                        // This is the currently selected stop, hide the popup
                         StopInfoBox.Visibility = Visibility.Collapsed;
                         StopInfoBox.Tag = null;
-
-                        NavigateToDetailsPage(stop);
                     }
                     else
                     {
@@ -230,7 +228,8 @@ namespace OneBusAway.WP7.View
                         StopInfoBox.Location = stop.location;
                         StopInfoBox.PositionOrigin = PositionOrigin.BottomLeft;
                         StopInfoBox.Tag = stop.id;
-                    }                    
+                    }     
+               
                     break;
                 }
             }
@@ -243,6 +242,26 @@ namespace OneBusAway.WP7.View
             viewModel.CurrentViewState.CurrentRouteDirection = null;
 
             NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+        }
+
+        private void PopupBtn_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedStopId = StopInfoBox.Tag as string;
+
+            foreach (object item in StopsMapItemsControl.Items)
+            {
+                Stop stop = item as Stop;
+                if (stop != null && stop.id == selectedStopId)
+                {
+                    // Hide the pop-up for when they return
+                    StopInfoBox.Visibility = Visibility.Collapsed;
+                    StopInfoBox.Tag = null;
+
+                    NavigateToDetailsPage(stop);
+
+                    break;
+                }
+            }
         }
     }
 
