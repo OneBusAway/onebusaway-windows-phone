@@ -55,7 +55,6 @@
                     Grid.Row="0"
                     IsChecked="{Binding Path=FeedbackEnabled, Source={StaticResource ViewModel}, Mode=TwoWay}"
                     Foreground="{StaticResource OBAForegroundBrush}"
-                    Checked="ReportUsageTs_Checked"
                     Header="Send feedback"
                     />
 
@@ -70,9 +69,9 @@
             </Grid>
             
             <toolbox:ListPicker 
+                x:Name="DefaultPivotLp"
                 ItemsSource="{Binding Path=MainPagePivotOptions, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}}"
                 SelectedItem="{Binding Path=SelectedMainPagePivot, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}, Mode=TwoWay}"
-                SelectionChanged="ListPicker_SelectionChanged"
                 Header="Default pivot when starting OneBusAway"
                 />
 

@@ -917,7 +917,7 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="ListPicker_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
+        <method name="DefaultPivotLp_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceElement" value="None" />
@@ -933,7 +933,7 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="ReportUsageTs_Checked" signature="void(object, System.Windows.RoutedEventArgs)" />
+        <method name="ReportUsageTs_Click" signature="void(object, System.Windows.RoutedEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceElement" value="None" />
