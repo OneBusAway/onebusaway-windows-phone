@@ -22,7 +22,7 @@ namespace OneBusAway.WP7.View
         {
             InitializeComponent();
 
-            VersionTextBlock.Text = "Version " + "2.0.0.1";
+            VersionTextBlock.Text = "Version " + "2.0.0.10000";
         }
 
         // Methods overridden for analytics purposes
