@@ -72,6 +72,10 @@ namespace OneBusAway.WP7.View
             busArrivalUpdateTimer = new DispatcherTimer();
             busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
             busArrivalUpdateTimer.Tick += new EventHandler(busArrivalUpdateTimer_Tick);
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

@@ -15,6 +15,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Windows.Navigation;
 using System.Collections.Specialized;
 using System.Device.Location;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -32,6 +33,10 @@ namespace OneBusAway.WP7.View
             viewModel = Resources["ViewModel"] as BusDirectionVM;
 
             informationLoaded = false;
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

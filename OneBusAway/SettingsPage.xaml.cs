@@ -11,6 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using OneBusAway.WP7.ViewModel;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -27,6 +28,10 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(SettingsPage_Loaded);
 
             viewModel = Resources["ViewModel"] as SettingsVM;
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         void SettingsPage_Loaded(object sender, RoutedEventArgs e)
