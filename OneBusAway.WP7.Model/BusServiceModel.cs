@@ -335,7 +335,6 @@ namespace OneBusAway.WP7.Model
         public void LocationForAddress(string query, GeoCoordinate searchNearLocation)
         {
             string bingMapAPIURL = "http://dev.virtualearth.net/REST/v1/Locations";
-            //http://dev.virtualearth.net/REST/v1/Locations/US/WA/Redmond/1%20Microsoft%20Way?output=xml&key=ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm
             string requestUrl = string.Format(
                 "{0}?query={1}&key={2}&o=xml&userLocation={3}",
                 bingMapAPIURL,
