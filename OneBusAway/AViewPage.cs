@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace OneBusAway.WP7.View
 {
@@ -165,9 +166,9 @@ namespace OneBusAway.WP7.View
                 MessageBoxResult sendReport = MessageBox.Show(errorMessage, "Uh oh...", messageBoxType);
                 if (messageBoxType == MessageBoxButton.OKCancel && sendReport == MessageBoxResult.OK)
                 {
-                    // Sending the email will take OBA out of the foreground, so leave reportingErorr set to true 
-                    // to make sure we don't try to send any more error reports from the background which will hit an exception.
-                    // When the app is un-tombstoned the constructor will set reportingError back to false.
+                     //Sending the email will take OBA out of the foreground, so leave reportingErorr set to true 
+                     //to make sure we don't try to send any more error reports from the background which will hit an exception.
+                     //When the app is un-tombstoned the constructor will set reportingError back to false.
                     
                     Version version = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
 

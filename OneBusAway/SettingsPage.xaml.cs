@@ -26,6 +26,19 @@ namespace OneBusAway.WP7.View
 
             viewModel = Resources["ViewModel"] as SettingsVM;
         }
+
+        // Methods overridden for analytics purposes
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+        }
+
+        // Methods overridden for analytics purposes
+        protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+        }
+
         private void appbar_clear_history_Click(object sender, EventArgs e)
         {
             viewModel.Clear();

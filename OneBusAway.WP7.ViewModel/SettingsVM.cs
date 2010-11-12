@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using System.IO.IsolatedStorage;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -25,6 +26,29 @@ namespace OneBusAway.WP7.ViewModel
         }
         
         #endregion
+
+        public bool FeedbackEnabled
+        {
+            get
+            {
+                if (IsolatedStorageSettings.ApplicationSettings.Contains("FeedbackEnabled") == true)
+                {
+                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"].ToString());
+                }
+                else
+                {
+                    // Default to true if no user setting exists
+                    return true;
+                }
+            }
+
+            set
+            {
+                IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"] = value;
+                IsolatedStorageSettings.ApplicationSettings.Save();
+                OnPropertyChanged("FeedbackEnabled");
+            }
+        }
 
         public void Clear()
         {

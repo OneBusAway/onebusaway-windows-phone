@@ -22,6 +22,7 @@ namespace OneBusAway.WP7.ViewModel
     {
         private Object stopsForLocationCompletedLock;
         private Object stopsForLocationLock;
+        private GeoCoordinate previousQuery;
 
         private ICache<string, Stop> stopsCache;
 
@@ -51,6 +52,7 @@ namespace OneBusAway.WP7.ViewModel
             StopsForLocation = new ObservableCollection<Stop>();
 
             stopsCache = CacheFactory.Singleton.StopsCache;
+            previousQuery = new GeoCoordinate();
         }
 
         #endregion
@@ -60,18 +62,14 @@ namespace OneBusAway.WP7.ViewModel
         public ObservableCollection<Stop> StopsForLocation { get; private set; }
         public String CacheCount { get; private set; }
 
-        public void LoadStopsForLocation(GeoCoordinate topLeft, GeoCoordinate bottomRight)
+        public void LoadStopsForLocation(GeoCoordinate center)
         {
-            GeoCoordinate center = new GeoCoordinate()
+            // If the two queries are being rounded to the same coordinate, no 
+            // reason to re-parse the data out of the cache
+            if (busServiceModel.AreLocationsEquivalent(previousQuery, center) == true)
             {
-                Latitude = (topLeft.Latitude + bottomRight.Latitude) / 2,
-                Longitude = (topLeft.Longitude + bottomRight.Longitude) / 2
+                return;
             };
-
-            int radiusInMeters = ((int)topLeft.GetDistanceTo(bottomRight)) / 2;
-            // Query for at least a 250m radius and less than a 3km radius
-            radiusInMeters = Math.Max(radiusInMeters, 250);
-            radiusInMeters = Math.Min(radiusInMeters, 3000);
 
             this.LoadingText = "Loading stops";
             operationTracker.WaitForOperation("StopsForLocation");
@@ -80,7 +78,7 @@ namespace OneBusAway.WP7.ViewModel
             IDictionary<string, Stop> tempStops = new Dictionary<string,Stop>();
             foreach (Pair<string, Stop> stopPair in stopsCache.GetAll())
             {
-                if (stopPair.value.location.GetDistanceTo(center) <= radiusInMeters)
+                if (stopPair.value.location.GetDistanceTo(center) <= defaultSearchRadius)
                 {
                     tempStops.Add(stopPair.key, stopPair.value);
                     stopsCache.Get(stopPair.key); // this Get is just to update the LRU information in the cache to keep this stop warm
@@ -95,8 +93,9 @@ namespace OneBusAway.WP7.ViewModel
             });
             SetStopsForLocation(tempStops);
 
+            previousQuery = center;
             // and make the service call in the background
-            busServiceModel.StopsForLocation(center, radiusInMeters);
+            busServiceModel.StopsForLocation(center, defaultSearchRadius);
         }
 
         /// <summary>
