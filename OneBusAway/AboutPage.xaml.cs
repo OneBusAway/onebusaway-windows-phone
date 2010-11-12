@@ -13,6 +13,7 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
 using System.Reflection;
 using OneBusAway.WP7.ViewModel;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -23,6 +24,10 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
 
             VersionTextBlock.Text = "Version " + "2.1.0.1";
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         // Methods overridden for analytics purposes
