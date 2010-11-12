@@ -321,39 +321,6 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void SearchByLocationCallback(LocationForQuery location, Exception error)
-        {
-            Dispatcher.BeginInvoke(() =>
-            {
-                SearchStoryboard.Seek(TimeSpan.Zero);
-                SearchStoryboard.Stop();
-                this.Focus();
-            });
-
-            if (error != null)
-            {
-                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-            }
-            else if (location == null)
-            {
-                string message = 
-                    "Search for a route: 44\r\n" +
-                    "Search by stop number: 11132\r\n" + 
-                    "Find a landmark: Space Needle\r\n" +
-                    "Or an address: 1 Microsoft Way";
-                MessageBox.Show(message, "No results found", MessageBoxButton.OK);
-            }
-            else
-            {
-                viewModel.CurrentViewState.CurrentRoute = null;
-                viewModel.CurrentViewState.CurrentRouteDirection = null;
-                viewModel.CurrentViewState.CurrentStop = null;
-                viewModel.CurrentViewState.CurrentSearchLocation = location;
-
-                NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
-            }
-        }
-
         private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
         {
             string searchString = SearchInputBox.Text;
