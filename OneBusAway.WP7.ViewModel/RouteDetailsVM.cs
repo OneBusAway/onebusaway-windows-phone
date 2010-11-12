@@ -201,7 +201,10 @@ namespace OneBusAway.WP7.ViewModel
 
                     if (uiCallback != null)
                     {
-                        uiCallback.Invoke();
+                        // Make this callback from the UI thread, because that is the easiest way
+                        // to ensure it happens after the above UI thread operations.  If this callback
+                        // occurs before the ViewState is updated it will cause a bug
+                        viewModel.UIAction(() => uiCallback.Invoke());
                     }
                 }
                 else

@@ -14,7 +14,10 @@
     Foreground="{StaticResource PhoneForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
-    shell:SystemTray.IsVisible="True">
+    xmlns:tilt="clr-namespace:ControlTiltEffect"
+    tilt:TiltEffect.IsTiltEnabled="True"
+    shell:SystemTray.IsVisible="True"
+    >
 
     <view:AViewPage.Resources>
         <data:StopsMapVM x:Key="ViewModel" />
@@ -63,19 +66,30 @@
             </m:MapLayer>
             <m:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10" Visibility="{Binding Path=Visibility, ElementName=BusStopsLayer}">
                 <m:Pushpin x:Name="StopInfoBox" Visibility="Collapsed">
-                    <Grid>
-                        <Grid.Background>
-                            <SolidColorBrush Color="{StaticResource OBAPrimaryColor}"/>
-                        </Grid.Background>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Name="StopName" Grid.Row="0" Foreground="{StaticResource OBAForegroundBrush}" Margin="2,2,4,2" />
-                        <TextBlock Name="StopRoutes" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2"/>
-                        <TextBlock Name="StopDirection" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2,0,2,2"/>
-                    </Grid>
+                    <Button 
+                        x:Name="PopupBtn"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        BorderThickness="0"
+                        Padding="0"
+                        Margin="-5,-5,-5,-5"
+                        Background="{StaticResource OBABackgroundBrush}"
+                        Click="PopupBtn_Click"
+                            >
+                        <Grid Margin="4">
+                            <Grid.Background>
+                                <SolidColorBrush Color="{StaticResource OBAPrimaryColor}"/>
+                            </Grid.Background>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Name="StopName" Grid.Row="0" Foreground="{StaticResource OBAForegroundBrush}" Margin="2,2,4,2" />
+                            <TextBlock Name="StopRoutes" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2"/>
+                            <TextBlock Name="StopDirection" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Margin="2,0,2,2"/>
+                        </Grid>
+                    </Button>
                 </m:Pushpin>
             </m:MapLayer>
             <m:MapLayer x:Name="MyLocationLayer" Canvas.ZIndex="8">

@@ -18,6 +18,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
 using System.Windows.Threading;
+using System.IO.IsolatedStorage;
 
 namespace OneBusAway.WP7.View
 {
@@ -35,7 +36,7 @@ namespace OneBusAway.WP7.View
 
             // It is the first launch of the app if this key doesn't exist.  Otherwise we are returning
             // to the main page after tombstoning and showing the splash screen looks bad
-            if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == false)
+            if (PhoneApplicationService.Current.State.ContainsKey("ShowLoadingSplash") == false)
             {
                 ShowLoadingSplash();
             }
@@ -78,10 +79,40 @@ namespace OneBusAway.WP7.View
 
             ApplicationBar.IsVisible = true;
             SystemTray.IsVisible = true;
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+            if (firstLoad == true)
+            {
+                // In this case, we've been re-created after a tombstone, resume their previous pivot
+                if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
+                {
+                    PC.SelectedIndex = (int)(MainPagePivots)PhoneApplicationService.Current.State["MainPageSelectedPivot"];
+                }
+                // The app was started fresh, not from tombstone.  Check pivot settings.  If there isn't a setting,
+                // default to the last used pivot
+                else if (IsolatedStorageSettings.ApplicationSettings.Contains("DefaultMainPagePivot") == true &&
+                        (MainPagePivots)IsolatedStorageSettings.ApplicationSettings["DefaultMainPagePivot"] >= 0)
+                {
+                    PC.SelectedIndex = (int)(MainPagePivots)IsolatedStorageSettings.ApplicationSettings["DefaultMainPagePivot"];
+                }
+                else
+                {
+                    // Is is set to use the previous pivot, if this key doesn't exist just leave
+                    // the pivot selection at the default
+                    if (IsolatedStorageSettings.ApplicationSettings.Contains("LastUsedMainPagePivot") == true)
+                    {
+                        PC.SelectedIndex = (int)(MainPagePivots)IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"];
+                    }
+                }
+            }
+            firstLoad = false;
+
             viewModel.RegisterEventHandlers(Dispatcher);
             viewModel.LoadFavorites();
             viewModel.LoadInfoForLocation();
@@ -113,12 +144,6 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
-            if (firstLoad == true && PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
-            {
-                PC.SelectedIndex = Convert.ToInt32(PhoneApplicationService.Current.State["MainPageSelectedPivot"]);
-                firstLoad = false;
-            }
-
             // We refresh this info every load so clear the lists now
             // to avoid a flicker as the page comes back
             viewModel.DisplayRouteForLocation.Clear();
@@ -131,7 +156,13 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedFrom(e);
 
-            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = PC.SelectedIndex;
+            // Store it in the state variable for tombstoning
+            PhoneApplicationService.Current.State["ShowLoadingSplash"] = false;
+            PhoneApplicationService.Current.State["MainPageSelectedPivot"] = (MainPagePivots)PC.SelectedIndex;
+
+            // This is for the last-used pivot on fresh load
+            IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"] = (MainPagePivots)PC.SelectedIndex;
+            IsolatedStorageSettings.ApplicationSettings.Save();
 
             viewModel.UnregisterEventHandlers();
         }
@@ -235,16 +266,58 @@ namespace OneBusAway.WP7.View
             }
             else if (stops.Count == 0)
             {
-                MessageBox.Show("No results found");
+                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
             }
             else
             {
-                viewModel.CurrentViewState.CurrentRoute = null;
-                viewModel.CurrentViewState.CurrentRouteDirection = null;
-                viewModel.CurrentViewState.CurrentStop = stops[0];
-                viewModel.CurrentViewState.CurrentSearchLocation = null;
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoute = null;
+                        viewModel.CurrentViewState.CurrentRouteDirection = null;
+                        viewModel.CurrentViewState.CurrentStop = stops[0];
+                        viewModel.CurrentViewState.CurrentSearchLocation = null;
 
-                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                        NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                    });
+            }
+        }
+
+        private void SearchByLocationCallback(LocationForQuery location, Exception error)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                SearchStoryboard.Seek(TimeSpan.Zero);
+                SearchStoryboard.Stop();
+                this.Focus();
+            });
+
+            if (error != null)
+            {
+                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
+            }
+            else if (location == null)
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        string message =
+                            "Search for a route: 44\r\n" +
+                            "Search by stop number: 11132\r\n" +
+                            "Find a landmark: Space Needle\r\n" +
+                            "Or an address: 1 Microsoft Way";
+                        MessageBox.Show(message, "No results found", MessageBoxButton.OK);
+                    });
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        viewModel.CurrentViewState.CurrentRoute = null;
+                        viewModel.CurrentViewState.CurrentRouteDirection = null;
+                        viewModel.CurrentViewState.CurrentStop = null;
+                        viewModel.CurrentViewState.CurrentSearchLocation = location;
+
+                        NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                    });
             }
         }
 

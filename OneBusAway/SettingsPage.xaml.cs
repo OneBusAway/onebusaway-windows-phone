@@ -11,6 +11,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using OneBusAway.WP7.ViewModel;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -24,7 +25,21 @@ namespace OneBusAway.WP7.View
             InitializeComponent();
             base.Initialize();
 
+            this.Loaded += new RoutedEventHandler(SettingsPage_Loaded);
+
             viewModel = Resources["ViewModel"] as SettingsVM;
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
+        }
+
+        void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Add the event handlers here instead of in XAML so they aren't called when the initial
+            // selection is made on page load
+            ReportUsageTs.Click += new EventHandler<RoutedEventArgs>(ReportUsageTs_Click);
+            DefaultPivotLp.SelectionChanged += new SelectionChangedEventHandler(DefaultPivotLp_SelectionChanged);
         }
 
         // Methods overridden for analytics purposes
@@ -42,6 +57,18 @@ namespace OneBusAway.WP7.View
         private void appbar_clear_history_Click(object sender, EventArgs e)
         {
             viewModel.Clear();
+        }
+
+        // Created for analytics
+        private void DefaultPivotLp_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        // Created for analytics
+        private void ReportUsageTs_Click(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }
