@@ -230,6 +230,8 @@ namespace OneBusAway.WP7.Model
                 {
                     appStorage.DeleteFile(fileName);
                 }
+
+                throw;
             }
 
             return favoritesFromFile;
