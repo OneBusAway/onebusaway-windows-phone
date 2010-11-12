@@ -17,6 +17,21 @@ using System.Collections.Generic;
 
 namespace OneBusAway.WP7.View
 {
+    public class LowercaseConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string str = value as string;
+
+            return str.ToLower();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class StopRoutesConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -58,7 +73,44 @@ namespace OneBusAway.WP7.View
             if (stop != null && viewModel.LocationTracker.LocationKnown == true)
             {
                 double distance = stop.CalculateDistanceInMiles(viewModel.LocationTracker.CurrentLocation);
-                return string.Format("Distance: {0:0.00} mi", distance);
+                return string.Format("distance: {0:0.00} mi", distance);
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class ShortDistanceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value == null)
+            {
+                return String.Empty;
+            }
+
+            Stop stop;
+            if (value is Stop)
+            {
+                stop = (Stop)value;
+            }
+            else
+            {
+                stop = ((Route)value).closestStop;
+            }
+
+            AViewModel viewModel = parameter as AViewModel;
+            if (stop != null && viewModel.LocationTracker.LocationKnown == true)
+            {
+                double distance = stop.CalculateDistanceInMiles(viewModel.LocationTracker.CurrentLocation);
+                return string.Format("{0:0.00} mi", distance);
             }
             else
             {

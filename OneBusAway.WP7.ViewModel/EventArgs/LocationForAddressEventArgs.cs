@@ -8,14 +8,16 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
 {
     public class LocationForAddressEventArgs : AModelEventArgs
     {
-        public GeoCoordinate location { get; private set; }
+        public List<LocationForQuery> locations { get; private set; }
         public string query { get; private set; }
+        public GeoCoordinate searchNearLocation { get; private set; }
 
-        public LocationForAddressEventArgs(GeoCoordinate location, string query, Exception error)
+        public LocationForAddressEventArgs(List<LocationForQuery> locations, string query, GeoCoordinate searchNearLocation, Exception error)
         {
             this.error = error;
             this.query = query;
-            this.location = location;
+            this.locations = locations;
+            this.searchNearLocation = searchNearLocation;
         }
     }
 }

@@ -19,6 +19,7 @@ using Microsoft.Phone.Controls;
 using System.Windows.Navigation;
 using System.Windows.Controls.Primitives;
 using System.Threading;
+using System.IO.IsolatedStorage;
 
 namespace OneBusAway.WP7.View
 {
@@ -26,6 +27,22 @@ namespace OneBusAway.WP7.View
     {
         private ViewState viewState = ViewState.Instance;
         public PhoneApplicationFrame RootFrame { get; private set; }
+
+        private bool FeedbackEnabled
+        {
+            get
+            {
+                if (IsolatedStorageSettings.ApplicationSettings.Contains("FeedbackEnabled") == true)
+                {
+                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["FeedbackEnabled"].ToString());
+                }
+                else
+                {
+                    // We default to enabled if there is no user setting
+                    return true;
+                }
+            }
+        }
 
         public App()
         {
@@ -45,6 +62,7 @@ namespace OneBusAway.WP7.View
             viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
             viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
             viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
+            viewState.CurrentSearchLocation = (LocationForQuery)GetStateHelper("CurrentSearchLocation", typeof(LocationForQuery));
         }
 
         private object GetStateHelper(string key, Type type)
@@ -67,6 +85,7 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State["CurrentRoutes"] = Serialize(viewState.CurrentRoutes);
             PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
             PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
+            PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
         }
 
         private string Serialize(Object obj)

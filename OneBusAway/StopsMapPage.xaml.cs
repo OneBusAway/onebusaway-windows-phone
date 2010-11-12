@@ -16,6 +16,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using Microsoft.Phone.Controls.Maps;
 using System.Windows.Data;
 using System.Collections;
+using Microsoft.Phone.Shell;
 
 namespace OneBusAway.WP7.View
 {
@@ -28,11 +29,13 @@ namespace OneBusAway.WP7.View
     public partial class StopsMapPage : AViewPage
     {
         private StopsMapVM viewModel;
-        private LocationRect previousMapView;
-        private Object mapHasMovedLock;
         private bool mapHasMoved;
 
-        internal static int minZoomLevel = 15; //below this level we don't even bother querying
+        internal static int minZoomLevel = 16; //below this level we don't even bother querying
+
+#if DEBUG
+        private MapLayer cacheRectLayer;
+#endif
 
         public StopsMapPage()
             : base()
@@ -41,103 +44,130 @@ namespace OneBusAway.WP7.View
             base.Initialize();
 
             viewModel = aViewModel as StopsMapVM;
-            previousMapView = DetailsMap.BoundingRectangle;
             mapHasMoved = false;
-            mapHasMovedLock = new Object();
             this.Loaded += new RoutedEventHandler(FullScreenMapPage_Loaded);
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
-            this.DetailsMap.MapZoom += new EventHandler<MapZoomEventArgs>(DetailsMap_MapZoom);
             this.DetailsMap.MapPan += new EventHandler<MapDragEventArgs>(DetailsMap_MapPan);
-            this.DetailsMap.ViewChangeEnd += new EventHandler<MapEventArgs>(DetailsMap_ViewChangeEnd);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
+
+#if DEBUG
+            cacheRectLayer = new MapLayer();
+            cacheRectLayer.SetValue(Canvas.ZIndexProperty, 20);
+            this.DetailsMap.Children.Add(cacheRectLayer);
+#endif
+
+#if DEBUG
+            if (Microsoft.Devices.Environment.DeviceType == Microsoft.Devices.DeviceType.Emulator)
+            {
+                Button zoomOutBtn = new Button();
+                zoomOutBtn.Content = "Zoom Out";
+                zoomOutBtn.Background = new SolidColorBrush(Colors.Transparent);
+                zoomOutBtn.Foreground = new SolidColorBrush(Colors.Black);
+                zoomOutBtn.BorderBrush = new SolidColorBrush(Colors.Black);
+                zoomOutBtn.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                zoomOutBtn.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                zoomOutBtn.Click += new RoutedEventHandler(zoomOutBtn_Click);
+                zoomOutBtn.SetValue(Canvas.ZIndexProperty, 30);
+                zoomOutBtn.SetValue(Grid.RowProperty, 2);
+                LayoutRoot.Children.Add(zoomOutBtn);
+            }
+#endif
         }
 
-        // This method will kick off the initial load of bus stops, and
-        // then unregister itself
-        void DetailsMap_MapResolved(object sender, EventArgs e)
+#if DEBUG
+        void zoomOutBtn_Click(object sender, RoutedEventArgs e)
         {
-            this.DetailsMap.MapResolved -= new EventHandler(DetailsMap_MapResolved);
-            DetailsMap_ViewChangeEnd(this, null);
+            DetailsMap.ZoomLevel--;
         }
+#endif
 
         void FullScreenMapPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            if (viewModel.CurrentViewState.CurrentSearchLocation != null)
+            {
+                // Using mapHasMoved prevents us from relocating the map if the user reloads this
+                // page from the back stack
+                if (mapHasMoved == false)
                 {
                     Dispatcher.BeginInvoke(() =>
                         {
-                            // If the user has already moved the map, don't relocate it
-                            if (mapHasMoved == false)
-                            {
-                                // Now that we know where we are register the MapResolved event to load
-                                // the initial stops
-                                mapHasMoved = true;
-                                this.DetailsMap.MapResolved += new EventHandler(DetailsMap_MapResolved);
-                                DetailsMap.Center = location;
-                            }
+                            //DetailsMap.Center = viewModel.CurrentViewState.CurrentSearchLocation.location;
+                            DetailsMap.SetView(viewModel.CurrentViewState.CurrentSearchLocation.boundingBox);
+                            viewModel.LoadStopsForLocation(viewModel.CurrentViewState.CurrentSearchLocation.location);
                         }
-                        );
+                    );
                 }
-            );
-        }
-
-        void DetailsMap_ViewChangeEnd(object sender, MapEventArgs e)
-        {
-                lock (mapHasMovedLock)
-                {
-                    if (mapHasMoved == false)
+            }
+            else
+            {
+                viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
                     {
-                        return;
-                    }
-                    else
-                    {
-                        mapHasMoved = false;
-                    }
-                }
-
-                if (DetailsMap.ZoomLevel > minZoomLevel )
-                {
-                    // TODO: Fix this logic, I think it has threading issues that can cause it to break
-                    // If the layer isn't visible, that means there were too many stops found by our previous query
-                    // so we should always fire a new query, even if they are inside of the previous rectangle
-                    //if (BusStopsLayer.Visibility == Visibility.Collapsed || 
-                    //    LocationRectContainedBy(previousMapView, DetailsMap.BoundingRectangle) == false)   
-                    {
-                        viewModel.LoadStopsForLocation(
-                            new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.North, Longitude = DetailsMap.BoundingRectangle.West },
-                            new GeoCoordinate() { Latitude = DetailsMap.BoundingRectangle.South, Longitude = DetailsMap.BoundingRectangle.East }
+                        Dispatcher.BeginInvoke(() =>
+                            {
+                                // If the user has already moved the map, don't relocate it
+                                if (mapHasMoved == false)
+                                {
+                                    DetailsMap.Center = location;
+                                }
+                                    
+                                viewModel.LoadStopsForLocation(location);
+                            }
                             );
-
-                        previousMapView = DetailsMap.BoundingRectangle;
                     }
-                }
-            
+                );
+            }
         }
 
         void DetailsMap_MapPan(object sender, MapDragEventArgs e)
         {
-            lock (mapHasMovedLock)
-            {
-                mapHasMoved = true;
-            }
-        }
+            GeoCoordinate center = DetailsMap.TargetCenter;
+            mapHasMoved = true;
 
-        void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
-        {
-            if (DetailsMap.ZoomLevel < minZoomLevel)
+            if (DetailsMap.TargetZoomLevel >= minZoomLevel)
             {
-                BusStopsLayer.Visibility = Visibility.Collapsed;
+                viewModel.LoadStopsForLocation(center);
             }
-            else
-            {
-                BusStopsLayer.Visibility = Visibility.Visible;
-                lock (mapHasMovedLock)
-                {
-                    mapHasMoved = true;
-                }
-            }
+
+#if DEBUG
+            cacheRectLayer.Children.Clear();
+
+            int roundingLevel = 2;
+            int multiplier = 3;
+            double positiveOffset = (Math.Pow(.1, roundingLevel) * 0.5) / multiplier;
+            double negativeOffset = (Math.Pow(.1, roundingLevel) * 0.5) / multiplier;
+
+            double lat = Math.Round(center.Latitude * multiplier, roundingLevel) / multiplier;
+            double lon = Math.Round(center.Longitude * multiplier, roundingLevel) / multiplier;
+
+            // Round off the extra decimal places to prevent double precision issues
+            // from causing multiple cache entires
+            GeoCoordinate roundedLocation = new GeoCoordinate(
+                Math.Round(lat, roundingLevel + 1),
+                Math.Round(lon, roundingLevel + 1)
+            );
+
+            MapPolygon cacheSquare = new MapPolygon();
+            cacheSquare.Locations = new LocationCollection();
+            cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude + positiveOffset, roundedLocation.Longitude + positiveOffset));
+            cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude - negativeOffset, roundedLocation.Longitude + positiveOffset));
+            cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude - negativeOffset, roundedLocation.Longitude - negativeOffset));
+            cacheSquare.Locations.Add(new GeoCoordinate(roundedLocation.Latitude + positiveOffset, roundedLocation.Longitude - negativeOffset));
+            
+            cacheSquare.Stroke = new SolidColorBrush(Colors.Black);
+            cacheSquare.StrokeThickness = 5;
+
+            cacheRectLayer.Children.Add(cacheSquare);
+
+            Pushpin requestCenterPushpin = new Pushpin();
+            requestCenterPushpin.Location = roundedLocation;
+
+            cacheRectLayer.Children.Add(requestCenterPushpin);
+
+            CenterControl deadCenter = new CenterControl();
+            cacheRectLayer.AddChild(deadCenter, center, PositionOrigin.Center);
+#endif
         }
 
         private bool LocationRectContainedBy(LocationRect outer, LocationRect inner)
@@ -187,10 +217,8 @@ namespace OneBusAway.WP7.View
                         // popup is already open for this stop.  navigate to the details page
                         StopInfoBox.Visibility = Visibility.Collapsed;
                         StopInfoBox.Tag = null;
-                        viewModel.CurrentViewState.CurrentStop = stop;
-                        viewModel.CurrentViewState.CurrentRoute = null;
-                        viewModel.CurrentViewState.CurrentRouteDirection = null;
-                        NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+
+                        NavigateToDetailsPage(stop);
                     }
                     else
                     {
@@ -207,27 +235,14 @@ namespace OneBusAway.WP7.View
                 }
             }
         }
-    }
 
-    public class MaxStopsConverter : IValueConverter
-    {
-        private const int maxNumberOfStop = 80; //maximum number of stops we show at a time
-
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        private void NavigateToDetailsPage(Stop stop)
         {
-            int count = (int)value;
-            bool visibility = (count < maxNumberOfStop) ;
+            viewModel.CurrentViewState.CurrentStop = stop;
+            viewModel.CurrentViewState.CurrentRoute = null;
+            viewModel.CurrentViewState.CurrentRouteDirection = null;
 
-            if (parameter != null) 
-                visibility = !visibility;
-
-            return visibility ? Visibility.Visible : Visibility.Collapsed;
-
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
         }
     }
 
@@ -236,7 +251,12 @@ namespace OneBusAway.WP7.View
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             double zoom = (double)value;
-            bool visibility = (zoom <= StopsMapPage.minZoomLevel);
+            bool visibility = (zoom < StopsMapPage.minZoomLevel);
+
+            if (parameter != null && bool.Parse(parameter.ToString()) == false)
+            {
+                visibility = !visibility;
+            }
 
             return visibility ? Visibility.Visible : Visibility.Collapsed;
         }

@@ -46,6 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Phone" />
+    <Reference Include="Microsoft.Phone.Controls.Maps, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="mscorlib" />
     <Reference Include="System.Device" />
     <Reference Include="System.Runtime.Serialization" />
@@ -62,6 +63,7 @@
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
+    <Compile Include="BusServiceDataStructures\LocationForQuery.cs" />
     <Compile Include="BusServiceDataStructures\PolyLine.cs" />
     <Compile Include="Data\CacheFactory.cs" />
     <Compile Include="Data\ICache.cs" />

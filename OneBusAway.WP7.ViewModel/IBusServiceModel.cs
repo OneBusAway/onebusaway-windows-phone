@@ -9,6 +9,8 @@ namespace OneBusAway.WP7.ViewModel
 {
     public interface IBusServiceModel
     {
+        bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2);
+
         event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
         void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters);
         void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters, int maxCount);
@@ -44,7 +46,7 @@ namespace OneBusAway.WP7.ViewModel
         void SearchForStops(GeoCoordinate location, string query);
 
         event EventHandler<LocationForAddressEventArgs> LocationForAddress_Completed;
-        void LocationForAddress(string addressString);
+        void LocationForAddress(string addressString, GeoCoordinate searchNearLocation);
 
         void ClearCache();
     }

@@ -17,8 +17,6 @@
     shell:SystemTray.IsVisible="True">
 
     <view:AViewPage.Resources>
-        <view:MaxStopsConverter x:Key="MaxStopsConverter"></view:MaxStopsConverter>
-
         <data:StopsMapVM x:Key="ViewModel" />
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         <view:MaxZoomConverter x:Key="MaxZoomConverter"></view:MaxZoomConverter>
@@ -54,9 +52,8 @@
         <!--ScaleVisibility="Collapsed"-->
         <m:Map Grid.Row="1" Grid.RowSpan="2" Name="DetailsMap" CopyrightVisibility="Collapsed" LogoVisibility="Collapsed"  CredentialsProvider="{StaticResource MapCredentials}"
                 Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="17" >
-            <m:MapLayer x:Name="BusStopsLayer" Canvas.ZIndex="2">
-                <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}"
-                                    Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}}">
+            <m:MapLayer x:Name="BusStopsLayer" Canvas.ZIndex="2" Visibility="{Binding Path=ZoomLevel, ElementName=DetailsMap, Converter={StaticResource MaxZoomConverter}, ConverterParameter=false}">
+                <m:MapItemsControl x:Name="StopsMapItemsControl" ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}">
                     <m:MapItemsControl.ItemTemplate>
                         <DataTemplate>
                             <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusStopLargePushpinStyle}" Tag="{Binding id}" />
@@ -64,7 +61,7 @@
                     </m:MapItemsControl.ItemTemplate>
                 </m:MapItemsControl>
             </m:MapLayer>
-            <m:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10">
+            <m:MapLayer x:Name="PopupLayer" Canvas.ZIndex="10" Visibility="{Binding Path=Visibility, ElementName=BusStopsLayer}">
                 <m:Pushpin x:Name="StopInfoBox" Visibility="Collapsed">
                     <Grid>
                         <Grid.Background>
@@ -88,20 +85,20 @@
             </m:MapLayer>
         </m:Map>
         
-        <!-- 
-        there should probably only be one of these "too many stops" indicators.
-        having two of them and making either one visible based on different conditions is ugly.
-        -->
-        <Border x:Name="TooManyStops1" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
-                       Visibility="{Binding Path=StopsForLocation.Count, Source={StaticResource ViewModel}, Converter={StaticResource MaxStopsConverter}, ConverterParameter=true}">
-            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
-                       Text="Too many stops. Zoom in to see nearby stops." />
-        </Border>
-        <Border x:Name="TooManyStops2" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
+        <Border x:Name="TooManyStops" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
                        Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}">
             <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
                        Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
+        
+        
+        <!-- TODO here as a debugging aide.  remove before merging to mainline -->
+        <!--
+        <Border Background="{StaticResource OBADarkBrush}" Grid.Row="1">
+            <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
+                       Text="{Binding Path=CacheCount, Source={StaticResource ViewModel}}"/>
+        </Border>
+        -->
         
         <ProgressBar  Grid.Row="0"
             Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
@@ -112,7 +109,8 @@
             VerticalAlignment="Top" 
             Width="480" 
             Style="{StaticResource PerformanceProgressBar}"
-            Foreground="{StaticResource OBAPrimaryBrush}"            
+            Foreground="{StaticResource OBAPrimaryBrush}"     
+            Canvas.ZIndex="100"
             />
     </Grid>
 

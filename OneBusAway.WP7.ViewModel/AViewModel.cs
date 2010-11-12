@@ -68,6 +68,11 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private/Protected Properties
 
+        // Always use the same search radius so the cache will be much
+        // more efficient.  500 m is small enough that we almost never
+        // exceed the 100 stop limit, even downtown.
+        protected int defaultSearchRadius = 500;
+
         private IBusServiceModel lazyBusServiceModel;
         protected IBusServiceModel busServiceModel
         {

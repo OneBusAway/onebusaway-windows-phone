@@ -6,7 +6,7 @@
     ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" 
     Title="OneBusAway" 
     RuntimeType="Silverlight" 
-    Version="1.7.0.0" 
+    Version="2.1.0.1" 
     Genre="apps.normal"  
     Author="http://onebusawaywp7.codeplex.com/" 
     Description="OneBusAway for Windows Phone 7" 
