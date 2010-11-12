@@ -79,6 +79,10 @@ namespace OneBusAway.WP7.View
 
             ApplicationBar.IsVisible = true;
             SystemTray.IsVisible = true;
+
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
         }
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)

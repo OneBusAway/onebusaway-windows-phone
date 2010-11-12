@@ -52,6 +52,10 @@ namespace OneBusAway.WP7.View
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
 
+#if SCREENSHOT
+            SystemTray.IsVisible = false;
+#endif
+
 #if DEBUG
             cacheRectLayer = new MapLayer();
             cacheRectLayer.SetValue(Canvas.ZIndexProperty, 20);
