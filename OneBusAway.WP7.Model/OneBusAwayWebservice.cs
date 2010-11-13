@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Net;
-using System.Device.Location;
 using System.Collections.Generic;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using System.Xml.Linq;
+using System.Device.Location;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Diagnostics;
+using System.Net;
+using System.Xml.Linq;
 using OneBusAway.WP7.ViewModel;
-using System.Globalization;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.Model
 {
@@ -160,6 +160,9 @@ namespace OneBusAway.WP7.Model
         {
             GeoCoordinate roundedLocation = GetRoundedLocation(location);
 
+            // ditto for the search radius -- nearest 50 meters for caching
+            int roundedRadius = (int)(Math.Round(radiusInMeters / 50.0) * 50);
+
             string requestString = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
@@ -167,7 +170,7 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 roundedLocation.Latitude.ToString(NumberFormatInfo.InvariantInfo),
                 roundedLocation.Longitude.ToString(NumberFormatInfo.InvariantInfo),
-                radiusInMeters,
+                roundedRadius,
                 APIVERSION
                 );
 
@@ -300,6 +303,32 @@ namespace OneBusAway.WP7.Model
 
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
+                        // parse all the routes
+                        IList<Route> routes =
+                            (from route in xmlDoc.Descendants("route")
+                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
+                        IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
+                        foreach (Route r in routes)
+                        {
+                            routesMap.Add(r.id, r);
+                        }
+
+                        // parse all the stops, using previously parsed Route objects
+                        IList<Stop> stops =
+                            (from stop in xmlDoc.Descendants("stop")
+                             select ParseStop(stop,
+                                 (from routeId in stop.Element("routeIds").Descendants("string")
+                                  select routesMap[SafeGetValue(routeId)]
+                                      ).ToList<Route>()
+                             )).ToList<Stop>();
+
+                        IDictionary<string, Stop> stopsMap = new Dictionary<string, Stop>();
+                        foreach (Stop s in stops)
+                        {
+                            stopsMap.Add(s.id, s);
+                        }
+
+                        // and put it all together
                         routeStops =
                             (from stopGroup in xmlDoc.Descendants("stopGroup")
                              where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
@@ -314,23 +343,9 @@ namespace OneBusAway.WP7.Model
                                                      }).ToList<PolyLine>(),
                                  stops =
                                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
-                                      from stop in xmlDoc.Descendants("stop")
-                                      where SafeGetValue(stopId) == SafeGetValue(stop.Element("id"))
-                                      select ParseStop(
-                                            stop, 
-                                            (from routeId in stop.Element("routeIds").Descendants("string")
-                                            from route in xmlDoc.Descendants("route")
-                                            where SafeGetValue(route.Element("id")) == SafeGetValue(routeId)
-                                            select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
-                                            )).ToList<Stop>(),
+                                      select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
 
-                                 route =
-                                    (from route in xmlDoc.Descendants("route")
-                                     where routeId == SafeGetValue(route.Element("id"))
-                                     select ParseRoute(
-                                        route,
-                                        xmlDoc.Descendants("agency")
-                                        )).First()
+                                 route = routesMap[routeId]
 
                              }).ToList<RouteStops>();
                     }
