@@ -267,7 +267,7 @@ namespace OneBusAway.WP7.Model
 
                 // This should never happen, but if the file count doesn't match
                 // go and clean up the cache
-                if (filesInCache.Length != metadata.GetNumberEntries())
+                if (filesInCache.Length > metadata.GetNumberEntries())
                 {
                     Debug.Assert(false);
 
@@ -280,10 +280,7 @@ namespace OneBusAway.WP7.Model
                         {
                             // Then we have a file in the cache, but no record of it being put there... clean it up
                             // Most common way to hit this would be that I changed the internal naming format between versions.
-                            lock (fileAccessSync)
-                            {
-                                iso.DeleteFile(qualifiedFilename);
-                            }
+                            iso.DeleteFile(qualifiedFilename);
                         }
                     }
                 }
@@ -295,10 +292,7 @@ namespace OneBusAway.WP7.Model
 
                 if (string.IsNullOrEmpty(oldestFile.Key) == false)
                 {
-                    lock (fileAccessSync)
-                    {
-                        iso.DeleteFile(oldestFile.Key);
-                    }
+                    iso.DeleteFile(oldestFile.Key);
 
                     metadata.RemoveUpdateTime(oldestFile.Key);
                     CacheEvictions++;
@@ -364,10 +358,7 @@ namespace OneBusAway.WP7.Model
                 // purge the entry from the cache
                 using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    lock (fileAccessSync)
-                    {
-                        iso.DeleteFile(fileName);
-                    }
+                    iso.DeleteFile(fileName);
                 }
 
                 // and purge the metadata entry
@@ -389,6 +380,7 @@ namespace OneBusAway.WP7.Model
         /// </summary>
         private class CacheMetadata
         {
+            private object settingsLock = new object();
             private HttpCache owner;
 
             // Silverlight doesn't track file update / creation time.
@@ -409,7 +401,10 @@ namespace OneBusAway.WP7.Model
                     // create new settings store for this cache
                     fileUpdateTimes = new Dictionary<string, DateTime>();
                     cacheSettings[owner.Name] = fileUpdateTimes;
-                    cacheSettings.Save();
+                    lock (settingsLock)
+                    {
+                        cacheSettings.Save();
+                    }
                 }
             }
 
@@ -437,8 +432,10 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes[filename] = when;
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
-
-                //IsolatedStorageSettings.ApplicationSettings.Save();
+                lock (settingsLock)
+                {
+                    IsolatedStorageSettings.ApplicationSettings.Save();
+                }
             }
 
             public void RemoveUpdateTime(string filename)
@@ -446,7 +443,10 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes.Remove(filename);
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
-                IsolatedStorageSettings.ApplicationSettings.Save();
+                lock (settingsLock)
+                {
+                    IsolatedStorageSettings.ApplicationSettings.Save();
+                }
             }
 
             public int GetNumberEntries()
@@ -456,7 +456,7 @@ namespace OneBusAway.WP7.Model
 
             public KeyValuePair<string, DateTime> GetOldestFile()
             {
-                KeyValuePair<string, DateTime> oldestFile = new KeyValuePair<string, DateTime>(string.Empty, DateTime.Now);
+                KeyValuePair<string, DateTime> oldestFile = new KeyValuePair<string, DateTime>(string.Empty, DateTime.MaxValue);
 
                 foreach (KeyValuePair<string, DateTime> fileUpdateTime in fileUpdateTimes)
                 {
@@ -474,7 +474,10 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes.Clear();
                 IsolatedStorageSettings cacheSettings = IsolatedStorageSettings.ApplicationSettings;
                 cacheSettings.Remove(owner.Name);
-                cacheSettings.Save();
+                lock (settingsLock)
+                {
+                    cacheSettings.Save();
+                }
             }
             
         }
