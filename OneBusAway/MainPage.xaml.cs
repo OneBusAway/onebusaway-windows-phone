@@ -162,7 +162,6 @@ namespace OneBusAway.WP7.View
 
             // This is for the last-used pivot on fresh load
             IsolatedStorageSettings.ApplicationSettings["LastUsedMainPagePivot"] = (MainPagePivots)PC.SelectedIndex;
-            IsolatedStorageSettings.ApplicationSettings.Save();
 
             viewModel.UnregisterEventHandlers();
         }
