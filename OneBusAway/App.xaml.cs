@@ -86,6 +86,8 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State["CurrentRouteDirection"] = Serialize(viewState.CurrentRouteDirection);
             PhoneApplicationService.Current.State["CurrentStop"] = Serialize(viewState.CurrentStop);
             PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
+
+            IsolatedStorageSettings.ApplicationSettings.Save();
         }
 
         private string Serialize(Object obj)
@@ -172,6 +174,7 @@ namespace OneBusAway.WP7.View
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            IsolatedStorageSettings.ApplicationSettings.Save();
         }
 
         // Code to execute if a navigation fails

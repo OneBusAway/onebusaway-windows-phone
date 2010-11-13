@@ -8,6 +8,7 @@ using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.ComponentModel;
+using System.Threading;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -348,17 +349,23 @@ namespace OneBusAway.WP7.ViewModel
                 int routeCount = 0;
                 foreach (Route route in e.routes)
                 {
+                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", route.id));
+
                     if (routeCount > maxRoutes)
                     {
                         break;
                     }
 
-                    Route currentRoute = route;
                     DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
+                    UIAction(() =>
+                        {
+                            DisplayRouteForLocation.Add(currentDisplayRoute);
+                            // Need to kick this off from inside the UI thread, or we might
+                            // get the result back before the route has been added to the list
+                            new Thread(() => busServiceModel.StopsForRoute(currentDisplayRoute.Route)).Start();
+                        }
+                        );
 
-                    UIAction(() => DisplayRouteForLocation.Add(currentDisplayRoute));
-
-                    UIAction(() => busServiceModel.StopsForRoute(currentRoute));
                     routeCount++;
                 }
             }
@@ -377,29 +384,33 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                
                 lock (displayRouteLock)
                 {
-                    UIAction(() =>
+                    bool matchFound = false;
+                    foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
                     {
-                        foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
+                        if (e.route.Equals(displayRoute.Route))
                         {
-
-                            if (e.route.Equals(displayRoute.Route))
-                            {
-                                e.routeStops.ForEach(r => displayRoute.RouteStops.Add(r));
-                                //TODO only block on this section
-                                //UIAction(() => e.routeStops.ForEach(r => displayRoute.RouteStops.Add(r)));
-                            }
+                            matchFound = true;
+                            DisplayRoute currentDisplayRoute = displayRoute;
+                            e.routeStops.ForEach(r => 
+                                UIAction(() =>
+                                {
+                                    currentDisplayRoute.RouteStops.Add(r);
+                                }
+                                ));
                         }
-                    });
-                 }
+                    }
 
+                    Debug.Assert(matchFound == true);
+                 }
             }
             else
             {
                 ErrorOccured(this, e.error);
             }
+
+            operationTracker.DoneWithOperation(string.Format("StopsForRoute_{0}", e.route.id));
         }
 
         void appDataModel_Favorites_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)

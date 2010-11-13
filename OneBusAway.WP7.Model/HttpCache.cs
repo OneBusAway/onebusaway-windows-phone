@@ -401,10 +401,6 @@ namespace OneBusAway.WP7.Model
                     // create new settings store for this cache
                     fileUpdateTimes = new Dictionary<string, DateTime>();
                     cacheSettings[owner.Name] = fileUpdateTimes;
-                    lock (settingsLock)
-                    {
-                        cacheSettings.Save();
-                    }
                 }
             }
 
@@ -432,10 +428,6 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes[filename] = when;
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
-                lock (settingsLock)
-                {
-                    IsolatedStorageSettings.ApplicationSettings.Save();
-                }
             }
 
             public void RemoveUpdateTime(string filename)
@@ -443,10 +435,6 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes.Remove(filename);
                 // note this relies on referential integrity.
                 // i.e. fileUpdateTimes is a reference to an object in the application settings
-                lock (settingsLock)
-                {
-                    IsolatedStorageSettings.ApplicationSettings.Save();
-                }
             }
 
             public int GetNumberEntries()
@@ -474,10 +462,6 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes.Clear();
                 IsolatedStorageSettings cacheSettings = IsolatedStorageSettings.ApplicationSettings;
                 cacheSettings.Remove(owner.Name);
-                lock (settingsLock)
-                {
-                    cacheSettings.Save();
-                }
             }
             
         }
