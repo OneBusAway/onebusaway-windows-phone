@@ -222,15 +222,16 @@ namespace OneBusAway.WP7.Model
         {
             using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                // get isolatedstorage for this cache
-                if (!iso.DirectoryExists(this.Name))
-                {
-                    iso.CreateDirectory(this.Name);
-                }
-
-                string fileName = MapAddressToFile(address);
+                string fileName;
                 lock (fileAccessSync)
                 {
+                    // get isolatedstorage for this cache
+                    if (!iso.DirectoryExists(this.Name))
+                    {
+                        iso.CreateDirectory(this.Name);
+                    }
+
+                    fileName = MapAddressToFile(address);
                     EvictIfNecessary(iso);
 
                     using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.Write))
