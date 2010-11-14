@@ -60,9 +60,20 @@ namespace OneBusAway.WP7.View
         }
 
         // Created for analytics
+        private Dictionary<string, string> NewDefaultPivot
+        {
+            get
+            {
+                Dictionary<string, string> data = new Dictionary<string, string>();
+                data.Add("NewDefaultPivot", DefaultPivotLp.SelectedItem.ToString());
+                return data;
+            }
+        }
+
+        // Created for analytics
         private void DefaultPivotLp_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            
         }
 
         // Created for analytics

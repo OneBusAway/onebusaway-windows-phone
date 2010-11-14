@@ -173,6 +173,18 @@ namespace OneBusAway.WP7.Model
 
         #region Private Methods
 
+        // Added for analytics
+        private Dictionary<string, string> NumberOfFavorites
+        {
+            get
+            {
+                Dictionary<string, string> data = new Dictionary<string, string>();
+                data.Add("Favorites-Count", (favorites[FavoriteType.Favorite].Count).ToString());
+                data.Add("Recents-Count", (favorites[FavoriteType.Recent].Count).ToString());
+                return data;
+            }
+        }
+
         private static void WriteFavoritesToDisk(List<FavoriteRouteAndStop> favoritesToWrite, string fileName)
         {
             IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication();
@@ -220,7 +232,7 @@ namespace OneBusAway.WP7.Model
                     favoritesFromFile = new List<FavoriteRouteAndStop>();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Debug.Assert(false);
 
