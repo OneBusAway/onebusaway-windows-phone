@@ -9,7 +9,7 @@
     </loadpaths>
     <asmlist>
       <package refid="86498ca1-6b6f-44d3-87ff-a221ffd4426b">
-        <file dir="E:\Visual Studio Projects\OneBusAway-V2.0\OneBusAway\Bin\Release" name="OneBusAway.xap" />
+        <file dir="E:\Visual Studio Projects\OneBusAway-Main\OneBusAway\Bin\Release" name="OneBusAway.xap" />
         <asmlist>
           <inputassembly refid="6e84b030-705d-4859-98b6-545baeccef97">
             <option>honoroas</option>
@@ -61,7 +61,7 @@
     </asmlist>
   </input>
   <output>
-    <file dir="E:\Visual Studio Projects\OneBusAway-V2.0\OneBusAway\Bin\Release\Dotfuscated" />
+    <file dir="E:\Visual Studio Projects\OneBusAway-Main\OneBusAway\Bin\Release\Dotfuscated" />
   </output>
   <renaming>
     <option>disable</option>
@@ -376,30 +376,14 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.App">
-        <method name="Application_Closing" signature="void(object, Microsoft.Phone.Shell.ClosingEventArgs)" />
+      <type name="OneBusAway.WP7.View.DetailsPage">
+        <method name="ArrivalsListBox_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
       </type>
       <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.App.Exited" />
-        <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Tick" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.App">
-        <method name="Application_Deactivated" signature="void(object, Microsoft.Phone.Shell.DeactivatedEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.App.Tombstoned" />
+        <property name="Name" value="View.DetailsPage.BusArrivalSelected" />
         <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
         <property name="FeatureEventType" value="Tick" />
       </propertylist>
@@ -425,6 +409,54 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.App">
+        <method name="Application_Deactivated" signature="void(object, Microsoft.Phone.Shell.DeactivatedEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.App.Tombstoned" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Tick" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.SettingsPage">
+        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.SettingsPage" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Stop" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.Model.AppDataModel">
+        <method name="AddFavorite" signature="void(OneBusAway.WP7.ViewModel.AppDataDataStructures.FavoriteRouteAndStop, OneBusAway.WP7.ViewModel.FavoriteType)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="Property" />
+        <property name="Name" value="Model.AppData.AddFavorite" />
+        <property name="ExtendedKeySourceName" value="NumberOfFavorites" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Tick" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.App">
         <method name="Application_Launching" signature="void(object, Microsoft.Phone.Shell.LaunchingEventArgs)" />
       </type>
       <propertylist>
@@ -440,62 +472,14 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+      <type name="OneBusAway.WP7.View.App">
+        <method name="Application_Closing" signature="void(object, Microsoft.Phone.Shell.ClosingEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.SettingsPage" />
+        <property name="Name" value="View.App.Exited" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Stop" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.AboutPage">
-        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.AboutPage" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Stop" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.SettingsPage" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Start" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.DetailsPage">
-        <method name="ArrivalsListBox_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.DetailsPage.BusArrivalSelected" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
         <property name="FeatureEventType" value="Tick" />
       </propertylist>
@@ -514,6 +498,54 @@
         <property name="ExtendedKeySourceOwner" value="" />
         <property name="ExtendedKeyMethodArguments" value="" />
         <property name="FeatureEventType" value="Start" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.SettingsPage">
+        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.SettingsPage" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Start" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.MainPage">
+        <method name="appbar_refresh_Click" signature="void(object, System.EventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="Name" value="View.MainPage.RefreshButtonSelected" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Tick" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.AboutPage">
+        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.AboutPage" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Stop" />
       </propertylist>
     </extattribute>
     <extattribute name="PreEmptive.Attributes.FeatureAttribute">
@@ -537,43 +569,11 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.MainPage">
-        <method name="appbar_refresh_Click" signature="void(object, System.EventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage.RefreshButtonSelected" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Tick" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.BusDirectionPage">
-        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.BusDirectionPage" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Start" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.MainPage">
         <method name="stopsMapBtn_Click" signature="void(object, System.Windows.RoutedEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="MainPage.View.StopsMapSelected" />
+        <property name="Name" value="View.MainPage.StopsMapSelected" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
@@ -745,31 +745,15 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.MainPage">
-        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+        <method name="SearchByRouteCallback" signature="void(System.Collections.Generic.List`1&lt;OneBusAway.WP7.ViewModel.BusServiceDataStructures.Route&gt;, System.Exception)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage" />
+        <property name="Name" value="View.MainPage.SearchByRoute" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Start" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.MainPage">
-        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Stop" />
+        <property name="FeatureEventType" value="Tick" />
       </propertylist>
     </extattribute>
     <extattribute name="PreEmptive.Attributes.FeatureAttribute">
@@ -793,15 +777,15 @@
         <codetransform name="analytics" />
       </codetransformlist>
       <type name="OneBusAway.WP7.View.MainPage">
-        <method name="RoutesListBox_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
+        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage.RouteSelected" />
+        <property name="Name" value="View.MainPage" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Tick" />
+        <property name="FeatureEventType" value="Start" />
       </propertylist>
     </extattribute>
     <extattribute name="PreEmptive.Attributes.FeatureAttribute">
@@ -824,12 +808,60 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.AViewPage">
-        <method name="viewModel_ErrorHandler" signature="void(object, OneBusAway.WP7.ViewModel.EventArgs.ErrorHandlerEventArgs)" />
+      <type name="OneBusAway.WP7.View.BusDirectionPage">
+        <method name="OnNavigatedTo" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.AViewPage.UnhandledException" />
+        <property name="Name" value="View.BusDirectionPage" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Start" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.MainPage">
+        <method name="RoutesListBox_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="Name" value="View.MainPage.RouteSelected" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Tick" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.MainPage">
+        <method name="OnNavigatedFrom" signature="void(System.Windows.Navigation.NavigationEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="Name" value="View.MainPage" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Stop" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.MainPage">
+        <method name="SearchByLocationCallback" signature="void(OneBusAway.WP7.ViewModel.BusServiceDataStructures.LocationForQuery, System.Exception)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="Name" value="View.MainPage.SearchByLocation" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
@@ -856,12 +888,28 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.MainPage">
-        <method name="SearchByRouteCallback" signature="void(System.Collections.Generic.List`1&lt;OneBusAway.WP7.ViewModel.BusServiceDataStructures.Route&gt;, System.Exception)" />
+      <type name="OneBusAway.WP7.View.SettingsPage">
+        <method name="ReportUsageTs_Click" signature="void(object, System.Windows.RoutedEventArgs)" />
+      </type>
+      <propertylist>
+        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.SettingsPage.ChangeSendFeedback" />
+        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceOwner" value="" />
+        <property name="ExtendedKeyMethodArguments" value="" />
+        <property name="FeatureEventType" value="Tick" />
+      </propertylist>
+    </extattribute>
+    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
+      <codetransformlist>
+        <codetransform name="analytics" />
+      </codetransformlist>
+      <type name="OneBusAway.WP7.View.AViewPage">
+        <method name="viewModel_ErrorHandler" signature="void(object, OneBusAway.WP7.ViewModel.EventArgs.ErrorHandlerEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage.SearchByRoute" />
+        <property name="Name" value="View.AViewPage.UnhandledException" />
         <property name="ExtendedKeySourceName" value="" />
         <property name="ExtendedKeySourceElement" value="None" />
         <property name="ExtendedKeyMethodArguments" value="" />
@@ -872,14 +920,14 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.MainPage">
-        <method name="SearchByLocationCallback" signature="void(OneBusAway.WP7.ViewModel.BusServiceDataStructures.LocationForQuery, System.Exception)" />
+      <type name="OneBusAway.WP7.View.SettingsPage">
+        <method name="DefaultPivotLp_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
       </type>
       <propertylist>
         <property name="ExtendedKeySourceOwner" value="" />
-        <property name="Name" value="View.MainPage.SearchByLocation" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceElement" value="None" />
+        <property name="Name" value="View.SettingsPage.ChangeDefaultPivot" />
+        <property name="ExtendedKeySourceName" value="NewDefaultPivot" />
+        <property name="ExtendedKeySourceElement" value="Property" />
         <property name="ExtendedKeyMethodArguments" value="" />
         <property name="FeatureEventType" value="Tick" />
       </propertylist>
@@ -916,29 +964,13 @@
       <codetransformlist>
         <codetransform name="analytics" />
       </codetransformlist>
-      <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="DefaultPivotLp_SelectionChanged" signature="void(object, System.Windows.Controls.SelectionChangedEventArgs)" />
+      <type name="OneBusAway.WP7.Model.AppDataModel">
+        <method name="DeleteFavorite" signature="void(OneBusAway.WP7.ViewModel.AppDataDataStructures.FavoriteRouteAndStop, OneBusAway.WP7.ViewModel.FavoriteType)" />
       </type>
       <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.SettingsPage.ChangeDefaultPivot" />
-        <property name="ExtendedKeySourceName" value="" />
-        <property name="ExtendedKeySourceOwner" value="" />
-        <property name="ExtendedKeyMethodArguments" value="" />
-        <property name="FeatureEventType" value="Tick" />
-      </propertylist>
-    </extattribute>
-    <extattribute name="PreEmptive.Attributes.FeatureAttribute">
-      <codetransformlist>
-        <codetransform name="analytics" />
-      </codetransformlist>
-      <type name="OneBusAway.WP7.View.SettingsPage">
-        <method name="ReportUsageTs_Click" signature="void(object, System.Windows.RoutedEventArgs)" />
-      </type>
-      <propertylist>
-        <property name="ExtendedKeySourceElement" value="None" />
-        <property name="Name" value="View.SettingsPage.ChangeSendFeedback" />
-        <property name="ExtendedKeySourceName" value="" />
+        <property name="ExtendedKeySourceElement" value="Property" />
+        <property name="Name" value="Model.AppData.DeleteFavorite" />
+        <property name="ExtendedKeySourceName" value="NumberOfFavorites" />
         <property name="ExtendedKeySourceOwner" value="" />
         <property name="ExtendedKeyMethodArguments" value="" />
         <property name="FeatureEventType" value="Tick" />

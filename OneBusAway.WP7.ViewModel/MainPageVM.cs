@@ -456,17 +456,13 @@ namespace OneBusAway.WP7.ViewModel
 
     public class DisplayRoute : INotifyPropertyChanged
     {
-        public ObservableCollection<RouteStops> routeStops = new ObservableCollection<RouteStops>();
-        public ObservableCollection<RouteStops> RouteStops { get { return routeStops; } }
-
+        public ObservableCollection<RouteStops> RouteStops { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private void NotifyPropertyChanged(String info)
+        public DisplayRoute()
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
+            RouteStops = new ObservableCollection<RouteStops>();
+            route = null;
         }
 
         private Route route;
@@ -484,6 +480,14 @@ namespace OneBusAway.WP7.ViewModel
                     this.route = value;
                     NotifyPropertyChanged("Route");
                 }
+            }
+        }
+
+        private void NotifyPropertyChanged(String info)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
         }
     }
