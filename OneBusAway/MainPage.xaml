@@ -81,33 +81,32 @@
         </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
-            <Grid>
+            <Grid Margin="0,10,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="200" />
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="390" />
                 </Grid.ColumnDefinitions>
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-
-                <StackPanel Grid.Column="0" VerticalAlignment="Top" Grid.Row="1" Grid.RowSpan="3" Margin="10,0,0,0" Orientation="Vertical">
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0" Orientation="Vertical">
                     <TextBlock Text="{Binding Path=Route.shortName}" FontSize="{StaticResource PhoneFontSizeExtraLarge}"  Foreground="{StaticResource OBAForegroundBrush}" />
                     <TextBlock Foreground="{StaticResource OBASubtleBrush}"  Margin="2,0,0,0" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=Route, Converter={StaticResource ShortDistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"  >
-                    <ItemsControl ItemsSource="{Binding Path=RouteStops}" Height="105">
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <ItemsControl ItemsSource="{Binding Path=RouteStops}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <ListBoxItem x:Name="DirectionButton"  Content="{Binding Path=name, Converter={StaticResource LowercaseConverter}}"  
-                                        FontSize="{StaticResource PhoneFontSizeLarge}"  
-                                        Foreground="{StaticResource OBAForegroundBrush}"
-                                         HorizontalContentAlignment="Left"
-                                         MouseLeftButtonUp="DirectionButton_MouseLeftButtonUp"
-                                         BorderThickness="0" />
+                                <Button 
+                                    x:Name="DirectionButton"  
+                                    Content="{Binding Path=name, Converter={StaticResource LowercaseConverter}}"  
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    FontSize="{StaticResource PhoneFontSizeLarge}"  
+                                    Foreground="Red"
+                                    Click="DirectionButton_Click"
+                                    BorderThickness="0" 
+                                    Padding="0"
+                                    Margin="0,-7,0,-7"
+                                    />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

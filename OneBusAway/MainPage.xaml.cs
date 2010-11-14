@@ -376,7 +376,7 @@ namespace OneBusAway.WP7.View
             NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 
-        private void DirectionButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void DirectionButton_Click(object sender, RoutedEventArgs e)
         {
             RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
             viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };

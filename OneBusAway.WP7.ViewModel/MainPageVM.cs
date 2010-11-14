@@ -48,10 +48,53 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Public Properties
 
-        public ObservableCollection<Stop> StopsForLocation { get; private set; }
-        public ObservableCollection<DisplayRoute> DisplayRouteForLocation { get; private set; } 
-        public ObservableCollection<FavoriteRouteAndStop> Favorites { get; private set; }
-        public ObservableCollection<FavoriteRouteAndStop> Recents { get; private set; }
+        private ObservableCollection<Stop> stopsForLocation;
+        public ObservableCollection<Stop> StopsForLocation 
+        {
+            get { return stopsForLocation; }
+
+            private set
+            {
+                stopsForLocation = value;
+                OnPropertyChanged("StopsForLocation");
+            }
+        }
+
+        private ObservableCollection<DisplayRoute> displayRouteForLocation;
+        public ObservableCollection<DisplayRoute> DisplayRouteForLocation 
+        {
+            get { return displayRouteForLocation; }
+
+            private set
+            {
+                displayRouteForLocation = value;
+                OnPropertyChanged("DisplayRouteForLocation");
+            }
+        }
+
+        private ObservableCollection<FavoriteRouteAndStop> favorites;
+        public ObservableCollection<FavoriteRouteAndStop> Favorites 
+        {
+            get { return favorites; }
+
+            private set
+            {
+                favorites = value;
+                OnPropertyChanged("Favorites");
+            }
+        }
+
+        private ObservableCollection<FavoriteRouteAndStop> recents;
+        public ObservableCollection<FavoriteRouteAndStop> Recents 
+        {
+            get { return recents; }
+
+            private set
+            {
+                recents = value;
+                OnPropertyChanged("Recents");
+            }
+        }
 
         #endregion
 
