@@ -19,6 +19,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
 using System.Windows.Threading;
 using System.IO.IsolatedStorage;
+using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.WP7.View
 {

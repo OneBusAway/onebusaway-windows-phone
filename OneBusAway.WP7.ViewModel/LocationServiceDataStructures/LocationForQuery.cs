@@ -12,14 +12,14 @@ using System.Device.Location;
 using System.Runtime.Serialization;
 using Microsoft.Phone.Controls.Maps;
 
-namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
+namespace OneBusAway.WP7.ViewModel.LocationServiceDataStructures
 {
     public enum Confidence : int
     { 
-        High = 10,
-        Medium = 7, 
-        Low = 4,
-        Unknown = 0
+        High = 0,
+        Medium = 1, 
+        Low = 2,
+        Unknown = -1
     };
 
     [DataContract]

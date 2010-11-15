@@ -9,6 +9,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.ComponentModel;
 using System.Threading;
+using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.WP7.ViewModel
 {
@@ -169,8 +170,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             operationTracker.WaitForOperation("SearchByAddress");
 
-            busServiceModel.LocationForAddress_Completed += new LocationForAddressCompleted(this, callback).busServiceModel_LocationForAddress_Completed;
-            busServiceModel.LocationForAddress(addressString, locationTracker.CurrentLocationSafe);
+            locationModel.LocationForAddress(addressString, locationTracker.CurrentLocationSafe, callback);
         }
 
         public delegate void CheckForLocalTransitData_Callback(bool hasData);
@@ -199,9 +199,11 @@ namespace OneBusAway.WP7.ViewModel
 
             this.busServiceModel.CombinedInfoForLocation_Completed += new EventHandler<EventArgs.CombinedInfoForLocationEventArgs>(busServiceModel_CombinedInfoForLocation_Completed);
             this.busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(busServiceModel_StopsForRoute_Completed);
-
+            
             this.appDataModel.Favorites_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed += new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
+
+            this.locationModel.LocationForAddress_Completed += busServiceModel_LocationForAddress_Completed;
         }
 
         public override void UnregisterEventHandlers()
@@ -213,6 +215,8 @@ namespace OneBusAway.WP7.ViewModel
 
             this.appDataModel.Favorites_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Favorites_Changed);
             this.appDataModel.Recents_Changed -= new EventHandler<EventArgs.FavoritesChangedEventArgs>(appDataModel_Recents_Changed);
+
+            this.locationModel.LocationForAddress_Completed -= busServiceModel_LocationForAddress_Completed;
 
             // Reset loading to 0 since event handlers have been unregistered
             this.operationTracker.ClearOperations();
@@ -314,57 +318,45 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        private class LocationForAddressCompleted
+        public void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
         {
-            private SearchByAddress_Callback callback;
-            private MainPageVM viewModel;
+            Debug.Assert(e.error == null);
 
-            public LocationForAddressCompleted(MainPageVM viewModel, SearchByAddress_Callback callback)
+            LocationForQuery location;
+            if (e.locations.Count > 1)
             {
-                this.callback = callback;
-                this.viewModel = viewModel;
-            }
-
-            public void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
-            {
-                Debug.Assert(e.error == null);
-
-                LocationForQuery location;
-                if (e.locations.Count > 1)
+                location = e.locations[0];
+                foreach (LocationForQuery l in e.locations)
                 {
-                    location = e.locations[0];
-                    foreach (LocationForQuery l in e.locations)
+                    // If the candidate is a higher confidence than the
+                    // current selected location, pick it instead
+                    if (l.confidence < location.confidence)
                     {
-                        // If the candidate is a higher confidence than the
-                        // current selected location, pick it instead
-                        if (l.confidence > location.confidence)
-                        {
-                            location = l;
-                        }
-                        // The candidate doesn't have a higher confidence, so confirm that it
-                        // is the same confidence, and then select whichever one is closest to Seattle
-                        else if (l.confidence == location.confidence &&
-                            l.location.GetDistanceTo(e.searchNearLocation) <
-                            location.location.GetDistanceTo(e.searchNearLocation))
-                        {
-                            location = l;
-                        }
+                        location = l;
+                    }
+                    // The candidate doesn't have a higher confidence, so confirm that it
+                    // is the same confidence, and then select whichever one is closest to Seattle
+                    else if (l.confidence == location.confidence &&
+                        l.location.GetDistanceTo(e.searchNearLocation) <
+                        location.location.GetDistanceTo(e.searchNearLocation))
+                    {
+                        location = l;
                     }
                 }
-                else if (e.locations.Count == 1)
-                {
-                    location = e.locations[0];
-                }
-                else
-                {
-                    location = null;
-                }
-
-                callback(location, e.error);
-                viewModel.busServiceModel.LocationForAddress_Completed -= this.busServiceModel_LocationForAddress_Completed;
-
-                viewModel.operationTracker.DoneWithOperation("SearchByAddress");
             }
+            else if (e.locations.Count == 1)
+            {
+                location = e.locations[0];
+            }
+            else
+            {
+                location = null;
+            }
+
+            SearchByAddress_Callback callback = (SearchByAddress_Callback)e.state;
+            callback(location, e.error);
+
+            operationTracker.DoneWithOperation("SearchByAddress");
         }
 
         void busServiceModel_CombinedInfoForLocation_Completed(object sender, EventArgs.CombinedInfoForLocationEventArgs e)

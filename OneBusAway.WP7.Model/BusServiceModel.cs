@@ -18,6 +18,7 @@ using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using System.Diagnostics;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using Microsoft.Phone.Controls.Maps;
+using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.WP7.Model
 {

@@ -68,7 +68,8 @@
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
-    <Compile Include="BusServiceDataStructures\LocationForQuery.cs" />
+    <Compile Include="EventArgs\SearchForStopsEventArgs.cs" />
+    <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />
     <Compile Include="BusServiceDataStructures\PolyLine.cs" />
     <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
     <Compile Include="EventArgs\AModelEventArgs.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="EventArgs\RoutesForLocationEventArgs.cs" />
     <Compile Include="EventArgs\StopsForLocationEventArgs.cs" />
     <Compile Include="EventArgs\TripDetailsForArrivalEventArgs.cs" />
+    <Compile Include="ILocationModel.cs" />
     <Compile Include="StopsMapVM.cs" />
     <Compile Include="IAppDataModel.cs" />
     <Compile Include="IBusServiceModel.cs" />

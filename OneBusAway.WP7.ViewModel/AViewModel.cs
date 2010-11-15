@@ -25,22 +25,24 @@ namespace OneBusAway.WP7.ViewModel
         #region Constructors
 
         public AViewModel()
-            :   this(null,null)
+            :   this(null,null,null)
         {
 
         }
 
         public AViewModel(IBusServiceModel busServiceModel)
-            : this(busServiceModel,
-                (IAppDataModel)Assembly.Load("OneBusAway.WP7.Model")
-                    .GetType("OneBusAway.WP7.Model.AppDataModel")
-                    .GetField("Singleton")
-                    .GetValue(null))
+            : this(busServiceModel, null)
         {
 
         }
 
         public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel)
+            : this(busServiceModel, appDataModel, null)
+        {
+
+        }
+
+        public AViewModel(IBusServiceModel busServiceModel, IAppDataModel appDataModel, ILocationModel locationModel)
         {
             this.lazyBusServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
@@ -57,11 +59,6 @@ namespace OneBusAway.WP7.ViewModel
 
             LoadingText = "Finding your location...";
             eventsRegistered = false;
-        }
-
-        void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
-        {
-            ErrorOccured(this, e.error);
         }
 
         #endregion
@@ -104,6 +101,22 @@ namespace OneBusAway.WP7.ViewModel
                 return lazyAppDataModel;
             }
         }
+
+        private ILocationModel lazyLocationModel;
+        protected ILocationModel locationModel
+        {
+            get
+            {
+                if (lazyLocationModel == null)
+                {
+                    lazyLocationModel = (ILocationModel)Assembly.Load("OneBusAway.WP7.Model")
+                        .GetType("OneBusAway.WP7.Model.LocationModel")
+                        .GetField("Singleton")
+                        .GetValue(null);
+                }
+                return lazyLocationModel;
+            }
+        }
   
         /// <summary>
         /// Subclasses should queue and dequeue their async calls onto this object to tie into the Loading property.
@@ -139,6 +152,11 @@ namespace OneBusAway.WP7.ViewModel
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
+        {
+            ErrorOccured(this, e.error);
         }
 
         #endregion
