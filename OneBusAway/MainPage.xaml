@@ -234,12 +234,12 @@
             Height="32"
             Fill="{StaticResource OBADarkBrush}"
             VerticalAlignment="Top"
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             />
 
         <TextBlock 
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            Text="{Binding Path=LoadingText, Source={StaticResource ViewModel}}"
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            Text="{Binding Path=operationTracker.LoadingMessage, Source={StaticResource ViewModel}}"
             Foreground="{StaticResource OBAForegroundBrush}"
             VerticalAlignment="Top"
             FontSize="20"
@@ -247,7 +247,7 @@
             />
         
         <ProgressBar 
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             IsIndeterminate="True" 
             Height="4" 
             HorizontalAlignment="Left" 

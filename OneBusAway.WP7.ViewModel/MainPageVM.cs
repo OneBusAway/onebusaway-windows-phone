@@ -115,10 +115,9 @@ namespace OneBusAway.WP7.ViewModel
         {
             StopsForLocation.Clear();
             DisplayRouteForLocation.Clear();
-            operationTracker.WaitForOperation("CombinedInfoForLocation");
+            operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
-                UIAction(() => this.LoadingText = "Searching for buses...");
                 busServiceModel.CombinedInfoForLocation(location, defaultSearchRadius, -1, invalidateCache);
             });
         }
@@ -144,7 +143,7 @@ namespace OneBusAway.WP7.ViewModel
         public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
         public void SearchByRoute(string routeNumber, SearchByRoute_Callback callback)
         {
-            operationTracker.WaitForOperation("SearchByRoute");
+            operationTracker.WaitForOperation("SearchByRoute", string.Format("Searching for route {0}...", routeNumber));
 
             busServiceModel.SearchForRoutes_Completed += new SearchByRouteCompleted(callback, busServiceModel, this).SearchByRoute_Completed;
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
@@ -156,7 +155,7 @@ namespace OneBusAway.WP7.ViewModel
         public delegate void SearchByStop_Callback(List<Stop> stops, Exception error);
         public void SearchByStop(string stopNumber, SearchByStop_Callback callback)
         {
-            operationTracker.WaitForOperation("SearchByStop");
+            operationTracker.WaitForOperation("SearchByStop", string.Format("Searching for stop {0}...", stopNumber));
 
             busServiceModel.SearchForStops_Completed += new SearchByStopCompleted(callback, busServiceModel, this).SearchByStop_Completed;
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
@@ -168,7 +167,7 @@ namespace OneBusAway.WP7.ViewModel
         public delegate void SearchByAddress_Callback(LocationForQuery location, Exception error);
         public void SearchByAddress(string addressString, SearchByAddress_Callback callback)
         {
-            operationTracker.WaitForOperation("SearchByAddress");
+            operationTracker.WaitForOperation("SearchByAddress", string.Format("Searching for location '{0}'...", addressString));
 
             locationModel.LocationForAddress(addressString, locationTracker.CurrentLocationSafe, callback);
         }
@@ -384,7 +383,7 @@ namespace OneBusAway.WP7.ViewModel
                 int routeCount = 0;
                 foreach (Route route in e.routes)
                 {
-                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", route.id));
+                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", route.id), "Loading route details...");
 
                     if (routeCount > maxRoutes)
                     {
@@ -395,14 +394,23 @@ namespace OneBusAway.WP7.ViewModel
                     UIAction(() =>
                         {
                             DisplayRouteForLocation.Add(currentDisplayRoute);
-                            // Need to kick this off from inside the UI thread, or we might
-                            // get the result back before the route has been added to the list
-                            new Thread(() => busServiceModel.StopsForRoute(currentDisplayRoute.Route)).Start();
                         }
                         );
 
                     routeCount++;
                 }
+
+                // Need to kick this off from inside the UI thread, or we might
+                // get the result back before the route has been added to the list
+                UIAction(() =>
+                    {
+                        new Thread(() =>
+                            {
+                                e.routes.ForEach(route => busServiceModel.StopsForRoute(route));
+                            }
+                        ).Start();
+                    }
+                );
             }
             else
             {

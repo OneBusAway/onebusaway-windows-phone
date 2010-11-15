@@ -39,7 +39,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void SearchByRoute()
         {
-            Assert.Equals(viewModel.Loading, false);
+            Assert.Equals(viewModel.operationTracker.Loading, false);
 
             viewModel.SearchByRoute(
                 "48",
@@ -47,20 +47,20 @@ namespace OneBusAway.WP7.Test
                 {
                     Assert.Equals(error, null);
                     Assert.Equals(routes.Count, 1);
-                    Assert.Equals(viewModel.Loading, false);
+                    Assert.Equals(viewModel.operationTracker.Loading, false);
 
                     EnqueueTestComplete();
                 }
             );
 
-            Assert.Equals(viewModel.Loading, true);
+            Assert.Equals(viewModel.operationTracker.Loading, true);
         }
 
         [TestMethod]
         [Asynchronous]
         public void SearchByRoute_NoResult()
         {
-            Assert.Equals(viewModel.Loading, false);
+            Assert.Equals(viewModel.operationTracker.Loading, false);
 
             viewModel.SearchByRoute(
                 "BusDoesNotExist",
@@ -68,13 +68,13 @@ namespace OneBusAway.WP7.Test
                 {
                     Assert.Equals(error, null);
                     Assert.Equals(routes.Count, 0);
-                    Assert.Equals(viewModel.Loading, false);
+                    Assert.Equals(viewModel.operationTracker.Loading, false);
 
                     EnqueueTestComplete();
                 }
             );
 
-            Assert.Equals(viewModel.Loading, true);
+            Assert.Equals(viewModel.operationTracker.Loading, true);
         }
 
         private class Callback

@@ -60,8 +60,7 @@ namespace OneBusAway.WP7.ViewModel
                 return;
             }
 
-            this.LoadingText = "Loading stops";
-            operationTracker.WaitForOperation("StopsForLocation");
+            operationTracker.WaitForOperation("StopsForLocation", "Loading stops...");
 
             previousQuery = center;
             busServiceModel.StopsForLocation(center, defaultSearchRadius);
