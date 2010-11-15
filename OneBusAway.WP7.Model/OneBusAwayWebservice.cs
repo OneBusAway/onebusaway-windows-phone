@@ -220,15 +220,23 @@ namespace OneBusAway.WP7.Model
 
                         XDocument xmlDoc = XDocument.Load(new StringReader(e.Result));
 
+                        // parse all the routes
+                        IList<Route> routes =
+                            (from route in xmlDoc.Descendants("route")
+                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
+                        IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
+                        foreach (Route r in routes)
+                        {
+                            routesMap.Add(r.id, r);
+                        }
+
                         stops =
                             (from stop in xmlDoc.Descendants("stop")
                              select ParseStop
                                 (
                                     stop,
                                     (from routeId in stop.Element("routeIds").Descendants("string")
-                                     from route in xmlDoc.Descendants("route")
-                                     where SafeGetValue(route.Element("id")) == SafeGetValue(routeId)
-                                     select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>()
+                                     select routesMap[SafeGetValue(routeId)]).ToList<Route>()
                                 )).ToList<Stop>();
 
                         IEnumerable<XElement> descendants = xmlDoc.Descendants("data");

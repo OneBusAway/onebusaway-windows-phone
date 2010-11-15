@@ -48,7 +48,7 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(FullScreenMapPage_Loaded);
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
-            this.DetailsMap.MapPan += new EventHandler<MapDragEventArgs>(DetailsMap_MapPan);
+            this.DetailsMap.TargetViewChanged += new EventHandler<MapEventArgs>(DetailsMap_TargetViewChanged);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
 
@@ -124,7 +124,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        void DetailsMap_MapPan(object sender, MapDragEventArgs e)
+        void DetailsMap_TargetViewChanged(object sender, MapEventArgs e)
         {
             GeoCoordinate center = DetailsMap.TargetCenter;
             mapHasMoved = true;
