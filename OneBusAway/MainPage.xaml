@@ -101,7 +101,7 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     FontSize="{StaticResource PhoneFontSizeLarge}"  
-                                    Foreground="Red"
+                                    Foreground="{StaticResource OBAForegroundBrush}"
                                     Click="DirectionButton_Click"
                                     BorderThickness="0" 
                                     Padding="0"

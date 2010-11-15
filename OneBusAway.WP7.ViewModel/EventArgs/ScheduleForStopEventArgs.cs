@@ -11,8 +11,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public Stop stop { get; private set; }
 
         public ScheduleForStopEventArgs(Stop stop, List<RouteSchedule> schedules, Exception error)
+            : base(error)
         {
-            this.error = error;
             this.schedules = schedules;
             this.stop = stop;
         }

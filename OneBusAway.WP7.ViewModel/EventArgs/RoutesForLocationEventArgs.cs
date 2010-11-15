@@ -12,8 +12,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public GeoCoordinate location { get; private set; }
 
         public RoutesForLocationEventArgs(List<Route> routes, GeoCoordinate location, Exception error)
+            : base(error)
         {
-            this.error = error;
             this.routes = routes;
             this.location = location;
         }

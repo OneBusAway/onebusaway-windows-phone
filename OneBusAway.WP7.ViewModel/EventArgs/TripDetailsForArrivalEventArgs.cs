@@ -19,9 +19,9 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public ArrivalAndDeparture arrival { get; private set; }
 
         public TripDetailsForArrivalEventArgs(List<ArrivalAndDeparture> arrivals, List<TripDetails> tripDetails, Exception error)
+            : base(error)
         {
             this.tripDetails = tripDetails;
-            this.error = error;
             this.arrival = arrival;
         }
     }

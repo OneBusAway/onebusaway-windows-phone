@@ -13,6 +13,19 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
 {
     public class AModelEventArgs : System.EventArgs
     {
-        public Exception error { get; protected set; }
+        public Exception error { get; private set; }
+        public object state { get; private set; }
+
+        public AModelEventArgs(Exception error)
+            : this(error, null)
+        {
+
+        }
+
+        public AModelEventArgs(Exception error, object state)
+        {
+            this.error = error;
+            this.state = state;
+        }
     }
 }

@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Controls.Primitives;
 using System.Threading;
 using System.IO.IsolatedStorage;
+using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.WP7.View
 {
