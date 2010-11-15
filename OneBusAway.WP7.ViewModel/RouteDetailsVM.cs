@@ -67,7 +67,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void SwitchToRouteByArrival(ArrivalAndDeparture arrival, Action uiCallback)
         {
-            operationTracker.WaitForOperation("StopsForRoute");
+            operationTracker.WaitForOperation("StopsForRoute", string.Format("Loading details for route {0}...", arrival.routeShortName));
 
             StopsForRouteCompleted callback = new StopsForRouteCompleted(this, arrival, uiCallback);
             busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(callback.busServiceModel_StopsForRoute_Completed);
@@ -104,7 +104,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void RefreshArrivalsForStop(Stop stop)
         {
-            operationTracker.WaitForOperation("ArrivalsForStop");
+            operationTracker.WaitForOperation("ArrivalsForStop", string.Empty);
             busServiceModel.ArrivalsForStop(stop);
         }
 
@@ -132,7 +132,7 @@ namespace OneBusAway.WP7.ViewModel
 
         public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
         {
-            operationTracker.WaitForOperation("TripsForArrivals");
+            operationTracker.WaitForOperation("TripsForArrivals", string.Empty);
             busServiceModel.TripDetailsForArrivals(arrivals);
         }
 

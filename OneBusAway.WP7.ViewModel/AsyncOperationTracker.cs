@@ -1,33 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace OneBusAway.WP7.ViewModel
 {
     /// <summary>
     /// Keeps track of multiple pending asynchronous operations.
-    /// Provides callbacks for a client to be notified when:
-    /// 1.  There are no more pending operations.
-    /// 2.  There are new pending operations.
     /// Client is responsible for notifying us of operation begin / end, and for providing unique names.
     /// </summary>
-    public class AsyncOperationTracker
+    public class AsyncOperationTracker : INotifyPropertyChanged
     {
         private Object pendingOperationsLock;
-        private List<string> pendingOperationsList;
-        private AllOperationsDone doneCallback;
-        private WaitingForOperations waitingCallback;
+        private ObservableCollection<KeyValuePair<string, string>> pendingOperationsList;
 
-        public AsyncOperationTracker() : this(null, null)
+        public AsyncOperationTracker()
         {
+            // Set up the default action, just execute in the same thread
+            UIAction = (uiAction => uiAction());
+
+            pendingOperationsLock = new Object();
+            pendingOperationsList = new ObservableCollection<KeyValuePair<string, string>>();
+            pendingOperationsList.CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(pendingOperationsList_CollectionChanged);
         }
 
-        public AsyncOperationTracker(AllOperationsDone doneCallback, WaitingForOperations waitingCallback)
+        public Action<Action> UIAction { get; set; }
+
+        public bool Loading
         {
-            pendingOperationsLock = new Object();
-            pendingOperationsList = new List<string>();
-            this.doneCallback = doneCallback;
-            this.waitingCallback = waitingCallback;
+            get 
+            {
+                return pendingOperationsList.Count != 0;
+            }
+        }
+
+        public string LoadingMessage
+        {
+            get 
+            {
+                if (pendingOperationsList.Count > 0)
+                {
+                    return pendingOperationsList[0].Value;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
         }
 
         public void ClearOperations()
@@ -35,23 +56,15 @@ namespace OneBusAway.WP7.ViewModel
             lock (pendingOperationsLock)
             {
                 pendingOperationsList.Clear();
-                if (doneCallback != null)
-                {
-                    doneCallback();
-                }
             }
         }
 
-        public void WaitForOperation(string operationName)
+        public void WaitForOperation(string operationName, string loadingMessage)
         {
             lock (pendingOperationsLock)
             {
                 bool wasEmpty = pendingOperationsList.Count == 0;
-                pendingOperationsList.Add(operationName);
-                if (wasEmpty && waitingCallback != null)
-                {
-                    waitingCallback();
-                }
+                pendingOperationsList.Add(new KeyValuePair<string, string>(operationName, loadingMessage));
             }
         }
 
@@ -59,16 +72,42 @@ namespace OneBusAway.WP7.ViewModel
         {
             lock (pendingOperationsLock)
             {
-                Debug.Assert(pendingOperationsList.Contains(operationName), "Someone has told us we're done with operation " + operationName + ", but we weren't waiting for it");
-                pendingOperationsList.Remove(operationName);
-                if (pendingOperationsList.Count == 0 && doneCallback != null)
+                KeyValuePair<string, string> itemToRemove = new KeyValuePair<string,string>();
+                bool found = false;
+                foreach(KeyValuePair<string, string> operation in pendingOperationsList)
                 {
-                    doneCallback();
+                    if (operation.Key == operationName)
+                    {
+                        found = true;
+                        itemToRemove = operation;
+                        break;
+                    }
+                }
+
+                if (found == true)
+                {
+                    pendingOperationsList.Remove(itemToRemove);
+                }
+                else
+                {
+                    Debug.Assert(found, "Someone has told us we're done with operation " + operationName + ", but we weren't waiting for it");
                 }
             }
         }
 
-        public delegate void AllOperationsDone();
-        public delegate void WaitingForOperations();
+        void pendingOperationsList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged("Loading");
+            OnPropertyChanged("LoadingMessage");
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
+            }
+        }
     }
 }

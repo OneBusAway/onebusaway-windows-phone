@@ -52,6 +52,9 @@ namespace OneBusAway.WP7.ViewModel
         private Object methodsRequiringLocationLock;
         private List<RequiresKnownLocation> methodsRequiringLocation;
         private AsyncOperationTracker operationTracker;
+#if DEBUG
+        private Timer timer = null;
+#endif
 
         #endregion
 
@@ -68,6 +71,33 @@ namespace OneBusAway.WP7.ViewModel
             methodsRequiringLocationLock = new Object();
             // Create the timer but don't run it until methods are added to the queue
             methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
+
+#if DEBUG    
+            if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
+            {
+                lastKnownLocation = null;
+                Random random = new Random();
+                int timeoutMs = random.Next(0, 5000);
+                timer = new Timer(param =>
+                    {
+                        UIAction(() => 
+                            {
+                                lastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
+                                GeoPositionChangedEventArgs<GeoCoordinate> args = 
+                                    new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, lastKnownLocation));
+                                LocationWatcher_LocationKnown(
+                                    this, 
+                                    args
+                                    );
+                                locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
+                            });
+                    }, 
+                    null, 
+                    timeoutMs,
+                    Timeout.Infinite
+                    );
+            }
+#endif
         }
 
         public void Initialize(AsyncOperationTracker operationTracker)
@@ -76,7 +106,7 @@ namespace OneBusAway.WP7.ViewModel
 
             if (LocationKnown == false)
             {
-                operationTracker.WaitForOperation("LoadLocation");
+                operationTracker.WaitForOperation("LoadLocation", "Finding your location...");
                 locationLoading = true;
                 locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                 locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
@@ -107,12 +137,14 @@ namespace OneBusAway.WP7.ViewModel
         {
             get
             {
+#if !DEBUG
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
                     //return new GeoCoordinate(47.645181, -122.140825); // Micorosft Studios
                     return new GeoCoordinate(47.675888, -122.320763); // Greenlake P&R
                     //return new GeoCoordinate(30.266, -97.742); // Austin, TX
                 }
+#endif
 
                 if (lastKnownLocation != null)
                 {
@@ -127,10 +159,12 @@ namespace OneBusAway.WP7.ViewModel
         {
             get
             {
+#if !DEBUG
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
                     return true;
                 }
+#endif
 
                 return lastKnownLocation != null;
             }

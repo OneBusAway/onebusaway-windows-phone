@@ -46,18 +46,13 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.lazyBusServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
-            Loading = false;
+
             locationTracker = new LocationTracker();
+            operationTracker = new AsyncOperationTracker();
 
             // Set up the default action, just execute in the same thread
             UIAction = (uiAction => uiAction());
             
-            operationTracker = new AsyncOperationTracker(
-                () => { UIAction(() => Loading = false); },
-                () => { UIAction(() => Loading = true); }
-                );
-
-            LoadingText = "Finding your location...";
             eventsRegistered = false;
         }
 
@@ -121,13 +116,11 @@ namespace OneBusAway.WP7.ViewModel
         /// <summary>
         /// Subclasses should queue and dequeue their async calls onto this object to tie into the Loading property.
         /// </summary>
-        protected AsyncOperationTracker operationTracker;
+        public AsyncOperationTracker operationTracker { get; private set; }
 
         protected LocationTracker locationTracker;
 
         private bool eventsRegistered;
-        private bool loading;
-        private string loadingText;
 
         #endregion
 
@@ -150,7 +143,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
             }
         }
 
@@ -175,6 +168,7 @@ namespace OneBusAway.WP7.ViewModel
                 // Set the ViewState's UIAction
                 CurrentViewState.UIAction = uiAction;
                 locationTracker.UIAction = uiAction;
+                operationTracker.UIAction = uiAction;
             }
         }
 
@@ -196,38 +190,6 @@ namespace OneBusAway.WP7.ViewModel
             { 
                 return locationTracker; 
             } 
-        }
-
-        public string LoadingText { 
-            get 
-            { 
-                return loadingText; 
-            }
-            protected set
-            {
-                if (loadingText != value)
-                {
-                    loadingText = value;
-                    OnPropertyChanged("LoadingText");
-                }
-            }
-        }
-
-        public bool Loading
-        {
-            get
-            {
-                return loading;
-            }
-
-            protected set
-            {
-                if (loading != value)
-                {
-                    loading = value;
-                    OnPropertyChanged("Loading");
-                }
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

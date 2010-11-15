@@ -84,14 +84,7 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
-            DetailsMap.MapResolved += new EventHandler(DetailsMap_MapResolved);
-
             UpdateAppBar(true);
-        }
-
-        void DetailsMap_MapResolved(object sender, EventArgs e)
-        {
-            DetailsMap_MapZoom(this, null);
         }
 
         // Only want to use the state variable on the initial call
@@ -188,6 +181,7 @@ namespace OneBusAway.WP7.View
                             DetailsMap.SetView(new LocationRect(location, radius, radius));
                         }
 
+                        DetailsMap_MapZoom(this, null);
                     });
                 }
             );
@@ -294,7 +288,7 @@ namespace OneBusAway.WP7.View
 
         private void DetailsMap_MapZoom(object sender, MapZoomEventArgs e)
         {
-            if (DetailsMap.ZoomLevel < 15)
+            if (DetailsMap.TargetZoomLevel < 15)
                 BusStopsLayer.Visibility = System.Windows.Visibility.Collapsed;
             else
                 BusStopsLayer.Visibility = System.Windows.Visibility.Visible;

@@ -65,7 +65,7 @@
         </Grid>
         
         <ProgressBar 
-            Visibility="{Binding Path=Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
             IsIndeterminate="True" 
             Height="4" 
             HorizontalAlignment="Left" 

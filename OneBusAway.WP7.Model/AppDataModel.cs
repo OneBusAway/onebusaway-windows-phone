@@ -187,16 +187,17 @@ namespace OneBusAway.WP7.Model
 
         private static void WriteFavoritesToDisk(List<FavoriteRouteAndStop> favoritesToWrite, string fileName)
         {
-            IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication();
-
-            using (IsolatedStorageFileStream favoritesFile = appStorage.OpenFile(fileName, FileMode.Create))
+            using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                List<Type> knownTypes = new List<Type>(2);
-                knownTypes.Add(typeof(FavoriteRouteAndStop));
-                knownTypes.Add(typeof(RecentRouteAndStop));
+                using (IsolatedStorageFileStream favoritesFile = appStorage.OpenFile(fileName, FileMode.Create))
+                {
+                    List<Type> knownTypes = new List<Type>(2);
+                    knownTypes.Add(typeof(FavoriteRouteAndStop));
+                    knownTypes.Add(typeof(RecentRouteAndStop));
 
-                DataContractSerializer serializer = new DataContractSerializer(favoritesToWrite.GetType(), knownTypes);
-                serializer.WriteObject(favoritesFile, favoritesToWrite);
+                    DataContractSerializer serializer = new DataContractSerializer(favoritesToWrite.GetType(), knownTypes);
+                    serializer.WriteObject(favoritesFile, favoritesToWrite);
+                }
             }
         }
 
@@ -206,30 +207,32 @@ namespace OneBusAway.WP7.Model
 
             try
             {
-                IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication();
-                if (appStorage.FileExists(fileName) == true)
+                using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    using (IsolatedStorageFileStream favoritesFile = appStorage.OpenFile(fileName, FileMode.Open))
+                    if (appStorage.FileExists(fileName) == true)
                     {
-                        List<Type> knownTypes = new List<Type>(2);
-                        knownTypes.Add(typeof(FavoriteRouteAndStop));
-                        knownTypes.Add(typeof(RecentRouteAndStop));
+                        using (IsolatedStorageFileStream favoritesFile = appStorage.OpenFile(fileName, FileMode.Open))
+                        {
+                            List<Type> knownTypes = new List<Type>(2);
+                            knownTypes.Add(typeof(FavoriteRouteAndStop));
+                            knownTypes.Add(typeof(RecentRouteAndStop));
 
-                        DataContractSerializer serializer = new DataContractSerializer(favoritesFromFile.GetType(), knownTypes);
-                        favoritesFromFile = serializer.ReadObject(favoritesFile) as List<FavoriteRouteAndStop>;
+                            DataContractSerializer serializer = new DataContractSerializer(favoritesFromFile.GetType(), knownTypes);
+                            favoritesFromFile = serializer.ReadObject(favoritesFile) as List<FavoriteRouteAndStop>;
+                        }
+
+                        // This is required because we changed the data format between versions 
+                        if (favoritesFromFile.Count > 0 && favoritesFromFile[0].version != FavoriteRouteAndStop.CurrentVersion)
+                        {
+                            // Currently we don't support backwards compatability, just delete all their favorites/recents
+                            appStorage.DeleteFile(fileName);
+                            favoritesFromFile = new List<FavoriteRouteAndStop>();
+                        }
                     }
-
-                    // This is required because we changed the data format between versions 
-                    if (favoritesFromFile.Count > 0 && favoritesFromFile[0].version != FavoriteRouteAndStop.CurrentVersion)
+                    else
                     {
-                        // Currently we don't support backwards compatability, just delete all their favorites/recents
-                        appStorage.DeleteFile(fileName);
                         favoritesFromFile = new List<FavoriteRouteAndStop>();
                     }
-                }
-                else
-                {
-                    favoritesFromFile = new List<FavoriteRouteAndStop>();
                 }
             }
             catch (Exception)
@@ -237,10 +240,12 @@ namespace OneBusAway.WP7.Model
                 Debug.Assert(false);
 
                 // We hit an error deserializing the file so delete it if it exists
-                IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication();
-                if (appStorage.FileExists(fileName) == true)
+                using (IsolatedStorageFile appStorage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    appStorage.DeleteFile(fileName);
+                    if (appStorage.FileExists(fileName) == true)
+                    {
+                        appStorage.DeleteFile(fileName);
+                    }
                 }
 
                 throw;
