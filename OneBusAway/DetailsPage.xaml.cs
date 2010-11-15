@@ -41,6 +41,8 @@ namespace OneBusAway.WP7.View
         private bool isFavorite;
         private bool isFiltered;
 
+        private const double minimumZoomRadius = 100 * 0.009 * 0.001; // 100 meters in degrees
+
         private string isFilteredStateId
         {
             get
@@ -181,6 +183,7 @@ namespace OneBusAway.WP7.View
                             GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
                                 viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
                             double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degress and double
+                            radius = Math.Max(radius, minimumZoomRadius);
 
                             DetailsMap.SetView(new LocationRect(location, radius, radius));
                         }

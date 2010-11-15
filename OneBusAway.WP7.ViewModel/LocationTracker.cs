@@ -110,7 +110,7 @@ namespace OneBusAway.WP7.ViewModel
                 if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
                 {
                     //return new GeoCoordinate(47.645181, -122.140825); // Micorosft Studios
-                    return new GeoCoordinate(47.676, -122.32); // Greenlake P&R
+                    return new GeoCoordinate(47.675888, -122.320763); // Greenlake P&R
                     //return new GeoCoordinate(30.266, -97.742); // Austin, TX
                 }
 
