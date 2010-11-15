@@ -53,6 +53,33 @@ namespace OneBusAway.WP7.Model
 
         #endregion
 
+        /// <summary>
+        /// Scan the list of stops to find all associated routes.
+        /// </summary>
+        /// <param name="stops"></param>
+        /// <param name="location">Center location used to find closestStop on each route.</param>
+        /// <returns></returns>
+        private List<Route> GetRoutesFromStops(List<Stop> stops, GeoCoordinate location)
+        {
+            IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
+            stops.Sort(new StopDistanceComparer(location));
+
+            foreach (Stop stop in stops)
+            {
+                foreach (Route route in stop.routes)
+                {
+                    if (!routesMap.ContainsKey(route.id))
+                    {
+                        // the stops are sorted in distance order.
+                        // so if we haven't already seen this route, then this is the closest stop.
+                        route.closestStop = stop;
+                        routesMap.Add(route.id, route);
+                    }
+                }
+            }
+            return routesMap.Values.ToList<Route>();
+        }
+
         #region Public Methods
 
         public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
@@ -87,19 +114,7 @@ namespace OneBusAway.WP7.Model
                     {
                         if (error == null)
                         {
-                            stops.Sort(new StopDistanceComparer(location));
-
-                            foreach (Stop stop in stops)
-                            {
-                                foreach (Route route in stop.routes)
-                                {
-                                    if (routes.Contains(route) == false)
-                                    {
-                                        route.closestStop = stop;
-                                        routes.Add(route);
-                                    }
-                                }
-                            }
+                            routes = GetRoutesFromStops(stops, location);
                         }
                     }
                     catch (Exception ex)
@@ -171,19 +186,7 @@ namespace OneBusAway.WP7.Model
                     {
                         if (error == null)
                         {
-                            stops.Sort(new StopDistanceComparer(location));
-
-                            foreach (Stop stop in stops)
-                            {
-                                foreach (Route route in stop.routes)
-                                {
-                                    if (routes.Contains(route) == false)
-                                    {
-                                        route.closestStop = stop;
-                                        routes.Add(route);
-                                    }
-                                }
-                            }
+                            routes = GetRoutesFromStops(stops, location);
                         }
                     }
                     catch (Exception ex)
