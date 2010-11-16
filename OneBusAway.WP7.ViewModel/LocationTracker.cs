@@ -71,38 +71,38 @@ namespace OneBusAway.WP7.ViewModel
             methodsRequiringLocationLock = new Object();
             // Create the timer but don't run it until methods are added to the queue
             methodsRequiringLocationTimer = new Timer(new TimerCallback(RunMethodsRequiringLocation), null, Timeout.Infinite, Timeout.Infinite);
+        }
 
-#if DEBUG    
+        public void Initialize(AsyncOperationTracker operationTracker)
+        {
+            this.operationTracker = operationTracker;
+
+#if DEBUG
             if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
             {
                 lastKnownLocation = null;
                 Random random = new Random();
                 int timeoutMs = random.Next(0, 5000);
                 timer = new Timer(param =>
+                {
+                    UIAction(() =>
                     {
-                        UIAction(() => 
-                            {
-                                lastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
-                                GeoPositionChangedEventArgs<GeoCoordinate> args = 
-                                    new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, lastKnownLocation));
-                                LocationWatcher_LocationKnown(
-                                    this, 
-                                    args
-                                    );
-                                locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
-                            });
-                    }, 
-                    null, 
+                        lastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
+                        GeoPositionChangedEventArgs<GeoCoordinate> args =
+                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, lastKnownLocation));
+                        LocationWatcher_LocationKnown(
+                            this,
+                            args
+                            );
+                        locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
+                    });
+                },
+                    null,
                     timeoutMs,
                     Timeout.Infinite
                     );
             }
 #endif
-        }
-
-        public void Initialize(AsyncOperationTracker operationTracker)
-        {
-            this.operationTracker = operationTracker;
 
             if (LocationKnown == false)
             {

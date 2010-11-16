@@ -13,7 +13,7 @@
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     SupportedOrientations="Portrait"
-    mc:Ignorable="d" d:DesignHeight="728" d:DesignWidth="480"
+    mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
     shell:SystemTray.IsVisible="True"
     xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
     >
@@ -28,6 +28,7 @@
         <view:DelayColorConverter x:Key="DelayColorConverter" />
         <view:PolylineConverter x:Key="PolylineConverter" />
         <view:PushpinScaleConverter x:Key="PushpinScaleConverter" />
+        <view:LateEarlyConverter x:Key="LateEarlyConverter" />
         
         <!-- TextBox styles -->
 
@@ -35,7 +36,8 @@
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
 
@@ -57,18 +59,27 @@
                     Grid.Column="1" 
                     Grid.ColumnSpan="2" 
                     Grid.Row="0" 
-                    Foreground="{StaticResource OBAForegroundBrush}"                    
+                    Foreground="{StaticResource OBAForegroundBrush}"       
+                    TextAlignment="Center"
                     Text="{Binding tripHeadsign}" 
                     />
                 <TextBlock 
                     Grid.Column="1" 
                     Grid.Row="1" 
                     Foreground="{StaticResource OBASubtleBrush}" 
-                    FontSize="{StaticResource PhoneFontSizeSmall}" 
-                    Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeConverter}}" 
+                    FontSize="{StaticResource PhoneFontSizeSmall}"
+                    Text="{Binding scheduledArrivalTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Planned:}" 
                     />
                 <TextBlock 
                     Grid.Column="2" 
+                    Grid.Row="1" 
+                    Foreground="{StaticResource OBASubtleBrush}" 
+                    FontSize="{StaticResource PhoneFontSizeSmall}"
+                    TextAlignment="Right"
+                    Text="{Binding busDelay, Converter={StaticResource LateEarlyConverter}}" 
+                    />
+                <TextBlock 
+                    Grid.Column="3" 
                     Grid.Row="0" 
                     Grid.RowSpan="2" 
                     Style="{StaticResource PhoneTextLargeStyle}" 
