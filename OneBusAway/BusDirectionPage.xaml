@@ -16,7 +16,9 @@
     Foreground="{StaticResource OBAForegroundBrush}"
     SupportedOrientations="Portrait" Orientation="Portrait"
     mc:Ignorable="d" d:DesignHeight="768" d:DesignWidth="480"
-    shell:SystemTray.IsVisible="True">
+    shell:SystemTray.IsVisible="True"
+    xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
+    >
 
     <view:AViewPage.Resources>
         <data:BusDirectionVM x:Key="ViewModel" />
@@ -63,18 +65,12 @@
                 SelectionChanged="BusDirectionListBox_SelectionChanged" 
                 />
         </Grid>
-        
-        <ProgressBar 
-            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            IsIndeterminate="True" 
-            Height="4" 
-            HorizontalAlignment="Left" 
-            Name="ProgressBar" 
-            VerticalAlignment="Top" 
-            Width="480" 
-            Style="{StaticResource PerformanceProgressBar}"
+
+        <localControls:PerformanceProgressBar
+            VerticalAlignment="Top"
+            IsLoading="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}"
             Foreground="{StaticResource OBALightBrush}"
-            
+            Style="{StaticResource PerformanceProgressBarStyle}"
             />
 
     </Grid>

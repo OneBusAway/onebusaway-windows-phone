@@ -17,6 +17,7 @@
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     shell:SystemTray.IsVisible="True"
+    xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
     >
 
     <view:AViewPage.Resources>
@@ -104,16 +105,11 @@
             <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
                        Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
-        
-        <ProgressBar  Grid.Row="0"
-            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            IsIndeterminate="True" 
-            Height="4" 
-            HorizontalAlignment="Left" 
-            x:Name="LoadingProgressBar" 
+
+        <localControls:PerformanceProgressBar 
             VerticalAlignment="Top" 
-            Width="480" 
-            Style="{StaticResource PerformanceProgressBar}"
+            IsLoading="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}"
+            Style="{StaticResource PerformanceProgressBarStyle}"
             Foreground="{StaticResource OBAPrimaryBrush}"     
             Canvas.ZIndex="100"
             />

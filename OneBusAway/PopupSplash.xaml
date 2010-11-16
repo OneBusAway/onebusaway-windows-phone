@@ -7,10 +7,19 @@
     FontFamily="{StaticResource PhoneFontFamilyNormal}"
     FontSize="{StaticResource PhoneFontSizeNormal}"
     Foreground="{StaticResource PhoneForegroundBrush}"
-    d:DesignHeight="800" d:DesignWidth="480">
+    d:DesignHeight="800" d:DesignWidth="480"
+    xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
+    >
 
     <Grid x:Name="LayoutRoot" Background="#78AA36" Width="480" Height="800">
-        <ProgressBar Foreground="White" Name="progressBar1" HorizontalAlignment="Left" Margin="47,544,0,237" Width="383"  IsIndeterminate="True" Style="{StaticResource PerformanceProgressBar}"/>
+        <localControls:PerformanceProgressBar  
+            Foreground="{StaticResource OBALightBrush}"
+            HorizontalAlignment="Left" 
+            Margin="47,544,0,237" 
+            Width="383"  
+            IsLoading="True"
+            Style="{StaticResource PerformanceProgressBarStyle}"
+            />
 
         <Image HorizontalAlignment="Center"  Stretch="None" Name="image1" VerticalAlignment="Top" Source="SplashImage.png" />
         <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="Loading..." Foreground="White" FontSize="22" Margin="193,510,193,260" />

@@ -15,6 +15,7 @@
     xmlns:tilt="clr-namespace:ControlTiltEffect"
     tilt:TiltEffect.IsTiltEnabled="True"
     shell:SystemTray.IsVisible="False"
+    xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
 >
 
     <view:AViewPage.Resources>
@@ -245,17 +246,12 @@
             FontSize="20"
             Margin="23,0,0,0"
             />
-        
-        <ProgressBar 
-            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            IsIndeterminate="True" 
-            Height="4" 
-            HorizontalAlignment="Left" 
-            x:Name="LoadingProgressBar" 
-            VerticalAlignment="Top" 
-            Width="480" 
-            Style="{StaticResource PerformanceProgressBar}"
-            Foreground="{StaticResource OBALightBrush}" 
+
+        <localControls:PerformanceProgressBar
+            VerticalAlignment="Top"
+            IsLoading="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}}"
+            Foreground="{StaticResource OBALightBrush}"
+            Style="{StaticResource PerformanceProgressBarStyle}"
             />
     </Grid>
 
