@@ -160,15 +160,59 @@ namespace OneBusAway.WP7.View
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value != null)
+            if (value is DateTime)
             {
                 DateTime date = (DateTime)value;
 
-                return date.ToLocalTime().ToShortTimeString();
+                if (parameter is string && string.IsNullOrEmpty((string)parameter) == false)
+                {
+                    return string.Format("{0} {1}", parameter, date.ToLocalTime().ToShortTimeString());
+                }
+                else
+                {
+                    return date.ToLocalTime().ToShortTimeString();
+                }
             }
             else
             {
                 return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class LateEarlyConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value is TimeSpan? && value != null)
+            {
+                int delayedMinutes = (int)Math.Round(((TimeSpan)value).TotalMinutes);
+
+                if (delayedMinutes > 0)
+                {
+                    // Bus is running late
+                    return string.Format("{0} min late", Math.Abs(delayedMinutes));
+                }
+                else if (delayedMinutes == 0)
+                {
+                    // Bus is on time
+                    return "on time";
+                }
+                else
+                {
+                    // Bus is running early
+                    return string.Format("{0} min early", Math.Abs(delayedMinutes));
+                }
+            }
+            else
+            {
+                // We don't have a predicted arrival time
+                return string.Format("unknown");
             }
         }
 

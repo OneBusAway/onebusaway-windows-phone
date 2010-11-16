@@ -30,6 +30,7 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
                 privatePredictedArrivalTime = value;
                 OnPropertyChanged("predictedArrivalTime");
                 OnPropertyChanged("nextKnownArrival");
+                OnPropertyChanged("busDelay");
             }
         }
         private DateTime? privatePredictedArrivalTime;
@@ -48,6 +49,21 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             }
         }
         private DateTime? privatePredictedDepartureTime;
+
+        public TimeSpan? busDelay
+        {
+            get
+            {
+                if (predictedArrivalTime != null)
+                {
+                    return (DateTime)predictedArrivalTime - scheduledArrivalTime;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 
         [DataMember()]
         public DateTime scheduledDepartureTime { get; set; }
