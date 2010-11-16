@@ -70,11 +70,11 @@ namespace OneBusAway.WP7.Model
         {
             CacheCalls++;
             // lookup address in cache
-            string cachedResult = CacheLookup(address);
+            Stream cachedResult = CacheLookup(address);
             if (cachedResult != null)
             {
                 CacheHits++;
-                CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(cachedResult);
+                CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(new StreamReader(cachedResult));
                 // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
                 // original call and wierd things could happen.
                 Thread thread = new Thread(() => callback(this, eventArgs));
@@ -84,16 +84,10 @@ namespace OneBusAway.WP7.Model
             {
                 CacheMisses++;
                 // not found, request data
-#if WEBCLIENT
-                WebClient client = new WebClient();
-                client.DownloadStringCompleted += new CacheCallback(this, callback, address).Callback;
-                client.DownloadStringAsync(address);
-#else
                 HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(address);
                 requestGetter.BeginGetResponse(
                     new AsyncCallback(new CacheCallback(this, callback, address).Callback),
                     requestGetter);
-#endif
             }
         }
 
@@ -180,8 +174,8 @@ namespace OneBusAway.WP7.Model
         /// Checks to see if we have a cached result for a given request
         /// </summary>
         /// <param name="address"></param>
-        /// <returns></returns>
-        private string CacheLookup(Uri address)
+        /// <returns>A stream with the results.  Close it when you're done!</returns>
+        private Stream CacheLookup(Uri address)
         {
             using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -199,13 +193,8 @@ namespace OneBusAway.WP7.Model
                                 return null;
                             }
                             // all good! return the content
-                            using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read))
-                            {
-                                using (StreamReader r = new StreamReader(stream))
-                                {
-                                    return r.ReadToEnd();
-                                }
-                            }
+                            IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read);
+                            return stream;
                         }
                     }
                 }
@@ -218,11 +207,19 @@ namespace OneBusAway.WP7.Model
         /// </summary>
         /// <param name="address"></param>
         /// <param name="result"></param>
-        private void CacheAddResult(Uri address, string result)
+        private TextReader CacheAddResult(Uri address, Stream result)
         {
+            // TODO there doesn't seem to be a .NET equivalent of java.io.PipedOutputStream, which is what we really want here.
+            // I.e. pipe from result directly into a file stream, rather than buffering in a string.
+            string data;
+            using (StreamReader reader = new StreamReader(result))
+            {
+                data = reader.ReadToEnd();
+            }
+            result.Close();
+
             using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                string fileName;
                 lock (fileAccessSync)
                 {
                     // get isolatedstorage for this cache
@@ -231,18 +228,17 @@ namespace OneBusAway.WP7.Model
                         iso.CreateDirectory(this.Name);
                     }
 
-                    fileName = MapAddressToFile(address);
+                    string fileName = MapAddressToFile(address);
+                    UpdateExpiration(fileName);
                     EvictIfNecessary(iso);
 
-                    using (IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.Write))
-                    {
-                        using (StreamWriter writer = new StreamWriter(stream))
-                        {
-                            writer.Write(result);
-                        }
-                    }
+                    IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.ReadWrite);
+                    StreamWriter writer = new StreamWriter(stream);
+                    writer.Write(data);
+                    writer.Flush();
+                    stream.Seek(0, SeekOrigin.Begin);
+                    return new StreamReader(stream);
                 }
-                UpdateExpiration(fileName);
             }
         }
 
@@ -381,7 +377,6 @@ namespace OneBusAway.WP7.Model
         /// </summary>
         private class CacheMetadata
         {
-            private object settingsLock = new object();
             private HttpCache owner;
 
             // Silverlight doesn't track file update / creation time.
@@ -487,29 +482,6 @@ namespace OneBusAway.WP7.Model
                 this.requestedAddress = requestedAddress;
             }
 
-            public void Callback(object sender, DownloadStringCompletedEventArgs eventArgs)
-            {
-                // check for errors
-                if (eventArgs.Cancelled)
-                {
-                    CacheDownloadStringCompletedEventArgs newArgs = CacheDownloadStringCompletedEventArgs.MakeCancelled();
-                    callback(this, newArgs);
-                }
-                else if (eventArgs.Error != null)
-                {
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Error);
-                    callback(this, newArgs);
-                }
-                else
-                {
-                    // no errors -- add data to the cache
-                    owner.CacheAddResult(requestedAddress, eventArgs.Result);
-                    // and fire our event
-                    CacheDownloadStringCompletedEventArgs newArgs = new CacheDownloadStringCompletedEventArgs(eventArgs.Result);
-                    callback(this, newArgs);
-                }
-            }
-
             public void Callback(IAsyncResult asyncResult)
             {
                 CacheDownloadStringCompletedEventArgs newArgs;
@@ -528,12 +500,10 @@ namespace OneBusAway.WP7.Model
                     }
 
                     Stream s = response.GetResponseStream();
-                    StreamReader sr = new StreamReader(s);
-                    string results = sr.ReadToEnd();
                     // no errors -- add data to the cache
-                    owner.CacheAddResult(requestedAddress, results);
-                    
-                    newArgs = new CacheDownloadStringCompletedEventArgs(results);
+                    TextReader result = owner.CacheAddResult(requestedAddress, s);
+
+                    newArgs = new CacheDownloadStringCompletedEventArgs(result);
                 }
                 catch (Exception e)
                 {
@@ -553,11 +523,13 @@ namespace OneBusAway.WP7.Model
         // Those don't have public constructors, so they're not reusable.
         public class CacheDownloadStringCompletedEventArgs : AsyncCompletedEventArgs 
         {
+            private CacheDownloadStringCompletedEventArgs() { }
+
             /// <summary>
             /// Indicates successful completion
             /// </summary>
             /// <param name="result"></param>
-            public CacheDownloadStringCompletedEventArgs(string result) 
+            public CacheDownloadStringCompletedEventArgs(TextReader result) 
             {
                 this.Result = result;
                 this.Cancelled = false;
@@ -579,12 +551,12 @@ namespace OneBusAway.WP7.Model
             /// <returns></returns>
             public static CacheDownloadStringCompletedEventArgs MakeCancelled()
             {
-                CacheDownloadStringCompletedEventArgs rval = new CacheDownloadStringCompletedEventArgs("");
+                CacheDownloadStringCompletedEventArgs rval = new CacheDownloadStringCompletedEventArgs();
                 rval.Result = null;
                 rval.Cancelled = true;
                 return rval;
             }
-            public string Result { get; private set; }
+            public TextReader Result { get; private set; }
             public new bool Cancelled { get; private set; }
             public new Exception Error { get; private set; }
         }
