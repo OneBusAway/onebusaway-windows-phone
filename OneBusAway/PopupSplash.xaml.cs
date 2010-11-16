@@ -17,7 +17,6 @@ namespace OneBusAway.WP7.View
         public PopupSplash()
         {
             InitializeComponent();
-            this.progressBar1.IsIndeterminate = true;
         }
     }
 }

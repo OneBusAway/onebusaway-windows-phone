@@ -5,8 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -36,7 +34,7 @@ using System.Windows.Media.Animation;
 // The style that must be used with this is present at the bottom of this file.
 //
 
-namespace Microsoft.Phone.Controls.Unsupported
+namespace Microsoft.Phone.Controls.Primitives
 {
     /// <summary>
     /// A very specialized primitive control that works around a specific visual

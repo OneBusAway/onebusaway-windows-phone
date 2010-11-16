@@ -4,7 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:system="clr-namespace:System;assembly=mscorlib"
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
-    xmlns:unsupported="clr-namespace:Microsoft.Phone.Controls.Unsupported" 
+    xmlns:local="clr-namespace:Microsoft.Phone.Controls"
+    xmlns:localPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives"
     xmlns:phoneNavigation="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     >
@@ -35,8 +36,7 @@
         <Color x:Key="OBAForegroundColor">Red</Color>
         <Color x:Key="OBABackgroundColor">Blue</Color>
         <Color x:Key="OBAAccentColor">Blue</Color>-->
-
-
+        
         <SolidColorBrush x:Key="OBASubtleBrush" Color="{StaticResource PhoneSubtleColor}"/>
         <SolidColorBrush x:Key="OBADarkBrush" Color="{StaticResource OBADarkColor}"/>
 
@@ -47,26 +47,29 @@
         <SolidColorBrush x:Key="OBALightBrush" Color="{StaticResource OBALightColor}"/>
         <SolidColorBrush x:Key="OBARedBrush" Color="{StaticResource OBARedColor}"/>
         <SolidColorBrush x:Key="OBABlueBrush" Color="{StaticResource OBABlueColor}"/>
-        
-        <Style x:Key="PerformanceProgressBar" TargetType="ProgressBar">
+
+        <Style x:Name="PerformanceProgressBarStyle" TargetType="local:PerformanceProgressBar">
+            <!-- This control only benefits indeterminate situations so it is only
+             designed for that. -->
+            <Setter Property="IsIndeterminate" Value="False"/>
             <Setter Property="Foreground" Value="{StaticResource PhoneAccentBrush}"/>
             <Setter Property="Background" Value="{StaticResource PhoneAccentBrush}"/>
-            <Setter Property="Maximum" Value="100"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
             <Setter Property="Padding" Value="{StaticResource PhoneHorizontalMargin}"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <unsupported:RelativeAnimatingContentControl HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                            <unsupported:RelativeAnimatingContentControl.Resources>
+                    <ControlTemplate TargetType="local:PerformanceProgressBar">
+                        <localPrimitives:RelativeAnimatingContentControl HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                            <localPrimitives:RelativeAnimatingContentControl.Resources>
                                 <ExponentialEase EasingMode="EaseOut" Exponent="1" x:Key="ProgressBarEaseOut"/>
-                                <ExponentialEase EasingMode="EaseOut" Exponent="1" x:Key="ProgressBarEaseIn"/>
-                            </unsupported:RelativeAnimatingContentControl.Resources>
+                                <ExponentialEase EasingMode="EaseIn" Exponent="1" x:Key="ProgressBarEaseIn"/>
+                            </localPrimitives:RelativeAnimatingContentControl.Resources>
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup x:Name="CommonStates">
                                     <VisualState x:Name="Determinate"/>
                                     <VisualState x:Name="Indeterminate">
-                                        <Storyboard RepeatBehavior="Forever" Duration="00:00:04.4">
+                                        <!-- Removed: RepeatBehavior="Forever" -->
+                                        <Storyboard Duration="00:00:04.4">
                                             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Visibility" Storyboard.TargetName="IndeterminateRoot">
                                                 <DiscreteObjectKeyFrame KeyTime="0">
                                                     <DiscreteObjectKeyFrame.Value>
@@ -136,10 +139,8 @@
                                 </VisualStateGroup>
                             </VisualStateManager.VisualStateGroups>
                             <Grid>
-                                <Grid x:Name="DeterminateRoot" Margin="{TemplateBinding Padding}" Visibility="Visible">
-                                    <Rectangle x:Name="ProgressBarTrack" Fill="{TemplateBinding Background}" Height="4" Opacity="0.1"/>
-                                    <Rectangle x:Name="ProgressBarIndicator" Fill="{TemplateBinding Foreground}" HorizontalAlignment="Left" Height="4"/>
-                                </Grid>
+                                <!-- This control does not function in Determinate -->
+                                <Grid x:Name="DeterminateRoot" Margin="{TemplateBinding Padding}" Visibility="Visible"/>
                                 <Border x:Name="IndeterminateRoot" Margin="{TemplateBinding Padding}" Visibility="Collapsed">
                                     <Grid HorizontalAlignment="Left">
                                         <Rectangle Fill="{TemplateBinding Foreground}" Height="4" IsHitTestVisible="False" Width="4" x:Name="R1" Opacity="0" CacheMode="BitmapCache">
@@ -170,7 +171,7 @@
                                     </Grid>
                                 </Border>
                             </Grid>
-                        </unsupported:RelativeAnimatingContentControl>
+                        </localPrimitives:RelativeAnimatingContentControl>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
