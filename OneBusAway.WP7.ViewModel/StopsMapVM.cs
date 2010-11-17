@@ -21,6 +21,9 @@ namespace OneBusAway.WP7.ViewModel
     {
         private Object stopsForLocationCompletedLock;
         private Object stopsForLocationLock;
+        // this is just a map of id -> stop that mirrors StopsForLocation.
+        // used to do lookups.  too bad we can't bind directly to this object's Values property.
+        private IDictionary<string, Stop> stopsForLocationIndex;
         private GeoCoordinate previousQuery;
 
         #region Constructors
@@ -41,6 +44,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             stopsForLocationCompletedLock = new Object();
             stopsForLocationLock = new Object();
+            stopsForLocationIndex = new Dictionary<string, Stop>();
             StopsForLocation = new ObservableCollection<Stop>();
             previousQuery = new GeoCoordinate();
         }
@@ -85,6 +89,69 @@ namespace OneBusAway.WP7.ViewModel
 
         #endregion
 
+        /// <summary>
+        /// Sets the contents of StopsForLocation to the Values of the specified Dictionary.
+        /// </summary>
+        /// <remarks>
+        /// Implementation does not clear StopsForLocation (so as not to clear the screen).
+        /// Instead, removes all stops that don't belong and adds ones that do.
+        /// </remarks>
+        /// <param name="newStops"></param>
+        private void SetStopsForLocation(IDictionary<string, Stop> newStops)
+        {
+            // .NET for the phone doesn't support HashSet.... Use Dictionary as a poor-man's hashset.
+            // linear pass to calculate the set of stops to remove
+            IDictionary<string, Stop> stopsToRemove = new Dictionary<string, Stop>();
+            lock (stopsForLocationLock)
+            {
+                foreach (string stopId in stopsForLocationIndex.Keys)
+                {
+                    if (!newStops.ContainsKey(stopId))
+                    {
+                        stopsToRemove.Add(stopId, stopsForLocationIndex[stopId]);
+                    }
+                }
+            }
+
+            if (stopsToRemove.Count > 0)
+            {
+                // O(n^2) pass to remove them.
+                // An ObservableSet or ObservableDictionary would be nice.
+                UIAction(() =>
+                {
+                    lock (stopsForLocationLock)
+                    {
+                        foreach (Stop s in stopsToRemove.Values)
+                        {
+                            StopsForLocation.Remove(s);
+                            stopsForLocationIndex.Remove(s.id);
+                        }
+                    }
+                });
+            }
+
+            // and a linear pass to add any new stops
+            if (newStops.Count > 0)
+            {
+                UIAction(() =>
+                {
+                    lock (stopsForLocationLock)
+                    {
+                        // Yes, these loops are on the UI thread.
+                        // I tried moving the loop outside -- resulted in just one stop being added to the map.
+                        foreach (Stop s in newStops.Values)
+                        {
+                            if (!stopsForLocationIndex.ContainsKey(s.id))
+                            {
+                                StopsForLocation.Add(s);
+                                stopsForLocationIndex.Add(s.id, s);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
         #region Event Handlers
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
@@ -93,48 +160,16 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
+                // this lock simply prevents multiple instances of this handler from running simultaneously
                 lock (stopsForLocationCompletedLock)
                 {
-                    // TODO: This algorithm is pretty slow, around ~1/4 second under debugger
-                    // We should try to find a more efficient way to do this
-                    List<Stop> stopsToRemove = new List<Stop>();
-                    lock (stopsForLocationLock)
+                    IDictionary<string, Stop> newStops = new Dictionary<string, Stop>();
+                    foreach (Stop s in e.stops)
                     {
-                        foreach (Stop stop in StopsForLocation)
-                        {
-                            if (e.stops.Contains(stop) == false)
-                            {
-                                stopsToRemove.Add(stop);
-                            }
-                        }
+                        newStops.Add(s.id, s);
                     }
 
-                    stopsToRemove.ForEach(stop => 
-                        UIAction(() => 
-                    {
-                        lock (stopsForLocationLock) 
-                        { 
-                            StopsForLocation.Remove(stop);
-                        }
-                    }));
-
-                    foreach (Stop stop in e.stops)
-                    {
-                        lock (stopsForLocationLock)
-                        {
-                            if (StopsForLocation.Contains(stop) == false)
-                            {
-                                Stop currentStop = stop;
-                                UIAction(() =>
-                                    {
-                                        lock (stopsForLocationLock)
-                                        {
-                                            StopsForLocation.Add(currentStop);
-                                        }
-                                    });
-                            }
-                        }
-                    }
+                    SetStopsForLocation(newStops);
                 }
             }
             else
