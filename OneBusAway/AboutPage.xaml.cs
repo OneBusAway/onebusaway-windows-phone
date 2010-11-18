@@ -23,7 +23,8 @@ namespace OneBusAway.WP7.View
         {
             InitializeComponent();
 
-            VersionTextBlock.Text = "Version " + "2.1.0.1";
+            VersionTextBlock.Text = "Version " + 
+                new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version.ToString();
 
 #if SCREENSHOT
             SystemTray.IsVisible = false;
