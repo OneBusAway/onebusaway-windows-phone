@@ -191,6 +191,9 @@ namespace OneBusAway.WP7.View
             recent.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
             recent.stop = viewModel.CurrentViewState.CurrentStop;
 
+            ArrivalsListBox.DataContext = viewModel;
+            TitleGrid.DataContext = viewModel;
+
             viewModel.AddRecent(recent);
 
             busArrivalUpdateTimer.Start();

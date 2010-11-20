@@ -1,0 +1,119 @@
+<viewmodel:MainPageVM 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodel="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
+    xmlns:model="clr-namespace:OneBusAway.WP7.Model;assembly=OneBusAway.WP7.Model"
+    xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel.BusServiceDataStructures;assembly=OneBusAway.WP7.ViewModel"
+    xmlns:appdata="clr-namespace:OneBusAway.WP7.ViewModel.AppDataDataStructures;assembly=OneBusAway.WP7.ViewModel"
+    >
+
+    <viewmodel:MainPageVM.StopsForLocation>
+        <data:Stop name="NE 65TH ST &amp; OSWEGO PL NE" direction="west">
+            <data:Stop.routes>
+                <data:Route shortName="23" />
+                <data:Route shortName="43" />
+            </data:Stop.routes>
+        </data:Stop>
+        <data:Stop name="NE 65th st &amp; NE Ravenna BLVD" direction="east"/>
+        <data:Stop name="NEW RAVENNA BLVD &amp; NE 65TH ST" direction="northwest"/>
+    </viewmodel:MainPageVM.StopsForLocation>
+    <viewmodel:MainPageVM.DisplayRouteForLocation>
+        <viewmodel:DisplayRoute>
+            <viewmodel:DisplayRoute.Route>
+                <data:Route shortName="242" />
+            </viewmodel:DisplayRoute.Route>
+            <viewmodel:DisplayRoute.RouteStops>
+                <data:RouteStops name="OVERLAKE" />
+                <data:RouteStops name="RIDGECREST" />
+            </viewmodel:DisplayRoute.RouteStops>
+        </viewmodel:DisplayRoute>
+        <viewmodel:DisplayRoute>
+            <viewmodel:DisplayRoute.Route>
+                <data:Route shortName="48" />
+            </viewmodel:DisplayRoute.Route>
+            <viewmodel:DisplayRoute.RouteStops>
+                <data:RouteStops name="MOUNT BAKER TRANSIT CENTER" />
+                <data:RouteStops name="UNIVERSITY DISTRICT" />
+            </viewmodel:DisplayRoute.RouteStops>
+        </viewmodel:DisplayRoute>
+        <viewmodel:DisplayRoute>
+            <viewmodel:DisplayRoute.Route>
+                <data:Route shortName="542" />
+            </viewmodel:DisplayRoute.Route>
+            <viewmodel:DisplayRoute.RouteStops>
+                <data:RouteStops name="REDMOND" />
+                <data:RouteStops name="UNIVERSITY DISTRICT" />
+            </viewmodel:DisplayRoute.RouteStops>
+        </viewmodel:DisplayRoute>
+        <viewmodel:DisplayRoute>
+            <viewmodel:DisplayRoute.Route>
+                <data:Route shortName="64" />
+            </viewmodel:DisplayRoute.Route>
+            <viewmodel:DisplayRoute.RouteStops>
+                <data:RouteStops name="FIRST HILL" />
+                <data:RouteStops name="LAKE CITY" />
+            </viewmodel:DisplayRoute.RouteStops>
+        </viewmodel:DisplayRoute>
+        <viewmodel:DisplayRoute>
+            <viewmodel:DisplayRoute.Route>
+                <data:Route shortName="73" />
+            </viewmodel:DisplayRoute.Route>
+            <viewmodel:DisplayRoute.RouteStops>
+                <data:RouteStops name="DOWNTOWN SEATTLE - EXPRESS" />
+                <data:RouteStops name="JACKSON PARK EXPRESS" />
+            </viewmodel:DisplayRoute.RouteStops>
+        </viewmodel:DisplayRoute>
+    </viewmodel:MainPageVM.DisplayRouteForLocation>
+    <viewmodel:MainPageVM.Favorites>
+        <appdata:FavoriteRouteAndStop>
+            <appdata:FavoriteRouteAndStop.route>
+                <data:Route shortName="48" />
+            </appdata:FavoriteRouteAndStop.route>
+            <appdata:FavoriteRouteAndStop.routeStops>
+                <data:RouteStops name="MOUNT BAKER TRANSIT CENTER" />
+            </appdata:FavoriteRouteAndStop.routeStops>
+            <appdata:FavoriteRouteAndStop.stop>
+                <data:Stop name="NE 65th st &amp; NE Ravenna BLVD" direction="east"/>
+            </appdata:FavoriteRouteAndStop.stop>
+        </appdata:FavoriteRouteAndStop>
+        <appdata:FavoriteRouteAndStop>
+            <appdata:FavoriteRouteAndStop.route>
+                <data:Route shortName="542" />
+            </appdata:FavoriteRouteAndStop.route>
+            <appdata:FavoriteRouteAndStop.routeStops>
+                <data:RouteStops name="UNIVERSITY DISTRICT" />
+            </appdata:FavoriteRouteAndStop.routeStops>
+            <appdata:FavoriteRouteAndStop.stop>
+                <data:Stop name="NE 65th st &amp; OSWEGO PL NE" direction="east"/>
+            </appdata:FavoriteRouteAndStop.stop>
+        </appdata:FavoriteRouteAndStop>
+        <appdata:FavoriteRouteAndStop>
+            <appdata:FavoriteRouteAndStop.stop>
+                <data:Stop name="NE 65th st &amp; OSWEGO PL NE" direction="east"/>
+            </appdata:FavoriteRouteAndStop.stop>
+        </appdata:FavoriteRouteAndStop>
+    </viewmodel:MainPageVM.Favorites>
+    <viewmodel:MainPageVM.Recents>
+        <appdata:RecentRouteAndStop>
+            <appdata:RecentRouteAndStop.route>
+                <data:Route shortName="48" />
+            </appdata:RecentRouteAndStop.route>
+            <appdata:RecentRouteAndStop.routeStops>
+                <data:RouteStops name="MOUNT BAKER TRANSIT CENTER" />
+            </appdata:RecentRouteAndStop.routeStops>
+            <appdata:RecentRouteAndStop.stop>
+                <data:Stop name="NE 65th st &amp; NE Ravenna BLVD" direction="east"/>
+            </appdata:RecentRouteAndStop.stop>
+        </appdata:RecentRouteAndStop>
+        <appdata:RecentRouteAndStop>
+            <appdata:RecentRouteAndStop.stop>
+                <data:Stop name="NEW RAVENNA BLVD &amp; NE 65TH ST" direction="northwest"/>
+            </appdata:RecentRouteAndStop.stop>
+        </appdata:RecentRouteAndStop>
+        <appdata:RecentRouteAndStop>
+            <appdata:RecentRouteAndStop.stop>
+                <data:Stop name="NE 65th st &amp; NE Ravenna BLVD" direction="east"/>
+            </appdata:RecentRouteAndStop.stop>
+        </appdata:RecentRouteAndStop>
+    </viewmodel:MainPageVM.Recents>
+</viewmodel:MainPageVM>

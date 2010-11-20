@@ -59,6 +59,7 @@
                     Grid.Column="1" 
                     Grid.ColumnSpan="2" 
                     Grid.Row="0" 
+                    FontSize="{StaticResource PhoneFontSizeNormal}" 
                     Foreground="{StaticResource OBAForegroundBrush}"       
                     TextAlignment="Center"
                     Text="{Binding tripHeadsign}" 
@@ -121,9 +122,10 @@
             <RowDefinition Height="200"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" x:Name="TitleGrid">
+        <Grid Grid.Row="0" x:Name="TitleGrid"
+              d:DataContext="{d:DesignData Source=SampleData/DetailsViewModelSampleData.xaml}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName, Source={StaticResource ViewModel}}" FontSize="48"  Margin="15" />
+                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName}" FontSize="48"  Margin="15" />
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -131,8 +133,8 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" x:Name="RouteName" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
-                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentStop.name, Source={StaticResource ViewModel}}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="0" x:Name="RouteName" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
+                    <TextBlock Grid.Row="1" x:Name="RouteInfo" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentStop.name}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
                 </Grid>
             </StackPanel>
         </Grid>
@@ -194,7 +196,8 @@
         <Grid Grid.Row="2" x:Name="StopGrid">
             <ListBox 
                 x:Name="ArrivalsListBox" 
-                ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}" 
+                d:DataContext="{d:DesignData Source=SampleData/DetailsViewModelSampleData.xaml}"
+                ItemsSource="{Binding Path=ArrivalsForStop}" 
                 ItemTemplate="{StaticResource RouteTemplate}" 
                 SelectionChanged="ArrivalsListBox_SelectionChanged"
                 />

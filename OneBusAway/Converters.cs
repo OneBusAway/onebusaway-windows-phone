@@ -37,10 +37,13 @@ namespace OneBusAway.WP7.View
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            Stop stop = (Stop)value;
+            Stop stop = value as Stop;
 
             string routes = "Routes: ";
-            stop.routes.ForEach(route => routes += route.shortName + ", ");
+            if (stop.routes != null)
+            {
+                stop.routes.ForEach(route => routes += route.shortName + ", ");
+            }
 
             return routes.Substring(0, routes.Length - 2); // remove the trailing ", "
         }
