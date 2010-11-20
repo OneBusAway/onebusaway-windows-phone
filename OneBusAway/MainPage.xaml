@@ -74,8 +74,7 @@
 
                     <Path Fill="{StaticResource OBABackgroundBrush}" Stretch="Fill" Stroke="{StaticResource OBABackgroundBrush}" StrokeLineJoin="Round" Height="12" Width="1" UseLayoutRounding="False" Canvas.Left="13.5" Canvas.Top="6.5" Data="M16,8 L16,17"/>
                 </Canvas>
-
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" Foreground="{StaticResource OBAForegroundBrush}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding name}" FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource OBAForegroundBrush}" />
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopRoutesConverter}}" />
                 <TextBlock Grid.Column="1" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource StopDirectionConverter}}" />
                 <TextBlock Grid.Column="2" Grid.Row="2" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
@@ -94,21 +93,24 @@
                     <TextBlock Foreground="{StaticResource OBASubtleBrush}"  Margin="2,0,0,0" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=Route, Converter={StaticResource ShortDistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <ItemsControl ItemsSource="{Binding Path=RouteStops}">
+                    <ItemsControl x:Name="RouteDirectionsItemControl" ItemsSource="{Binding Path=RouteStops}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <ListBoxItem 
-                                    x:Name="DirectionListBoxItem"  
-                                    Content="{Binding Path=name, Converter={StaticResource LowercaseConverter}}"  
-                                    FontSize="{StaticResource PhoneFontSizeLarge}"  
-                                    Foreground="{StaticResource OBAForegroundBrush}">
+                                <ListBoxItem x:Name="DirectionListBoxItem"
+                                             Content="{Binding Path=name, Converter={StaticResource LowercaseConverter}}"
+                                             FontSize="{StaticResource PhoneFontSizeLarge}"
+                                             Foreground="{StaticResource OBAForegroundBrush}"
+                                             >
                                     <toolkit:GestureService.GestureListener>
                                         <toolkit:GestureListener Tap="GestureListener_Tap"/>
                                     </toolkit:GestureService.GestureListener>
                                 </ListBoxItem>
+                                
                             </DataTemplate>
+
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -128,12 +130,9 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Center" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5"  Foreground="{StaticResource OBAForegroundBrush}" />
-
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}"  Foreground="{StaticResource OBAForegroundBrush}" />
-
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}"  FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource OBAForegroundBrush}" />
                 <TextBlock Grid.Column="1" Grid.Row="1" Foreground="{StaticResource OBASubtleBrush}" FontSize="{StaticResource PhoneFontSizeSmall}" Text="{Binding Path=stop, Converter={StaticResource DistanceConverter}, ConverterParameter={StaticResource ViewModel}}" />
-
-                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=Detail}"  Foreground="{StaticResource OBAForegroundBrush}" />
+                <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding  Path=Detail}"  FontSize="{StaticResource PhoneFontSizeNormal}"  Foreground="{StaticResource OBAForegroundBrush}" />
             </Grid>
         </DataTemplate>
 
@@ -150,9 +149,12 @@
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
-                    ItemsSource="{Binding Path=DisplayRouteForLocation, Source={StaticResource ViewModel}}" 
+                    ItemsSource="{Binding Path=DisplayRouteForLocation}" 
                     ItemTemplate="{StaticResource RouteTemplate}"
-                    />
+                    >
+                    <!--Removed DesignData from ListBox because of conflict with GestureListener-->
+                    <!--d:DataContext="{d:DesignData Source=SampleData/MainViewModelSampleData.xaml}"-->
+                </ListBox>
             </pivot:PivotItem>
             <pivot:PivotItem Header="stops">
                 <Grid>
@@ -190,8 +192,9 @@
                         </m:Map>
                     </Button>
                     <ListBox Grid.Row="1"
-                    x:Name="StopsListBox" 
-                    ItemsSource="{Binding Path=StopsForLocation, Source={StaticResource ViewModel}}" 
+                    x:Name="StopsListBox"
+                    d:DataContext="{d:DesignData Source=SampleData/MainViewModelSampleData.xaml}"
+                    ItemsSource="{Binding Path=StopsForLocation}" 
                     ItemTemplate="{StaticResource StopTemplate}" 
                     SelectionChanged="StopsListBox_SelectionChanged"
                     />
@@ -201,17 +204,19 @@
             <pivot:PivotItem Header="recent">
                 <ListBox 
                     x:Name="RecentsListBox" 
-                    ItemsSource="{Binding Path=Recents, Source={StaticResource ViewModel}}" 
+                    ItemsSource="{Binding Path=Recents}" 
+                    d:DataContext="{d:DesignData Source=SampleData/MainViewModelSampleData.xaml}"
                     ItemTemplate="{StaticResource FavTemplate}" 
                     SelectionChanged="RecentsListBox_SelectionChanged" 
                     />
             </pivot:PivotItem>
             <pivot:PivotItem Header="favorites">
                 <ListBox 
-                    x:Name="FavoritesListBox" 
-                    ItemsSource="{Binding Path=Favorites, Source={StaticResource ViewModel}}" 
+                    x:Name="FavoritesListBox"
+                    d:DataContext="{d:DesignData Source=SampleData/MainViewModelSampleData.xaml}"
+                    ItemsSource="{Binding Path=Favorites}" 
                     ItemTemplate="{StaticResource FavTemplate}" 
-                    SelectionChanged="FavoritesListBox_SelectionChanged" 
+                    SelectionChanged="FavoritesListBox_SelectionChanged"
                     />
             </pivot:PivotItem>
         </pivot:Pivot>

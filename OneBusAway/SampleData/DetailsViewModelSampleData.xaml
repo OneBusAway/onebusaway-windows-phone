@@ -1,0 +1,22 @@
+<viewmodel:RouteDetailsVM 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:viewmodel="clr-namespace:OneBusAway.WP7.ViewModel;assembly=OneBusAway.WP7.ViewModel" 
+    xmlns:model="clr-namespace:OneBusAway.WP7.Model;assembly=OneBusAway.WP7.Model"
+    xmlns:data="clr-namespace:OneBusAway.WP7.ViewModel.BusServiceDataStructures;assembly=OneBusAway.WP7.ViewModel"
+    xmlns:appdata="clr-namespace:OneBusAway.WP7.ViewModel.AppDataDataStructures;assembly=OneBusAway.WP7.ViewModel"
+    >
+
+    <viewmodel:RouteDetailsVM.ArrivalsForStop>
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="12:45" scheduledArrivalTime="12:45"/>
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="9:45" scheduledArrivalTime="9:30" />
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="3:45" scheduledArrivalTime="3:50" />
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="6:45" scheduledArrivalTime="3:50" />
+
+    </viewmodel:RouteDetailsVM.ArrivalsForStop>
+    <viewmodel:RouteDetailsVM.TripDetailsForArrivals>
+
+    </viewmodel:RouteDetailsVM.TripDetailsForArrivals>
+
+   
+</viewmodel:RouteDetailsVM>
