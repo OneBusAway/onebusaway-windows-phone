@@ -98,13 +98,16 @@ namespace OneBusAway.WP7.View
                     if (dispatcher != null)
                     {
                         reportingError = true;
-                        dispatcher.BeginInvoke(() => viewModel_ErrorHandlerThread(sender, e) );
+
+                        IDictionary<string, string> exceptionReport = new Dictionary<string, string>();
+                        exceptionReport.Add(e.error.GetType().ToString(), e.ToString());
+                        dispatcher.BeginInvoke(() => viewModel_ErrorHandlerThread(sender, e, exceptionReport));
                     }
                 }
             }
         }
 
-        private static void viewModel_ErrorHandlerThread(object sender, ViewModel.EventArgs.ErrorHandlerEventArgs e)
+        private static void viewModel_ErrorHandlerThread(object sender, ViewModel.EventArgs.ErrorHandlerEventArgs e, IDictionary<string, string> exceptionReport)
         {
             // Ensure that we never process more than one error at a time
             lock (errorProcessingLock)
@@ -141,11 +144,10 @@ namespace OneBusAway.WP7.View
                     if (((WebserviceResponseException)e.error).ServerStatusCode == HttpStatusCode.Unused)
                     {
                         errorMessage +=
-                            "The data we received from OneBusAway isn't correct; " +
-                            "are you connected to a public WIFI network which requires you " +
-                            "to log in before accessing the internet?" +
-                            " If not, would you like to report this error so we can try and fix it?";
-                        messageBoxType = MessageBoxButton.OKCancel;
+                            "Your internet conection doesn't appear to be working, " +
+                            "are you connected to a WIFI network which requires a log in? " +
+                            "Try opening a web page to confirm your internet connection is working.";
+                        messageBoxType = MessageBoxButton.OK;
                     }
                     else
                     {
