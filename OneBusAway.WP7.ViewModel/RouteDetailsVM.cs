@@ -72,11 +72,14 @@ namespace OneBusAway.WP7.ViewModel
             StopsForRouteCompleted callback = new StopsForRouteCompleted(this, arrival, uiCallback);
             busServiceModel.StopsForRoute_Completed += new EventHandler<EventArgs.StopsForRouteEventArgs>(callback.busServiceModel_StopsForRoute_Completed);
 
-            Route placeholder = new Route() { id = arrival.routeId };
+            Route placeholder = new Route() { id = arrival.routeId, shortName = arrival.routeShortName};
+            // This will at least cause the route number to immediately update
+            CurrentViewState.CurrentRoute = placeholder;
+            CurrentViewState.CurrentRouteDirection = new RouteStops();
+
             busServiceModel.StopsForRoute(placeholder);
 
             ChangeFilterForArrivals(placeholder);
-            LoadTripsForArrivals(ArrivalsForStop.ToList(), placeholder);
         }
 
         public void SwitchToStop(Stop stop)
@@ -195,9 +198,18 @@ namespace OneBusAway.WP7.ViewModel
                         }
                         );
 
-#if DEBUG
-                    viewModel.UIAction(() => Debug.Assert(viewModel.CurrentViewState.CurrentRouteDirection != null));
-#endif
+                    viewModel.UIAction(() => 
+                        {
+                            // This will happen if we don't find a match between the headsign and route direction
+                            // The 48 route in particular has this problem, if we leave this as null the
+                            // filtered appbar icon won't update correctly
+                            if (viewModel.CurrentViewState.CurrentRouteDirection == null)
+                            {
+                                Debug.Assert(false);
+                                viewModel.CurrentViewState.CurrentRouteDirection = new RouteStops();
+                            }
+                        }
+                        );
 
                     if (uiCallback != null)
                     {
@@ -348,6 +360,9 @@ namespace OneBusAway.WP7.ViewModel
                     ArrivalAndDeparture currentArrival = arrival;
                     UIAction(() => ArrivalsForStop.Add(currentArrival));
                 }
+
+
+                LoadTripsForArrivals(ArrivalsForStop.ToList());
             }
         }
 
