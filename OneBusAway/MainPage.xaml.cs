@@ -139,6 +139,7 @@ namespace OneBusAway.WP7.View
             );
 
             RecentsListBox.DataContext = viewModel;
+            FavoritesListBox.DataContext = viewModel;
             StopsListBox.DataContext = viewModel;
             RoutesListBox.DataContext = viewModel;
 
