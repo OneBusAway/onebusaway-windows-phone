@@ -100,7 +100,7 @@ namespace OneBusAway.WP7.View
                         reportingError = true;
 
                         IDictionary<string, string> exceptionReport = new Dictionary<string, string>();
-                        exceptionReport.Add(e.error.GetType().ToString(), e.ToString());
+                        exceptionReport.Add(e.error.GetType().ToString(), e.error.ToString());
                         dispatcher.BeginInvoke(() => viewModel_ErrorHandlerThread(sender, e, exceptionReport));
                     }
                 }
