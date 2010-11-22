@@ -353,13 +353,14 @@ namespace OneBusAway.WP7.View
                     viewModel.SearchByStop(searchString, SearchByStopCallback);
                 }
             }
-            else // Try to find the location
+            else if (string.IsNullOrEmpty(searchString) == false) // Try to find the location
             {
                 viewModel.SearchByAddress(searchString, SearchByLocationCallback);
             }
 
             SearchStoryboard.Seek(TimeSpan.Zero);
             SearchStoryboard.Stop();
+            this.Focus();
         }
 
         private void appbar_settings_Click(object sender, EventArgs e)
