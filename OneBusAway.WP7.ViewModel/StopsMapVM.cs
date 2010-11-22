@@ -133,22 +133,31 @@ namespace OneBusAway.WP7.ViewModel
             // and a linear pass to add any new stops
             if (newStops.Count > 0)
             {
-                UIAction(() =>
+                lock (stopsForLocationLock)
                 {
-                    lock (stopsForLocationLock)
+                    foreach (Stop s in newStops.Values)
                     {
-                        // Yes, these loops are on the UI thread.
-                        // I tried moving the loop outside -- resulted in just one stop being added to the map.
-                        foreach (Stop s in newStops.Values)
+                        if (!stopsForLocationIndex.ContainsKey(s.id))
                         {
-                            if (!stopsForLocationIndex.ContainsKey(s.id))
+                            // Create a local reference so it will still be valid when
+                            // the UI thread executes
+                            Stop currentStop = s;
+                            UIAction(() =>
                             {
-                                StopsForLocation.Add(s);
-                                stopsForLocationIndex.Add(s.id, s);
-                            }
+                                lock (stopsForLocationLock)
+                                {
+                                    // Check this again to make sure another thread didn't
+                                    // add this stop while we were waiting
+                                    if (!stopsForLocationIndex.ContainsKey(currentStop.id))
+                                    {
+                                        StopsForLocation.Add(currentStop);
+                                        stopsForLocationIndex.Add(currentStop.id, currentStop);
+                                    }
+                                }
+                            });
                         }
                     }
-                });
+                }
             }
         }
 
