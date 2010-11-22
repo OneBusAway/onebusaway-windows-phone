@@ -82,7 +82,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
-            <Grid Margin="0,10,0,10" MinHeight="100">
+            <Grid Margin="0,10,0,10" MinHeight="105">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition Width="390" />
@@ -100,6 +100,7 @@
                                              Content="{Binding Path=name, Converter={StaticResource LowercaseConverter}}"
                                              FontSize="{StaticResource PhoneFontSizeLarge}"
                                              Foreground="{StaticResource OBAForegroundBrush}"
+                                             Margin="0,5,0,5"
                                              >
                                     <toolkit:GestureService.GestureListener>
                                         <toolkit:GestureListener Tap="GestureListener_Tap"/>
