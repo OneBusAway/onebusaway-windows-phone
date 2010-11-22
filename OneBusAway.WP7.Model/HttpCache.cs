@@ -193,7 +193,7 @@ namespace OneBusAway.WP7.Model
                                 return null;
                             }
                             // all good! return the content
-                            IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read);
+                            IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
                             return stream;
                         }
                     }
@@ -232,11 +232,23 @@ namespace OneBusAway.WP7.Model
                     UpdateExpiration(fileName);
                     EvictIfNecessary(iso);
 
-                    IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.ReadWrite);
-                    StreamWriter writer = new StreamWriter(stream);
-                    writer.Write(data);
-                    writer.Flush();
-                    stream.Seek(0, SeekOrigin.Begin);
+                    Stream stream;
+                    // If file already exists don't rewrite it.  The other request which caused the
+                    // file to be cached might still be using the thread and will crash if we 
+                    // try to delete the file
+                    if (iso.FileExists(fileName) == false)
+                    {
+                        stream = iso.OpenFile(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                        StreamWriter writer = new StreamWriter(stream);
+                        writer.Write(data);
+                        writer.Flush();
+                        stream.Seek(0, SeekOrigin.Begin);
+                    }
+                    else
+                    {
+                        stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    }
+
                     return new StreamReader(stream);
                 }
             }
