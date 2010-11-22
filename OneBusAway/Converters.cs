@@ -374,15 +374,22 @@ namespace OneBusAway.WP7.View
             {
                 RouteStops routeStops = (RouteStops)value;
 
-                List<LocationCollection> polylines = new List<LocationCollection>();
-                foreach (PolyLine pl in routeStops.encodedPolylines)
+                if (routeStops.encodedPolylines != null)
                 {
-                    LocationCollection polyline = new LocationCollection();
-                    pl.Coordinates.ForEach(coordinate => polyline.Add(new GeoCoordinate(coordinate.Latitude, coordinate.Longitude)));
-                    polylines.Add(polyline);
-                }
+                    List<LocationCollection> polylines = new List<LocationCollection>();
+                    foreach (PolyLine pl in routeStops.encodedPolylines)
+                    {
+                        LocationCollection polyline = new LocationCollection();
+                        pl.Coordinates.ForEach(coordinate => polyline.Add(new GeoCoordinate(coordinate.Latitude, coordinate.Longitude)));
+                        polylines.Add(polyline);
+                    }
 
-                return polylines;
+                    return polylines;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
