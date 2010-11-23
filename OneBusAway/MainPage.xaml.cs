@@ -28,6 +28,8 @@ namespace OneBusAway.WP7.View
         private MainPageVM viewModel;
         private bool firstLoad;
         private Popup popup;
+        private bool navigatedAway;
+        private Object stopButtonLock;
 
         public MainPage()
             : base()
@@ -44,6 +46,8 @@ namespace OneBusAway.WP7.View
 
             viewModel = aViewModel as MainPageVM;
             firstLoad = true;
+            navigatedAway = false;
+            stopButtonLock = new Object();
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
@@ -156,6 +160,8 @@ namespace OneBusAway.WP7.View
             viewModel.StopsForLocation.Clear();
             viewModel.Favorites.Clear();
             viewModel.Recents.Clear();
+
+            navigatedAway = false;
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -375,12 +381,20 @@ namespace OneBusAway.WP7.View
 
         private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.CurrentViewState.CurrentRoute = null;
-            viewModel.CurrentViewState.CurrentRouteDirection = null;
-            viewModel.CurrentViewState.CurrentSearchLocation = null;
-            viewModel.CurrentViewState.CurrentStop = null;
+            lock (stopButtonLock)
+            {
+                if (navigatedAway == false)
+                {
+                    navigatedAway = true;
 
-            NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                    viewModel.CurrentViewState.CurrentRoute = null;
+                    viewModel.CurrentViewState.CurrentRouteDirection = null;
+                    viewModel.CurrentViewState.CurrentSearchLocation = null;
+                    viewModel.CurrentViewState.CurrentStop = null;
+
+                    NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                }
+            }
         }
 
         private void GestureListener_Tap(object sender, GestureEventArgs e)
