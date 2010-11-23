@@ -82,7 +82,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="RouteTemplate">
-            <Grid Margin="0,10,0,10" MinHeight="105">
+            <Grid Margin="0,0,0,20" MinHeight="106">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="90" />
                     <ColumnDefinition Width="390" />

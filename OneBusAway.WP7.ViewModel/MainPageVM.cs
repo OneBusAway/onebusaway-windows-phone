@@ -383,8 +383,6 @@ namespace OneBusAway.WP7.ViewModel
                 int routeCount = 0;
                 foreach (Route route in e.routes)
                 {
-                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", route.id), "Loading route details...");
-
                     if (routeCount > maxRoutes)
                     {
                         break;
@@ -406,7 +404,11 @@ namespace OneBusAway.WP7.ViewModel
                     {
                         new Thread(() =>
                             {
-                                e.routes.ForEach(route => busServiceModel.StopsForRoute(route));
+                                foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
+                                {
+                                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", displayRoute.Route.id), "Loading route details...");
+                                    busServiceModel.StopsForRoute(displayRoute.Route);
+                                }
                             }
                         ).Start();
                     }

@@ -203,8 +203,8 @@ namespace OneBusAway.WP7.ViewModel
             // Set the UI Actions to occur on the UI thread
             UIAction = (uiAction => dispatcher.BeginInvoke(() => uiAction()));
 
-            locationTracker.Initialize(operationTracker);
             locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
+            locationTracker.Initialize(operationTracker);
 
             Debug.Assert(eventsRegistered == false);
             eventsRegistered = true;
@@ -216,8 +216,8 @@ namespace OneBusAway.WP7.ViewModel
         /// </summary>
         public virtual void UnregisterEventHandlers()
         {
-            locationTracker.ErrorHandler -= new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             locationTracker.Uninitialize();
+            locationTracker.ErrorHandler -= new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
 
             Debug.Assert(eventsRegistered == true);
             eventsRegistered = false;
