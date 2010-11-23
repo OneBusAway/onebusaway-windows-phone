@@ -10,22 +10,40 @@ using System.Diagnostics;
 
 namespace OneBusAway.WP7.ViewModel 
 {
-    public class LocationTracker : INotifyPropertyChanged
+    internal static class LocationTrackerStatic
     {
-        #region Static Location Code
-
         private static GeoCoordinateWatcher locationWatcher;
-        private static GeoCoordinate lastKnownLocation;
 
-        static LocationTracker()
+        public static GeoCoordinate LastKnownLocation { get; set; }
+        public static GeoPositionStatus LocationStatus
         {
-            lastKnownLocation = null;
+            get
+            {
+                return locationWatcher.Status;
+            }
+        }
+
+        public static event EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>> PositionChanged;
+        public static event EventHandler<GeoPositionStatusChangedEventArgs> StatusChanged;
+
+        static LocationTrackerStatic()
+        {
+            LastKnownLocation = null;
 
             locationWatcher = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
             locationWatcher.MovementThreshold = 5; // 5 meters
             locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
+            locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
 
             locationWatcher.Start();
+        }
+
+        static void  locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
+        {
+            if (StatusChanged != null)
+            {
+                StatusChanged(sender, e);
+            }
         }
 
         private static void LocationWatcher_PositionChanged(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
@@ -37,12 +55,19 @@ namespace OneBusAway.WP7.ViewModel
             {
                 if ((DateTime.Now - e.Position.Timestamp.DateTime) < new TimeSpan(0, 5, 0))
                 {
-                    lastKnownLocation = e.Position.Location;
+                    LastKnownLocation = e.Position.Location;
                 }
             }
-        }
 
-        #endregion
+            if (PositionChanged != null)
+            {
+                PositionChanged(sender, e);
+            }
+        }
+    }
+
+    public class LocationTracker : INotifyPropertyChanged
+    {
 
         #region Private Variables
 
@@ -80,16 +105,16 @@ namespace OneBusAway.WP7.ViewModel
 #if DEBUG
             if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
             {
-                lastKnownLocation = null;
+                LocationTrackerStatic.LastKnownLocation = null;
                 Random random = new Random();
                 int timeoutMs = random.Next(0, 5000);
                 timer = new Timer(param =>
                 {
                     UIAction(() =>
                     {
-                        lastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
+                        LocationTrackerStatic.LastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
                         GeoPositionChangedEventArgs<GeoCoordinate> args =
-                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, lastKnownLocation));
+                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, LocationTrackerStatic.LastKnownLocation));
                         LocationWatcher_LocationKnown(
                             this,
                             args
@@ -104,26 +129,33 @@ namespace OneBusAway.WP7.ViewModel
             }
 #endif
 
+            LocationTrackerStatic.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
+
             if (LocationKnown == false)
             {
-                operationTracker.WaitForOperation("LoadLocation", "Finding your location...");
-                locationLoading = true;
-                locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
-                locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
+                if (LocationTrackerStatic.LocationStatus == GeoPositionStatus.Disabled)
+                {
+                    LocationServiceDisabled();
+                }
+                else
+                {
+                    operationTracker.WaitForOperation("LoadLocation", "Finding your location...");
+                    locationLoading = true;
+                    LocationTrackerStatic.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
+                    LocationTrackerStatic.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(LocationWatcher_StatusChanged);
+                }
             }
             else
             {
                 locationWatcher_PositionChanged_NotifyPropertyChanged(this, new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, CurrentLocation)));
             }
-
-            locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
         }
 
         public void Uninitialize()
         {
-            locationWatcher.PositionChanged -= LocationWatcher_LocationKnown;
-            locationWatcher.StatusChanged -= LocationWatcher_StatusChanged;
-            locationWatcher.PositionChanged -= locationWatcher_PositionChanged_NotifyPropertyChanged;
+            LocationTrackerStatic.PositionChanged -= LocationWatcher_LocationKnown;
+            LocationTrackerStatic.StatusChanged -= LocationWatcher_StatusChanged;
+            LocationTrackerStatic.PositionChanged -= locationWatcher_PositionChanged_NotifyPropertyChanged;
         }
 
         #endregion
@@ -146,12 +178,12 @@ namespace OneBusAway.WP7.ViewModel
                 }
 #endif
 
-                if (lastKnownLocation != null)
+                if (LocationTrackerStatic.LastKnownLocation != null)
                 {
-                    return lastKnownLocation;
+                    return LocationTrackerStatic.LastKnownLocation;
                 }
 
-                throw new LocationUnavailableException("The location is currently unavailable: " + locationWatcher.Status, locationWatcher.Status);
+                throw new LocationUnavailableException("The location is currently unavailable: " + LocationTrackerStatic.LocationStatus, LocationTrackerStatic.LocationStatus);
             }
         }
 
@@ -166,7 +198,7 @@ namespace OneBusAway.WP7.ViewModel
                 }
 #endif
 
-                return lastKnownLocation != null;
+                return LocationTrackerStatic.LastKnownLocation != null;
             }
         }
 
@@ -205,23 +237,28 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (e.Status == GeoPositionStatus.Disabled)
             {
-                // Status disabled means the user has disabled the location service on their phone
-                // and we won't be getting a location.  Go ahead and stop loading the location and
-                // set it to the default
-                if (locationLoading == true)
-                {
-                    locationLoading = false;
-                    operationTracker.DoneWithOperation("LoadLocation");
-
-                    lastKnownLocation = DefaultLocation;
-                    OnPropertyChanged("CurrentLocation");
-                    OnPropertyChanged("CurrentLocationSafe");
-                    OnPropertyChanged("LocationKnown");
-                }
-
-                // Let them know OneBusAway is pretty useless without location
-                ErrorOccured(this, new LocationUnavailableException("The location is currently unavailable: " + locationWatcher.Status, locationWatcher.Status));
+                LocationServiceDisabled();
             }
+        }
+
+        private void LocationServiceDisabled()
+        {
+            // Status disabled means the user has disabled the location service on their phone
+            // and we won't be getting a location.  Go ahead and stop loading the location and
+            // set it to the default
+            if (locationLoading == true)
+            {
+                locationLoading = false;
+                operationTracker.DoneWithOperation("LoadLocation");
+            }
+
+            LocationTrackerStatic.LastKnownLocation = DefaultLocation;
+            OnPropertyChanged("CurrentLocation");
+            OnPropertyChanged("CurrentLocationSafe");
+            OnPropertyChanged("LocationKnown");
+
+            // Let them know OneBusAway is pretty useless without location
+            ErrorOccured(this, new LocationUnavailableException("The location is currently unavailable: " + LocationTrackerStatic.LocationStatus, LocationTrackerStatic.LocationStatus));
         }
 
         private void LocationWatcher_LocationKnown(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
@@ -235,7 +272,7 @@ namespace OneBusAway.WP7.ViewModel
                     operationTracker.DoneWithOperation("LoadLocation");
 
                     // Remove this handler now that the location is known
-                    locationWatcher.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
+                    LocationTrackerStatic.PositionChanged -= new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_LocationKnown);
                 }
             }
         }
