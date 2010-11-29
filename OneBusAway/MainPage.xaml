@@ -13,22 +13,17 @@
     xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps" 
     mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="728"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
-    tilt:TiltEffect.IsTiltEnabled="True"
     shell:SystemTray.IsVisible="False"
     xmlns:localControls="clr-namespace:Microsoft.Phone.Controls"
     xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
 >
-
+    
     <view:AViewPage.Resources>
         <data:MainPageVM x:Key="ViewModel" />
 
         <DataTemplate x:Key="PushpinTemplate">
             <m:Pushpin PositionOrigin="{Binding location}" />
         </DataTemplate>
-
-
-
-        <!--<viewModel:RouteDirectionsMV x:Key="RouteStopsList" />-->
 
         <view:StopRoutesConverter x:Key="StopRoutesConverter"></view:StopRoutesConverter>
         <view:DistanceConverter x:Key="DistanceConverter"></view:DistanceConverter>
@@ -41,7 +36,7 @@
 
         <DataTemplate x:Key="StopTemplate">
 
-            <Grid Margin="5">
+            <Grid Margin="5" tilt:TiltEffect.IsTiltEnabled="True">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="50" />
@@ -101,6 +96,7 @@
                                              FontSize="{StaticResource PhoneFontSizeLarge}"
                                              Foreground="{StaticResource OBAForegroundBrush}"
                                              Margin="0,5,0,5"
+                                             tilt:TiltEffect.IsTiltEnabled="True"
                                              >
                                     <toolkit:GestureService.GestureListener>
                                         <toolkit:GestureListener Tap="GestureListener_Tap"/>
@@ -117,7 +113,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FavTemplate">
-            <Grid Margin="5">
+            <Grid Margin="5" tilt:TiltEffect.IsTiltEnabled="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="200" />
