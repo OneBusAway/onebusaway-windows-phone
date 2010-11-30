@@ -47,10 +47,14 @@ namespace OneBusAway.WP7.View
         {
             get
             {
-                string s = string.Format("DetailsPage-IsFiltered-{0}", viewModel.CurrentViewState.CurrentStop.id);
-                if (viewModel.CurrentViewState.CurrentRouteDirection != null && viewModel.CurrentViewState.CurrentRoute != null)
+                string s = Guid.NewGuid().ToString();
+                if (viewModel != null && viewModel.CurrentViewState != null && viewModel.CurrentViewState.CurrentStop != null)
                 {
-                    s += string.Format("-{0}-{1}", viewModel.CurrentViewState.CurrentRoute.id, viewModel.CurrentViewState.CurrentRouteDirection.name);
+                    s = string.Format("DetailsPage-IsFiltered-{0}", viewModel.CurrentViewState.CurrentStop.id);
+                    if (viewModel.CurrentViewState.CurrentRouteDirection != null && viewModel.CurrentViewState.CurrentRoute != null)
+                    {
+                        s += string.Format("-{0}-{1}", viewModel.CurrentViewState.CurrentRoute.id, viewModel.CurrentViewState.CurrentRouteDirection.name);
+                    }
                 }
 
                 return s;
