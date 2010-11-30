@@ -29,6 +29,7 @@
         <view:PolylineConverter x:Key="PolylineConverter" />
         <view:PushpinScaleConverter x:Key="PushpinScaleConverter" />
         <view:LateEarlyConverter x:Key="LateEarlyConverter" />
+        <view:LowercaseConverter x:Key="LowercaseConverter" />
         
         <!-- TextBox styles -->
 
@@ -38,7 +39,7 @@
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="150" />
                     <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="140" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -53,7 +54,8 @@
                     Text="{Binding routeShortName}" 
                     FontSize="{StaticResource PhoneFontSizeLarge}" 
                     Foreground="{StaticResource OBAForegroundBrush}"
-                    Margin="5" 
+                    VerticalAlignment="Top"
+                    Margin="0,-3,5,0" 
                     />
                 <TextBlock 
                     Grid.Column="1" 
@@ -61,7 +63,7 @@
                     Grid.Row="0" 
                     FontSize="{StaticResource PhoneFontSizeNormal}" 
                     Foreground="{StaticResource OBAForegroundBrush}"       
-                    TextAlignment="Center"
+                    TextAlignment="Left"
                     Text="{Binding tripHeadsign}" 
                     />
                 <TextBlock 
@@ -69,7 +71,7 @@
                     Grid.Row="1" 
                     Foreground="{StaticResource OBASubtleBrush}" 
                     FontSize="{StaticResource PhoneFontSizeSmall}"
-                    Text="{Binding scheduledArrivalTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Planned:}" 
+                    Text="{Binding scheduledArrivalTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" 
                     />
                 <TextBlock 
                     Grid.Column="2" 
@@ -84,8 +86,10 @@
                     Grid.Row="0" 
                     Grid.RowSpan="2" 
                     Style="{StaticResource PhoneTextLargeStyle}" 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
+                    TextAlignment="Right" 
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Top" 
+                    Margin="0,-3,0,0"
                     Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" 
                     Foreground="{Binding Converter={StaticResource DelayColorConverter}}"
                     />

@@ -16,13 +16,57 @@
     shell:SystemTray.IsVisible="True">
 
     <!--LayoutRoot is the root grid where all page content is placed-->
-    <Grid x:Name="LayoutRoot" Background="#78AA36" Width="480" Height="800">
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
 
-        <Image HorizontalAlignment="Center"  Stretch="None" VerticalAlignment="Top" Source="/SplashImage.png" />
-        <Button BorderBrush="{StaticResource OBAForegroundBrush}" Foreground="{StaticResource OBAForegroundBrush}" Content="send feedback" Height="72" HorizontalAlignment="Left" Margin="121,555,0,0" Name="FeedbackButton" VerticalAlignment="Top" Width="236" Click="FeedbackButton_Click" />
-        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="73" HorizontalAlignment="Left" Margin="63,374,0,0" Name="AddressBlock" Text="onebusaway.org" VerticalAlignment="Top" FontSize="48" Width="350" MouseLeftButtonUp="AddressBlock_MouseLeftButtonUp" />
-        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Left" Margin="18,705,0,0" Text="Windows Phone edition by Rob Smith and Shawn Henry" VerticalAlignment="Top" FontSize="18" />
-        <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Left" Margin="91,729,0,0" Text="http://onebusawaywp7.codeplex.com" VerticalAlignment="Top" FontSize="18" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" />
+        <Image 
+            HorizontalAlignment="Center"  
+            Stretch="None" 
+            VerticalAlignment="Top" 
+            Source="/SplashImage.png" 
+            />
+        <Button 
+            BorderBrush="{StaticResource OBAForegroundBrush}" 
+            Foreground="{StaticResource OBAForegroundBrush}" 
+            Content="send feedback" 
+            Height="72" 
+            HorizontalAlignment="Left" 
+            Margin="121,520,0,0" 
+            Name="FeedbackButton" 
+            VerticalAlignment="Top" 
+            Width="236" 
+            Click="FeedbackButton_Click" 
+            />
+        <TextBlock 
+            Foreground="{StaticResource OBAForegroundBrush}" 
+            Height="73" 
+            HorizontalAlignment="Left" 
+            Margin="63,374,0,0" 
+            Name="AddressBlock" 
+            Text="onebusaway.org" 
+            VerticalAlignment="Top" 
+            FontSize="48" 
+            Width="350" 
+            MouseLeftButtonUp="AddressBlock_MouseLeftButtonUp" 
+            />
+        <StackPanel VerticalAlignment="Bottom">
+            <TextBlock 
+                Foreground="{StaticResource OBAForegroundBrush}" 
+                HorizontalAlignment="Stretch"
+                TextAlignment="Center"
+                Text=
+                "Windows Phone app by 
+Rob Smith, Shawn Henry, and Michael Friedman" 
+                TextWrapping="Wrap"
+                Margin="10,10,10,0"
+                />
+            <TextBlock 
+                Foreground="{StaticResource OBAForegroundBrush}" 
+                HorizontalAlignment="Center" 
+                Text="http://onebusawaywp7.codeplex.com" 
+                MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" 
+                Margin="10"
+                />
+        </StackPanel>
         <TextBlock Foreground="{StaticResource OBAForegroundBrush}" Height="30" HorizontalAlignment="Right" Margin="0,10,14,0" Name="VersionTextBlock" Text="Version 1.0" VerticalAlignment="Top" />
     </Grid>
 
