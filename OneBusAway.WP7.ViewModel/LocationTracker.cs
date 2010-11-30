@@ -293,7 +293,15 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (PropertyChanged != null)
             {
-                UIAction(() => PropertyChanged(this, new PropertyChangedEventArgs(propertyName)));
+                UIAction(() =>
+                {
+                    // Check again in case it has changed while we waited to execute on the UI thread
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                    }
+                }
+                );
             }
         }
 
