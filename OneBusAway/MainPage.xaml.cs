@@ -52,6 +52,19 @@ namespace OneBusAway.WP7.View
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
             SupportedOrientations = SupportedPageOrientation.Portrait;
+
+            this.ApplicationBar.ForegroundColor = ((SolidColorBrush)Application.Current.Resources["OBAForegroundBrush"]).Color;
+            Color obaDarkColor = ((SolidColorBrush)Application.Current.Resources["OBADarkBrush"]).Color;
+            // the native theme uses a shade of "gray" that is actually white or black with an alpha mask.
+            // the appbar needs to be opaque.
+            double alpha = ((double)obaDarkColor.A) / 255.0;
+            double backgroundOpacity = (Double)Application.Current.Resources["PhoneLightThemeOpacity"];
+            double compositedBackground = (1 - alpha) * backgroundOpacity * 0xFF;
+            obaDarkColor = Color.FromArgb(0xFF,
+                (byte)(alpha * obaDarkColor.R + compositedBackground),
+                (byte)(alpha * obaDarkColor.G + compositedBackground),
+                (byte)(alpha * obaDarkColor.B + compositedBackground));
+            this.ApplicationBar.BackgroundColor = obaDarkColor;
         }
 
         private void ShowLoadingSplash()

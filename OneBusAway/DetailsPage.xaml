@@ -217,7 +217,7 @@
     </Grid>
 
     <navigation:PhoneApplicationPage.ApplicationBar >
-        <shell:ApplicationBar ForegroundColor="{StaticResource OBAForegroundColor}" IsVisible="True" IsMenuEnabled="True"  BackgroundColor="{StaticResource OBADarkColor}">
+        <shell:ApplicationBar IsVisible="True" IsMenuEnabled="True" >
             <shell:ApplicationBarIconButton x:Name="appbar_favorite" IconUri="/Images/appbar.favs.addto.rest.png" Text="Favorite" Click="appbar_favorite_Click" />
             <shell:ApplicationBarIconButton x:Name="appbar_refresh" IconUri="/Images/appbar.refresh.rest.png" Text="Refresh" Click="appbar_refresh_Click" />
         </shell:ApplicationBar>

@@ -85,6 +85,30 @@
                     BorderBrush="{StaticResource OBAForegroundBrush}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     />
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <toolbox:ToggleSwitch
+                    x:Name="ThemeToggle"
+                    Grid.Row="0"
+                    IsChecked="{Binding Path=UseNativeTheme, Source={StaticResource ViewModel}, Mode=TwoWay}"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    Header="Use system theme"
+                    />
+
+                <TextBlock 
+                    Grid.Row="1"
+                    Margin="10,-20,0,0"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    FontSize="{StaticResource PhoneFontSizeSmall}"
+                    Text="Apply your phone's system theme to the application.  You must restart OneBusAway for any changes to this setting to take effect."
+                    TextWrapping="Wrap"
+                    />
+            </Grid>
         </StackPanel>
     </Grid>
 
