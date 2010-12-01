@@ -20,33 +20,22 @@
     <!-- Resources for following the Windows Phone design guidelines -->
     <Application.Resources>
         <m:ApplicationIdCredentialsProvider ApplicationId="ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm" x:Key="MapCredentials" />
-
-        <Color x:Key="OBADarkColor">#49770D</Color>
+        
+        <Color x:Key="OBADarkColor">#2b4409</Color>
         <Color x:Key="OBALightColor">White</Color>        
         <Color x:Key="OBAPrimaryColor">#78AA36</Color>
+        <Color x:Key="OBASubtleColor">#6A6A6A</Color>
         <Color x:Key="OBAForegroundColor">White</Color>
         <Color x:Key="OBABackgroundColor">Black</Color>
         <Color x:Key="OBAAccentColor">#A7ED4C</Color>
-        <Color x:Key="OBARedColor">#BA513B</Color>
-        <Color x:Key="OBABlueColor">#6B2A7B</Color>
 
-        <!--<Color x:Key="OBADarkColor">Purple</Color>
-        <Color x:Key="OBALightColor">Yellow</Color>
-        <Color x:Key="OBAPrimaryColor">Green</Color>
-        <Color x:Key="OBAForegroundColor">Red</Color>
-        <Color x:Key="OBABackgroundColor">Blue</Color>
-        <Color x:Key="OBAAccentColor">Blue</Color>-->
-        
-        <SolidColorBrush x:Key="OBASubtleBrush" Color="{StaticResource PhoneSubtleColor}"/>
         <SolidColorBrush x:Key="OBADarkBrush" Color="{StaticResource OBADarkColor}"/>
-
+        <SolidColorBrush x:Key="OBALightBrush" Color="{StaticResource OBALightColor}"/>
+        <SolidColorBrush x:Key="OBAPrimaryBrush" Color="{StaticResource OBAPrimaryColor}"/>
+        <SolidColorBrush x:Key="OBASubtleBrush" Color="{StaticResource OBASubtleColor}"/>
         <SolidColorBrush x:Key="OBAForegroundBrush" Color="{StaticResource OBAForegroundColor}"/>
         <SolidColorBrush x:Key="OBABackgroundBrush" Color="{StaticResource OBABackgroundColor}"/>
-        <SolidColorBrush x:Key="OBAPrimaryBrush" Color="{StaticResource OBAPrimaryColor}"/>
         <SolidColorBrush x:Key="OBAAccentBrush" Color="{StaticResource OBAAccentColor}"/>
-        <SolidColorBrush x:Key="OBALightBrush" Color="{StaticResource OBALightColor}"/>
-        <SolidColorBrush x:Key="OBARedBrush" Color="{StaticResource OBARedColor}"/>
-        <SolidColorBrush x:Key="OBABlueBrush" Color="{StaticResource OBABlueColor}"/>
 
         <Style x:Name="PerformanceProgressBarStyle" TargetType="local:PerformanceProgressBar">
             <!-- This control only benefits indeterminate situations so it is only

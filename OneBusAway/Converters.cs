@@ -330,28 +330,10 @@ namespace OneBusAway.WP7.View
                 if (arrival.predictedArrivalTime == null)
                 {
                     // There is no predicted arrival time
-                    return new SolidColorBrush(Colors.Gray);
+                    return Application.Current.Resources["OBASubtleBrush"];
                 }
 
-                TimeSpan delay = arrival.scheduledArrivalTime - (DateTime)arrival.predictedArrivalTime;
-
-                // Intentionally use Minutes instead of TotalMinutes so that we round
-                // to the nearest minute
-                if (delay.Minutes < 0)
-                {
-                    // Bus is running late
-                    return Application.Current.Resources["OBABlueBrush"];
-                }
-                else if (delay.Minutes == 0)
-                {
-                    // Bus is on time
-                    return Application.Current.Resources["OBADarkBrush"];
-                }
-                else
-                {
-                    // Bus is running early
-                    return Application.Current.Resources["OBARedBrush"];
-                }
+                return Application.Current.Resources["OBADarkBrush"];
             }
             else
             {
