@@ -76,10 +76,10 @@
                 <TextBlock 
                     Grid.Column="2" 
                     Grid.Row="1" 
-                    Foreground="{StaticResource OBASubtleBrush}" 
                     FontSize="{StaticResource PhoneFontSizeSmall}"
                     TextAlignment="Right"
                     Text="{Binding busDelay, Converter={StaticResource LateEarlyConverter}}" 
+                    Foreground="{Binding Converter={StaticResource DelayColorConverter}}"
                     />
                 <TextBlock 
                     Grid.Column="3" 
