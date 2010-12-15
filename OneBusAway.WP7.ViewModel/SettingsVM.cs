@@ -61,6 +61,33 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        public bool UseNativeTheme
+        {
+            get
+            {
+                string theme;
+
+                if (IsolatedStorageSettings.ApplicationSettings.TryGetValue<string>("Theme", out theme) == false)
+                {
+                    return false; // defaults to the OBA theme
+                }
+                return (theme == "Native");
+            }
+            set
+            {
+                if (value)
+                {
+                    IsolatedStorageSettings.ApplicationSettings["Theme"] = "Native";
+                }
+                else
+                {
+                    IsolatedStorageSettings.ApplicationSettings["Theme"] = "OBA";
+                }
+                IsolatedStorageSettings.ApplicationSettings.Save();
+                OnPropertyChanged("UseNativeTheme");
+            }
+        }
+
         public ObservableCollection<MainPagePivots> MainPagePivotOptions
         {
             get

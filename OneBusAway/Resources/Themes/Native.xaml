@@ -1,0 +1,19 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"       
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:m="clr-namespace:Microsoft.Phone.Controls.Maps;assembly=Microsoft.Phone.Controls.Maps"
+    xmlns:local="clr-namespace:Microsoft.Phone.Controls"
+    xmlns:localPrimitives="clr-namespace:Microsoft.Phone.Controls.Primitives"
+    xmlns:phoneNavigation="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone"
+    xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
+    >
+
+    <SolidColorBrush x:Key="OBADarkBrush" Color="{StaticResource PhoneDisabledColor}"/>
+    <SolidColorBrush x:Key="OBALightBrush" Color="{StaticResource PhoneBorderColor}"/> 
+    <SolidColorBrush x:Key="OBAPrimaryBrush" Color="{StaticResource PhoneBackgroundColor}"/>
+    <SolidColorBrush x:Key="OBASubtleBrush" Color="{StaticResource PhoneSubtleColor}"/>
+    <SolidColorBrush x:Key="OBAForegroundBrush" Color="{StaticResource PhoneForegroundColor}"/>
+    <SolidColorBrush x:Key="OBABackgroundBrush" Color="{StaticResource PhoneBackgroundColor}"/>
+    <SolidColorBrush x:Key="OBAAccentBrush" Color="{StaticResource PhoneAccentColor}"/>
+</ResourceDictionary>
