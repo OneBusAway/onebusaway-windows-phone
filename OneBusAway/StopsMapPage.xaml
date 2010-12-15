@@ -77,10 +77,7 @@
                         Background="{StaticResource OBABackgroundBrush}"
                         Click="PopupBtn_Click"
                             >
-                        <Grid Margin="4">
-                            <Grid.Background>
-                                <SolidColorBrush Color="{StaticResource OBAPrimaryColor}"/>
-                            </Grid.Background>
+                        <Grid Margin="4" Background="{StaticResource OBAPrimaryBrush}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />

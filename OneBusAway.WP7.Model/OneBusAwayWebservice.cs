@@ -567,24 +567,30 @@ namespace OneBusAway.WP7.Model
 
         private static TripDetails ParseTripDetails(XElement trip)
         {
-            return new TripDetails()
+            TripDetails tripDetails = new TripDetails();
+
+            tripDetails.tripId = trip.Element("tripId").Value;
+            if (trip.Element("status") != null)
             {
-                tripId = trip.Element("tripId").Value,
-                serviceDate = UnixTimeToDateTime(long.Parse(trip.Element("status").Element("serviceDate").Value)),
-                scheduleDeviationInSec = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                    int.Parse(trip.Element("status").Element("scheduleDeviation").Value) : (int?)null,
-                closestStopId = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                    trip.Element("status").Element("closestStop").Value : null,
-                closestStopTimeOffset = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                    int.Parse(trip.Element("status").Element("closestStopTimeOffset").Value) : (int?)null,
-                location = bool.Parse(trip.Element("status").Element("predicted").Value) == true ?
-                        new GeoCoordinate(
-                            double.Parse(trip.Element("status").Element("position").Element("lat").Value, NumberFormatInfo.InvariantInfo),
-                            double.Parse(trip.Element("status").Element("position").Element("lon").Value, NumberFormatInfo.InvariantInfo)
-                            )
-                    :
-                        null
-            };
+                tripDetails.serviceDate = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("status").Element("serviceDate"))));
+                if (string.IsNullOrEmpty(SafeGetValue(trip.Element("status").Element("predicted"))) == false 
+                    && bool.Parse(SafeGetValue(trip.Element("status").Element("predicted"))) == true)
+                {
+                    tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(trip.Element("status").Element("scheduleDeviation")));
+                    tripDetails.closestStopId = SafeGetValue(trip.Element("status").Element("closestStop"));
+                    tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(trip.Element("status").Element("closestStopTimeOffset")));
+
+                    if (trip.Element("status").Element("position") != null)
+                    {
+                        tripDetails.location = new GeoCoordinate(
+                            double.Parse(SafeGetValue(trip.Element("status").Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
+                            double.Parse(SafeGetValue(trip.Element("status").Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
+                            );
+                    }
+                }
+            }
+
+            return tripDetails;
         }
 
         private static ArrivalAndDeparture ParseArrivalAndDeparture(XElement arrival)
