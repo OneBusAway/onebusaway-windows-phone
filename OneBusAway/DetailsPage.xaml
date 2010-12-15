@@ -34,12 +34,12 @@
         <!-- TextBox styles -->
 
         <DataTemplate x:Key="RouteTemplate">
-            <Grid Margin="5">
+            <Grid Margin="10,5,10,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="150" />
-                    <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="140" />
+                    <ColumnDefinition Width="135" />
+                    <ColumnDefinition Width="105" />
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
@@ -55,7 +55,7 @@
                     FontSize="{StaticResource PhoneFontSizeLarge}" 
                     Foreground="{StaticResource OBAForegroundBrush}"
                     VerticalAlignment="Top"
-                    Margin="0,-3,5,0" 
+                    Margin="0,-3,5,0"
                     />
                 <TextBlock 
                     Grid.Column="1" 
@@ -78,6 +78,7 @@
                     Grid.Row="1" 
                     FontSize="{StaticResource PhoneFontSizeSmall}"
                     TextAlignment="Right"
+                    HorizontalAlignment="Stretch"
                     Text="{Binding busDelay, Converter={StaticResource LateEarlyConverter}}" 
                     Foreground="{Binding Converter={StaticResource DelayColorConverter}}"
                     />
@@ -87,7 +88,6 @@
                     Grid.RowSpan="2" 
                     Style="{StaticResource PhoneTextLargeStyle}" 
                     TextAlignment="Right" 
-                    HorizontalAlignment="Stretch"
                     VerticalAlignment="Top" 
                     Margin="0,-3,0,0"
                     Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" 
@@ -129,7 +129,14 @@
         <Grid Grid.Row="0" x:Name="TitleGrid"
               d:DataContext="{d:DesignData Source=SampleData/DetailsViewModelSampleData.xaml}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock VerticalAlignment="Center" x:Name="RouteNumber" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRoute.shortName}" FontSize="48"  Margin="15" />
+                <TextBlock 
+                    VerticalAlignment="Top"
+                    x:Name="RouteNumber" 
+                    Foreground="{StaticResource OBAForegroundBrush}" 
+                    Text="{Binding Path=CurrentViewState.CurrentRoute.shortName}" 
+                    FontSize="48" 
+                    Margin="10,0,10,0" 
+                    />
 
                 <Grid>
                     <Grid.RowDefinitions>

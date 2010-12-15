@@ -113,7 +113,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FavTemplate">
-            <Grid Margin="5" tilt:TiltEffect.IsTiltEnabled="True">
+            <Grid Margin="5,0,5,20" tilt:TiltEffect.IsTiltEnabled="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="200" />
@@ -142,7 +142,7 @@
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         
-        <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}" >
+        <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}">
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
