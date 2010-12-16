@@ -24,6 +24,7 @@
         <data:StopsMapVM x:Key="ViewModel" />
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         <view:MaxZoomConverter x:Key="MaxZoomConverter"></view:MaxZoomConverter>
+        <view:ColorAlphaConverter x:Key="ColorAlphaConverter"/>
 
         <Style x:Key="BusStopLargePushpinStyle" TargetType="m:Pushpin">
             <Setter Property="Template">
@@ -97,8 +98,12 @@
             </m:MapLayer>
         </m:Map>
         
-        <Border x:Name="TooManyStops" Background="{StaticResource OBADarkBrush}" Grid.Row="1"
-                       Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}">
+        <Border 
+            x:Name="TooManyStops" 
+            Background="{Binding Source={StaticResource OBADarkBrush}, Converter={StaticResource ColorAlphaConverter}, ConverterParameter={StaticResource OBABackgroundBrush}}" 
+            Grid.Row="1"
+            Visibility="{Binding ElementName='DetailsMap', Path='ZoomLevel', Converter={StaticResource MaxZoomConverter}, ConverterParameter=true}"
+            >
             <TextBlock Grid.Row="1" Style="{StaticResource PhoneTextSmallStyle}" Foreground="{StaticResource OBAForegroundBrush}"
                        Text="Too many stops. Zoom in to see nearby stops." />
         </Border>
