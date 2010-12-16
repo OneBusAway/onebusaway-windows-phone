@@ -77,7 +77,7 @@
 
             <TextBlock
                 Text="Clear recents and cache"
-                Foreground="{StaticResource OBASubtleBrush}"
+                Foreground="{StaticResource OBAForegroundBrush}"
                 Margin="10,0,0,0"
                 />
             <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"

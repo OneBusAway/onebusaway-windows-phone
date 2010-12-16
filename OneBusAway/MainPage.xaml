@@ -32,7 +32,7 @@
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         <view:LowercaseConverter x:Key="LowercaseConverter"></view:LowercaseConverter>
         <view:ShortDistanceConverter x:Key="ShortDistanceConverter"></view:ShortDistanceConverter>
-
+        <view:ColorAlphaConverter x:Key="ColorAlphaConverter"/>
 
         <DataTemplate x:Key="StopTemplate">
 
@@ -217,14 +217,22 @@
                     />
             </pivot:PivotItem>
         </pivot:Pivot>
-        <StackPanel x:Name="SearchPanel" Opacity="0" Background="{StaticResource OBADarkBrush}" Height="80" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+
+        <StackPanel 
+            x:Name="SearchPanel" 
+            Opacity="0" 
+            Background="{Binding Source={StaticResource OBADarkBrush}, Converter={StaticResource ColorAlphaConverter}, ConverterParameter={StaticResource OBABackgroundBrush}}" 
+            Height="80" 
+            VerticalAlignment="Top" 
+            RenderTransformOrigin="0.5,0.5"
+            >
             <StackPanel.RenderTransform>
                 <CompositeTransform TranslateY="-75"/>
             </StackPanel.RenderTransform>
             <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
             <TextBlock 
 				Text="By route number, stop number, location, or address"  
-				Foreground="{StaticResource OBASubtleBrush}" FontSize="16" HorizontalAlignment="Center">
+				Foreground="{StaticResource OBAForegroundBrush}" FontSize="16" HorizontalAlignment="Center">
 				<TextBlock.RenderTransform>
 				<CompositeTransform TranslateY="-14"/>
 			</TextBlock.RenderTransform>
