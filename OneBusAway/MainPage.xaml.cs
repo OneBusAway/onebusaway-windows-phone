@@ -30,6 +30,11 @@ namespace OneBusAway.WP7.View
         private Popup popup;
         private bool navigatedAway;
         private Object stopButtonLock;
+        private const string searchErrorMessage =
+            "Search for a route: 44\r\n" +
+            "Search by stop number: 11132\r\n" +
+            "Find a landmark: Space Needle\r\n" +
+            "Or an address: 1 Microsoft Way";
 
         public MainPage()
             : base()
@@ -54,17 +59,17 @@ namespace OneBusAway.WP7.View
             SupportedOrientations = SupportedPageOrientation.Portrait;
 
             this.ApplicationBar.ForegroundColor = ((SolidColorBrush)Application.Current.Resources["OBAForegroundBrush"]).Color;
-            Color obaDarkColor = ((SolidColorBrush)Application.Current.Resources["OBADarkBrush"]).Color;
             // the native theme uses a shade of "gray" that is actually white or black with an alpha mask.
             // the appbar needs to be opaque.
-            double alpha = ((double)obaDarkColor.A) / 255.0;
-            double backgroundOpacity = (Double)Application.Current.Resources["PhoneLightThemeOpacity"];
-            double compositedBackground = (1 - alpha) * backgroundOpacity * 0xFF;
-            obaDarkColor = Color.FromArgb(0xFF,
-                (byte)(alpha * obaDarkColor.R + compositedBackground),
-                (byte)(alpha * obaDarkColor.G + compositedBackground),
-                (byte)(alpha * obaDarkColor.B + compositedBackground));
-            this.ApplicationBar.BackgroundColor = obaDarkColor;
+            ColorAlphaConverter alphaConverter = new ColorAlphaConverter();
+            SolidColorBrush appBarBrush = (SolidColorBrush)alphaConverter.Convert(
+                                                            Application.Current.Resources["OBADarkBrush"], 
+                                                            typeof(SolidColorBrush), 
+                                                            Application.Current.Resources["OBABackgroundBrush"], 
+                                                            null
+                                                            );
+
+            this.ApplicationBar.BackgroundColor = appBarBrush.Color;
         }
 
         private void ShowLoadingSplash()
@@ -263,7 +268,7 @@ namespace OneBusAway.WP7.View
             }
             else if (routes.Count == 0)
             {
-                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
+                Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }
             else
             {
@@ -290,7 +295,7 @@ namespace OneBusAway.WP7.View
             }
             else if (stops.Count == 0)
             {
-                Dispatcher.BeginInvoke(() => MessageBox.Show("No results found"));
+                Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }
             else
             {
@@ -321,15 +326,7 @@ namespace OneBusAway.WP7.View
             }
             else if (location == null)
             {
-                Dispatcher.BeginInvoke(() =>
-                    {
-                        string message =
-                            "Search for a route: 44\r\n" +
-                            "Search by stop number: 11132\r\n" +
-                            "Find a landmark: Space Needle\r\n" +
-                            "Or an address: 1 Microsoft Way";
-                        MessageBox.Show(message, "No results found", MessageBoxButton.OK);
-                    });
+                Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }
             else
             {
