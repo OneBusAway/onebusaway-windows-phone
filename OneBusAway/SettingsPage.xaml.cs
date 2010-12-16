@@ -40,6 +40,7 @@ namespace OneBusAway.WP7.View
             // selection is made on page load
             ReportUsageTs.Click += new EventHandler<RoutedEventArgs>(ReportUsageTs_Click);
             DefaultPivotLp.SelectionChanged += new SelectionChangedEventHandler(DefaultPivotLp_SelectionChanged);
+            ThemeToggle.Click += new EventHandler<RoutedEventArgs>(ThemeToggle_Click);
         }
 
         // Methods overridden for analytics purposes
@@ -80,6 +81,11 @@ namespace OneBusAway.WP7.View
         private void ReportUsageTs_Click(object sender, RoutedEventArgs e)
         {
             
+        }
+
+        void ThemeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("You will need to restart OneBusAway for this change to take effect");
         }
     }
 }

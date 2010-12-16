@@ -25,7 +25,7 @@
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
 
         <DataTemplate x:Key="RouteDirectionTemplate">
-            <Grid Margin="5">
+            <Grid Margin="5,0,5,20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="80" />
                     <ColumnDefinition Width="400" />
