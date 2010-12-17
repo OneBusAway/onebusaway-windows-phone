@@ -1,14 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Net;
-using System.Collections.Generic;
-using System.Windows;
 using System.Threading;
-using System.Text;
+//using System.Xml.Serialization;
 using OneBusAway.WP7.ViewModel;
-using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace OneBusAway.WP7.Model
 {
@@ -89,6 +89,11 @@ namespace OneBusAway.WP7.Model
                     new AsyncCallback(new CacheCallback(this, callback, address).Callback),
                     requestGetter);
             }
+        }
+
+        internal void Save()
+        {
+            metadata.WriteSettingsFile();
         }
 
         /// <summary>
@@ -401,14 +406,60 @@ namespace OneBusAway.WP7.Model
                 IsolatedStorageSettings cacheSettings = IsolatedStorageSettings.ApplicationSettings;
                 if (cacheSettings.Contains(owner.Name))
                 {
-                    // load existing settings store for this cache
+                    // upgrade scenario.  user has an existing cache.  
+                    // migrate it out of AppSettings to file
                     fileUpdateTimes = cacheSettings[owner.Name] as Dictionary<string, DateTime>;
+
+                    WriteSettingsFile();
+
+                    // and clean up AppSettings
+                    cacheSettings.Remove(owner.Name);
+                    cacheSettings.Save();
                 }
                 else
                 {
-                    // create new settings store for this cache
-                    fileUpdateTimes = new Dictionary<string, DateTime>();
-                    cacheSettings[owner.Name] = fileUpdateTimes;
+                    fileUpdateTimes = ReadSettingsFile();
+                }
+            }
+
+            private Dictionary<string, DateTime> ReadSettingsFile()
+            {
+                IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication();
+                if (!iso.DirectoryExists("CacheSettings"))
+                {
+                    return new Dictionary<string, DateTime>();
+                }
+                string settingsFile = "CacheSettings\\" + owner.Name + ".xml";
+                if (!iso.FileExists(settingsFile))
+                {
+                    return new Dictionary<string, DateTime>();
+                }
+                DataContractSerializer d = new DataContractSerializer(typeof(Dictionary<string, DateTime>));
+                
+                lock (owner.fileAccessSync)
+                {
+                    using (IsolatedStorageFileStream stream = iso.OpenFile(settingsFile, FileMode.Open, FileAccess.Read))
+                    {
+                        return (Dictionary<string, DateTime>)d.ReadObject(stream);
+                    }
+                }
+            }
+
+            internal void WriteSettingsFile()
+            {
+                DataContractSerializer d = new DataContractSerializer(typeof(Dictionary<string, DateTime>));
+                IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication();
+                lock (owner.fileAccessSync)
+                {
+                    if (!iso.DirectoryExists("CacheSettings"))
+                    {
+                        iso.CreateDirectory("CacheSettings");
+                    }
+                    string settingsFile = "CacheSettings\\" + owner.Name + ".xml";
+                    using (IsolatedStorageFileStream stream = iso.OpenFile(settingsFile, FileMode.Create, FileAccess.Write))
+                    {
+                        d.WriteObject(stream, fileUpdateTimes);
+                    }
                 }
             }
 
@@ -434,15 +485,13 @@ namespace OneBusAway.WP7.Model
             public void AddUpdateTime(string filename, DateTime when)
             {
                 fileUpdateTimes[filename] = when;
-                // note this relies on referential integrity.
-                // i.e. fileUpdateTimes is a reference to an object in the application settings
+                // note: writing out to file is deferred to app  exit
             }
 
             public void RemoveUpdateTime(string filename)
             {
                 fileUpdateTimes.Remove(filename);
-                // note this relies on referential integrity.
-                // i.e. fileUpdateTimes is a reference to an object in the application settings
+                // note: writing out to file is deferred to app  exit
             }
 
             public int GetNumberEntries()
@@ -470,6 +519,18 @@ namespace OneBusAway.WP7.Model
                 fileUpdateTimes.Clear();
                 IsolatedStorageSettings cacheSettings = IsolatedStorageSettings.ApplicationSettings;
                 cacheSettings.Remove(owner.Name);
+                IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication();
+                if(iso.DirectoryExists("CacheSettings"))
+                {
+                    string settingsFile = "CacheSettings\\" + owner.Name + ".xml";
+                    if(iso.FileExists(settingsFile))
+                    {
+                        lock(owner.fileAccessSync)
+                        {
+                            iso.DeleteFile(settingsFile);
+                        }
+                    }
+                }
             }
             
         }

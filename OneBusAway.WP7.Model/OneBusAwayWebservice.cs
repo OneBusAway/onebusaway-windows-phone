@@ -720,5 +720,11 @@ namespace OneBusAway.WP7.Model
             stopsCache.Clear();
             directionCache.Clear();
         }
+
+        internal void SaveCache()
+        {
+            stopsCache.Save();
+            directionCache.Save();
+        }
     }
 }
