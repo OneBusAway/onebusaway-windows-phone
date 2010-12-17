@@ -425,12 +425,16 @@ namespace OneBusAway.WP7.Model
             }
         }
 
+        #endregion
+
         public void ClearCache()
         {
             webservice.ClearCache();
         }
 
-        #endregion
-
+        public void SaveCache()
+        {
+            webservice.SaveCache();
+        }
     }
 }
