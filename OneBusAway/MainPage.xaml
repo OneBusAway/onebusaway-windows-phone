@@ -142,7 +142,7 @@
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
         
-        <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}">
+        <pivot:Pivot Name="PC" Foreground="{StaticResource OBAForegroundBrush}" SelectionChanged="PC_SelectionChanged">
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 

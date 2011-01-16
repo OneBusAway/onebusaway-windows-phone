@@ -160,11 +160,6 @@ namespace OneBusAway.WP7.View
                 }
             );
 
-            RecentsListBox.DataContext = viewModel;
-            FavoritesListBox.DataContext = viewModel;
-            StopsListBox.DataContext = viewModel;
-            RoutesListBox.DataContext = viewModel;
-
             HideLoadingSplash();
         }
 
@@ -429,6 +424,13 @@ namespace OneBusAway.WP7.View
             }
 
             NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+        }
+
+        private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //we bind the DataContext only when the pivot is naivgated to. This improves perf if Favs or Recent are the first pivots
+            FrameworkElement selectedElement = ((sender as Pivot).SelectedItem as PivotItem).Content as FrameworkElement;
+            selectedElement.DataContext = viewModel;
         }
 
     }
