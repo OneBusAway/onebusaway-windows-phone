@@ -234,11 +234,12 @@ namespace OneBusAway.WP7.ViewModel
                             int index = e.arrivals.IndexOf(arrival);
                             if (index >= 0)
                             {
-                                ArrivalAndDeparture currentArrival = e.arrivals[index];
+                                ArrivalAndDeparture newArrivalTime = e.arrivals[index];
+                                ArrivalAndDeparture currentArrival = arrival;
                                 UIAction(() =>
                                     {
-                                        arrival.predictedArrivalTime = currentArrival.predictedArrivalTime;
-                                        arrival.predictedDepartureTime = currentArrival.predictedDepartureTime;
+                                        currentArrival.predictedArrivalTime = newArrivalTime.predictedArrivalTime;
+                                        currentArrival.predictedDepartureTime = newArrivalTime.predictedDepartureTime;
                                     });
                             }
                             else

@@ -145,7 +145,9 @@ namespace OneBusAway.WP7.View
                     return string.Empty;
                 }
 
-                return (int)((dateTimeToConvert - DateTime.UtcNow).TotalMinutes) + " min";
+                int delta = (int)((dateTimeToConvert - DateTime.UtcNow).TotalMinutes);
+
+                return string.Format("{0} mins", delta);
             }
             else
             {
