@@ -212,20 +212,17 @@ namespace OneBusAway.WP7.ViewModel
         
             if (e.error == null)
             {
-                // We are loading arrivals fresh, add all of them
-                if (unfilteredArrivals.Count == 0)
+                lock (arrivalsLock)
                 {
-                    lock (arrivalsLock)
+                    // We are loading arrivals fresh, add all of them
+                    if (unfilteredArrivals.Count == 0)
                     {
                         unfilteredArrivals = e.arrivals;
+                        FilterArrivals();
                     }
-                    FilterArrivals();
-                }
-                else
-                {
-                    // We already have arrivals in the list, so just refresh them
-                    lock (arrivalsLock)
+                    else
                     {
+                        // We already have arrivals in the list, so just refresh them
                         // Start by updating all the times for all of the arrivals currently in the list,
                         // and find any arrivals that have timed out for this stop
                         List<ArrivalAndDeparture> arrivalsToRemove = new List<ArrivalAndDeparture>();
@@ -262,7 +259,7 @@ namespace OneBusAway.WP7.ViewModel
                         foreach (ArrivalAndDeparture arrival in e.arrivals)
                         {
                             // Ensure that we aren't adding routes that are filtered out
-                            if ((routeFilter == null || routeFilter.id == arrival.routeId) 
+                            if ((routeFilter == null || routeFilter.id == arrival.routeId)
                                 && ArrivalsForStop.Contains(arrival) == false)
                             {
                                 ArrivalAndDeparture currentArrival = arrival;

@@ -340,7 +340,10 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
+            if (viewModel.operationTracker.Loading == false)
+            {
+                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
+            }
         }
     }
 }
