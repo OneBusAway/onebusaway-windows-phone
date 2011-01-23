@@ -20,6 +20,7 @@ namespace OneBusAway.WP7.ViewModel
 
         private int maxRoutes = 30;
         private int maxStops = 30;
+        private Object displayRouteLock;
 
         #endregion
 
@@ -39,6 +40,7 @@ namespace OneBusAway.WP7.ViewModel
 
         private void Initialize()
         {
+            displayRouteLock = new Object();
             StopsForLocation = new ObservableCollection<Stop>();
             DisplayRouteForLocation = new ObservableCollection<DisplayRoute>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
@@ -114,7 +116,12 @@ namespace OneBusAway.WP7.ViewModel
         public void LoadInfoForLocation(bool invalidateCache)
         {
             StopsForLocation.Clear();
-            DisplayRouteForLocation.Clear();
+            
+            lock (displayRouteLock)
+            {
+                DisplayRouteForLocation.Clear();
+            }
+
             operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
@@ -246,9 +253,6 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                    viewModel.UIAction(() => viewModel.DisplayRouteForLocation.Clear());
-
-                    
                     int count = 0;
                     foreach (Route route in e.routes)
                     {
@@ -391,7 +395,10 @@ namespace OneBusAway.WP7.ViewModel
                     DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
                     UIAction(() =>
                         {
-                            DisplayRouteForLocation.Add(currentDisplayRoute);
+                            lock (displayRouteLock)
+                            {
+                                DisplayRouteForLocation.Add(currentDisplayRoute);
+                            }
                         }
                         );
 
@@ -404,10 +411,13 @@ namespace OneBusAway.WP7.ViewModel
                     {
                         new Thread(() =>
                             {
-                                foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
+                                lock (displayRouteLock)
                                 {
-                                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", displayRoute.Route.id), "Loading route details...");
-                                    busServiceModel.StopsForRoute(displayRoute.Route);
+                                    foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
+                                    {
+                                        operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", displayRoute.Route.id), "Loading route details...");
+                                        busServiceModel.StopsForRoute(displayRoute.Route);
+                                    }
                                 }
                             }
                         ).Start();
@@ -422,7 +432,6 @@ namespace OneBusAway.WP7.ViewModel
             operationTracker.DoneWithOperation("CombinedInfoForLocation");
         }
 
-        private object displayRouteLock = new Object();
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
             Debug.Assert(e.error == null);

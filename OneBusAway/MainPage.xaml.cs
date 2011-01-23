@@ -193,7 +193,10 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            viewModel.LoadInfoForLocation(true);
+            if (viewModel.operationTracker.Loading == false)
+            {
+                viewModel.LoadInfoForLocation(true);
+            }
         }
 
         private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
