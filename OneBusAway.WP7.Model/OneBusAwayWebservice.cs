@@ -569,24 +569,39 @@ namespace OneBusAway.WP7.Model
         {
             TripDetails tripDetails = new TripDetails();
 
-            tripDetails.tripId = trip.Element("tripId").Value;
-            if (trip.Element("status") != null)
-            {
-                tripDetails.serviceDate = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("status").Element("serviceDate"))));
-                if (string.IsNullOrEmpty(SafeGetValue(trip.Element("status").Element("predicted"))) == false 
-                    && bool.Parse(SafeGetValue(trip.Element("status").Element("predicted"))) == true)
-                {
-                    tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(trip.Element("status").Element("scheduleDeviation")));
-                    tripDetails.closestStopId = SafeGetValue(trip.Element("status").Element("closestStop"));
-                    tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(trip.Element("status").Element("closestStopTimeOffset")));
+            tripDetails.tripId = SafeGetValue(trip.Element("tripId"));
 
-                    if (trip.Element("status").Element("position") != null)
-                    {
-                        tripDetails.location = new GeoCoordinate(
-                            double.Parse(SafeGetValue(trip.Element("status").Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
-                            double.Parse(SafeGetValue(trip.Element("status").Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
-                            );
-                    }
+            XElement statusElement;
+            if (trip.Element("tripStatus") != null)
+            {
+                // ArrivalsForStop returns the status element as 'tripStatus'
+                statusElement = trip.Element("tripStatus");
+            }
+            else if (trip.Element("status") != null)
+            {
+                // The TripDetails query returns 'status'
+                statusElement = trip.Element("status");
+            }
+            else
+            {
+                // No status available, stop parsing here
+                return tripDetails;
+            }
+
+            tripDetails.serviceDate = UnixTimeToDateTime(long.Parse(SafeGetValue(statusElement.Element("serviceDate"))));
+            if (string.IsNullOrEmpty(SafeGetValue(statusElement.Element("predicted"))) == false 
+                && bool.Parse(SafeGetValue(statusElement.Element("predicted"))) == true)
+            {
+                tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(statusElement.Element("scheduleDeviation")));
+                tripDetails.closestStopId = SafeGetValue(statusElement.Element("closestStop"));
+                tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(statusElement.Element("closestStopTimeOffset")));
+
+                if (statusElement.Element("position") != null)
+                {
+                    tripDetails.location = new GeoCoordinate(
+                        double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
+                        double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
+                        );
                 }
             }
 
@@ -608,7 +623,8 @@ namespace OneBusAway.WP7.Model
                 predictedDepartureTime = arrival.Element("predictedDepartureTime").Value == "0" ?
                 null : (DateTime?)UnixTimeToDateTime(long.Parse(arrival.Element("predictedDepartureTime").Value)),
                 scheduledDepartureTime = UnixTimeToDateTime(long.Parse(arrival.Element("scheduledDepartureTime").Value)),
-                status = SafeGetValue(arrival.Element("status"))
+                status = SafeGetValue(arrival.Element("status")),
+                tripDetails = ParseTripDetails(arrival)
             };
         }
 

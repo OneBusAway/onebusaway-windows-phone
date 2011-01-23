@@ -48,7 +48,6 @@ namespace OneBusAway.WP7.ViewModel
         private void Initialize()
         {
             ArrivalsForStop = new ObservableCollection<ArrivalAndDeparture>();
-            TripDetailsForArrivals = new ObservableCollection<TripDetails>();
             unfilteredArrivals = new List<ArrivalAndDeparture>();
             routeFilter = null;
             arrivalsLock = new Object();
@@ -59,7 +58,6 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Properties
 
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
-        public ObservableCollection<TripDetails> TripDetailsForArrivals { get; private set; }
  
         #endregion
 
@@ -115,28 +113,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.routeFilter = routeFilter;
             FilterArrivals();
-        }
-
-        public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals, Route selectedRoute)
-        {
-            List<ArrivalAndDeparture> arrivalsForSelectedRoute = new List<ArrivalAndDeparture>();
-
-            arrivals.ForEach(arrival =>
-            {
-                if (arrival.routeId == selectedRoute.id)
-                {
-                    arrivalsForSelectedRoute.Add(arrival);
-                }
-            }
-            );
-       
-            LoadTripsForArrivals(arrivalsForSelectedRoute);
-        }
-
-        public void LoadTripsForArrivals(List<ArrivalAndDeparture> arrivals)
-        {
-            operationTracker.WaitForOperation("TripsForArrivals", string.Empty);
-            busServiceModel.TripDetailsForArrivals(arrivals);
         }
 
         public void AddFavorite(FavoriteRouteAndStop favorite)
@@ -301,44 +277,7 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            // We have a selected route, so load trips for that route
-            if (CurrentViewState.CurrentRoute != null)
-            {
-                lock (arrivalsLock)
-                {
-                    // Kick off the new request from a different thread since we are
-                    // on the HttpWebRequest thread currently
-                    new Thread(() =>
-                        LoadTripsForArrivals(ArrivalsForStop.ToList(), CurrentViewState.CurrentRoute)).Start();
-                }
-            }
-
             operationTracker.DoneWithOperation("ArrivalsForStop");
-        }
-
-        void busServiceModel_TripDetailsForArrival_Completed(object sender, EventArgs.TripDetailsForArrivalEventArgs e)
-        {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
-            {
-                UIAction(() => TripDetailsForArrivals.Clear());
-
-                foreach (TripDetails tripDetail in e.tripDetails)
-                {
-                    if (tripDetail.location != null)
-                    {
-                        TripDetails currentTrip = tripDetail;
-                        UIAction(() => TripDetailsForArrivals.Add(currentTrip));
-                    }
-                }
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
-
-            operationTracker.DoneWithOperation("TripsForArrivals");
         }
 
         #endregion
@@ -360,9 +299,6 @@ namespace OneBusAway.WP7.ViewModel
                     ArrivalAndDeparture currentArrival = arrival;
                     UIAction(() => ArrivalsForStop.Add(currentArrival));
                 }
-
-
-                LoadTripsForArrivals(ArrivalsForStop.ToList());
             }
         }
 
@@ -370,7 +306,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             base.RegisterEventHandlers(dispatcher);
 
-            this.busServiceModel.TripDetailsForArrival_Completed += new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.ArrivalsForStop_Completed += new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
         }
 
@@ -378,7 +313,6 @@ namespace OneBusAway.WP7.ViewModel
         {
             base.UnregisterEventHandlers();
 
-            this.busServiceModel.TripDetailsForArrival_Completed -= new EventHandler<EventArgs.TripDetailsForArrivalEventArgs>(busServiceModel_TripDetailsForArrival_Completed);
             this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
 
             this.operationTracker.ClearOperations();

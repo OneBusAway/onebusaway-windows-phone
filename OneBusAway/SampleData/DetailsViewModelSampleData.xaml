@@ -14,9 +14,6 @@
         <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="6:45" scheduledArrivalTime="3:50" />
 
     </viewmodel:RouteDetailsVM.ArrivalsForStop>
-    <viewmodel:RouteDetailsVM.TripDetailsForArrivals>
-
-    </viewmodel:RouteDetailsVM.TripDetailsForArrivals>
 
    
 </viewmodel:RouteDetailsVM>
