@@ -23,6 +23,14 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember]
         public Coordinate coordinate { get; set; }
 
+        public bool locationKnown
+        {
+            get
+            {
+                return coordinate != null;
+            }
+        }
+
         public GeoCoordinate location
         {
             get

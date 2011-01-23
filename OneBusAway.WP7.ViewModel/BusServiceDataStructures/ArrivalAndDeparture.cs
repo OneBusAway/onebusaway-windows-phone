@@ -69,6 +69,8 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         public DateTime scheduledDepartureTime { get; set; }
         [DataMember()]
         public string status { get; set; }
+        [DataMember()]
+        public TripDetails tripDetails { get; set; }
 
         public DateTime nextKnownArrival
         {

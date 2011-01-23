@@ -168,10 +168,15 @@
                     </m:MapItemsControl>
                 </m:MapLayer>
                 <m:MapLayer x:Name="BusTripsLayer">
-                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=TripDetailsForArrivals, Source={StaticResource ViewModel}}">
+                    <m:MapItemsControl x:Name="BusTripsItemsControl" ItemsSource="{Binding Path=ArrivalsForStop, Source={StaticResource ViewModel}}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <m:Pushpin Location="{Binding location}" PositionOrigin="Center" Style="{StaticResource BusTripPushpinStyle}"  />
+                                <m:Pushpin 
+                                    Location="{Binding tripDetails.location}" 
+                                    PositionOrigin="Center" 
+                                    Style="{StaticResource BusTripPushpinStyle}" 
+                                    Visibility="{Binding tripDetails.locationKnown, Converter={StaticResource VisibilityConverter}}"
+                                    />
                             </DataTemplate>
                         </m:MapItemsControl.ItemTemplate>
                     </m:MapItemsControl>
