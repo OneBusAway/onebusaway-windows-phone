@@ -668,23 +668,37 @@ namespace OneBusAway.WP7.Model
 
         private static XDocument CheckResponseCode(TextReader xmlResponse, string requestUrl)
         {
+            XDocument xmlDoc = null;
+            HttpStatusCode code = HttpStatusCode.Unused;
+
             try
             {
-                XDocument xmlDoc = XDocument.Load(xmlResponse);
-                HttpStatusCode code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+                xmlDoc = XDocument.Load(xmlResponse);
+                code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+            }
+            catch (Exception e)
+            {
+                // Any exception thrown in this code means either A) the server response wasn't XML so XDocument.Load() failed or
+                // B) the code element doesn't exist so the server response is invalid. The known cause for these things to
+                // fail (besides a server malfunction) is the phone being connected to a WIFI access point which requires
+                // a login page, so we get the hotspot login page back instead of our web request.
+                Debug.Assert(false);
 
-                if (code != HttpStatusCode.OK)
-                {
-                    Debug.Assert(false);
-                    throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
-                }
-                return xmlDoc;
+                throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, null, e);
             }
             finally
             {
                 xmlResponse.Close();
             }
 
+            if (code != HttpStatusCode.OK)
+            {
+                Debug.Assert(false);
+
+                throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
+            }
+
+            return xmlDoc;
         }
 
         private static string SafeGetValue(XElement element)
