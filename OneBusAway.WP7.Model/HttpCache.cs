@@ -128,11 +128,15 @@ namespace OneBusAway.WP7.Model
             string fileName = MapAddressToFile(address);
             using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                if (iso.FileExists(fileName))
+                lock (fileAccessSync)
                 {
-                    lock (fileAccessSync)
+                    try
                     {
                         iso.DeleteFile(fileName);
+                    }
+                    catch (IsolatedStorageException)
+                    {
+                        // ignore
                     }
                 }
             }
@@ -184,23 +188,26 @@ namespace OneBusAway.WP7.Model
         {
             using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                // get isolatedstorage for this cache
-                if (iso.DirectoryExists(this.Name))
+                // get result file for this address
+                string fileName = MapAddressToFile(address);
+                lock (fileAccessSync)
                 {
-                    // get result file for this address
-                    string fileName = MapAddressToFile(address);
-                    if (iso.FileExists(fileName))
+                    if (CheckForExpiration(fileName))
                     {
-                        lock (fileAccessSync)
-                        {
-                            if (CheckForExpiration(fileName))
-                            {
-                                return null;
-                            }
-                            // all good! return the content
-                            IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                            return stream;
-                        }
+                        return null;
+                    }
+                    try
+                    {
+                        // all good! return the content
+                        IsolatedStorageFileStream stream = iso.OpenFile(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                        return stream;
+                    }
+                    catch (IsolatedStorageException)
+                    {
+                        // hrm.  something went wrong.
+                        // just treat it as a cache miss.
+                        // we'll reload the file later if needed
+                        return null;
                     }
                 }
             }
@@ -372,7 +379,14 @@ namespace OneBusAway.WP7.Model
                 // purge the entry from the cache
                 using (IsolatedStorageFile iso = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    iso.DeleteFile(fileName);
+                    try
+                    {
+                        iso.DeleteFile(fileName);
+                    }
+                    catch (IsolatedStorageException)
+                    {
+                        // ignore
+                    }
                 }
 
                 // and purge the metadata entry
