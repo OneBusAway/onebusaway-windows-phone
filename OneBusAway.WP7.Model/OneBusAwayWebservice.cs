@@ -149,7 +149,7 @@ namespace OneBusAway.WP7.Model
                     // a login page, so we get the hotspot login page back instead of our web request.
                     Debug.Assert(false);
 
-                    throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, null, e);
+                    throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, xmlResponse.ReadToEnd(), e);
                 }
                 finally
                 {
