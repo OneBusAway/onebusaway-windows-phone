@@ -112,12 +112,14 @@ namespace OneBusAway.WP7.View
             // Ensure that we never process more than one error at a time
             lock (errorProcessingLock)
             {
-                string errorMessage = "Dang! We've hit an error so you might have to find your bus the old-fashioned way :(\r\n\r\n";
+                string errorTitle = "Uh oh...";
+                string errorMessage;
                 MessageBoxButton messageBoxType = MessageBoxButton.OK;
 
                 if (e.error is WebException)
                 {
-                    errorMessage +=
+                    errorTitle = "Internet Unavailable";
+                    errorMessage =
                         "We couldn't reach the OneBusAway service:  " +
                         "please make sure your phone is correctly connected to the internet, " +
                         "or the OneBusAway service might be unavailable right now.";
@@ -125,14 +127,15 @@ namespace OneBusAway.WP7.View
                 } 
                 else if (e.error is LocationUnavailableException)
                 {
-                    errorMessage +=
+                    errorTitle = "Location Unavailable";
+                    errorMessage =
                         "We couldn't find your location, " +
                         "make sure your location services are turned on in the phone's settings.";
                     messageBoxType = MessageBoxButton.OK;
                 }
                 else if (e.error is WebserviceParsingException)
                 {
-                    errorMessage +=
+                    errorMessage =
                         "Something went wrong decyphering the bus status, " +
                         "would you like to report this error to us so we can try and fix it?";
                     messageBoxType = MessageBoxButton.OKCancel;
@@ -143,15 +146,17 @@ namespace OneBusAway.WP7.View
                     // from the OBA resopnse
                     if (((WebserviceResponseException)e.error).ServerStatusCode == HttpStatusCode.Unused)
                     {
-                        errorMessage +=
-                            "Your internet conection doesn't appear to be working, " +
-                            "are you connected to a WIFI network which requires a log in? " +
-                            "Try opening a web page to confirm your internet connection is working.";
+                        errorTitle = "Internet Unavailable";
+                        errorMessage =
+                            "Check if you are connected to a WIFI network which requires a login " +
+                            "or try to open a web page in Internet Explorer.\r\n\r\n" +
+                            "We were able to reach the internet but the response we received wasn't from OneBusAway. " + 
+                            "This normally means you are connected to a WIFI network which is returning a login page instead.";
                         messageBoxType = MessageBoxButton.OK;
                     }
                     else
                     {
-                        errorMessage +=
+                        errorMessage =
                             "We were able to contact OneBusAway but the service returned an error. " +
                             "We don't think this is our fault, but would you like to report this error so we can make sure?";
                         messageBoxType = MessageBoxButton.OKCancel;
@@ -159,13 +164,13 @@ namespace OneBusAway.WP7.View
                 }
                 else
                 {
-                    errorMessage +=
+                    errorMessage =
                         "Unfortunately I don't have a clue why this happened, " +
                         "but would you like to report this error to us so we can try and fix it?";
                     messageBoxType = MessageBoxButton.OKCancel;
                 }
 
-                MessageBoxResult sendReport = MessageBox.Show(errorMessage, "Uh oh...", messageBoxType);
+                MessageBoxResult sendReport = MessageBox.Show(errorMessage, errorTitle, messageBoxType);
                 if (messageBoxType == MessageBoxButton.OKCancel && sendReport == MessageBoxResult.OK)
                 {
                      //Sending the email will take OBA out of the foreground, so leave reportingErorr set to true 
