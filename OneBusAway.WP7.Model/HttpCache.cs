@@ -74,7 +74,8 @@ namespace OneBusAway.WP7.Model
             if (cachedResult != null)
             {
                 CacheHits++;
-                CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(new StreamReader(cachedResult));
+                CacheDownloadStringCompletedEventArgs eventArgs = new CacheDownloadStringCompletedEventArgs(new StreamReader(cachedResult), address);
+
                 // Invoke on a different thread.  Otherwise we make the callback from the same thread as the
                 // original call and wierd things could happen.
                 Thread thread = new Thread(() => callback(this, eventArgs));
@@ -211,7 +212,6 @@ namespace OneBusAway.WP7.Model
                     }
                 }
             }
-            return null;
         }
 
         /// <summary>
@@ -590,7 +590,7 @@ namespace OneBusAway.WP7.Model
                     // no errors -- add data to the cache
                     TextReader result = owner.CacheAddResult(requestedAddress, s);
 
-                    newArgs = new CacheDownloadStringCompletedEventArgs(result);
+                    newArgs = new CacheDownloadStringCompletedEventArgs(result, requestedAddress);
                 }
                 catch (Exception e)
                 {
@@ -598,7 +598,7 @@ namespace OneBusAway.WP7.Model
                     // that exception instead of recasting it to a WebserviceResponseException().
                     // This will result in the loss of the RequestUrl.
                     Debug.Assert(false);
-                    newArgs = new CacheDownloadStringCompletedEventArgs(e);
+                    newArgs = new CacheDownloadStringCompletedEventArgs(e, requestedAddress);
                 }
 
                 callback(this, newArgs);
@@ -610,42 +610,42 @@ namespace OneBusAway.WP7.Model
         // Those don't have public constructors, so they're not reusable.
         public class CacheDownloadStringCompletedEventArgs : AsyncCompletedEventArgs 
         {
-            private CacheDownloadStringCompletedEventArgs() { }
-
             /// <summary>
             /// Indicates successful completion
             /// </summary>
             /// <param name="result"></param>
-            public CacheDownloadStringCompletedEventArgs(TextReader result) 
+            public CacheDownloadStringCompletedEventArgs(TextReader result, object userState)
+                : this(result, null, false, userState)
             {
-                this.Result = result;
-                this.Cancelled = false;
-                this.Error = null;
+
             }
+
             /// <summary>
             /// Indicates an error was encountered
             /// </summary>
             /// <param name="error"></param>
-            public CacheDownloadStringCompletedEventArgs(Exception error)
+            public CacheDownloadStringCompletedEventArgs(Exception error, object userState)
+                : this(null, error, false, userState)
             {
-                this.Result = null;
-                this.Cancelled = false;
-                this.Error = error;
+
             }
+
+            public CacheDownloadStringCompletedEventArgs(TextReader result, Exception error, bool cancelled, object userState)
+                : base(error, cancelled, userState)
+            {
+                this.Result = result;
+            }
+
             /// <summary>
             /// Indicates the operation was cancelled
             /// </summary>
             /// <returns></returns>
             public static CacheDownloadStringCompletedEventArgs MakeCancelled()
             {
-                CacheDownloadStringCompletedEventArgs rval = new CacheDownloadStringCompletedEventArgs();
-                rval.Result = null;
-                rval.Cancelled = true;
-                return rval;
+                return new CacheDownloadStringCompletedEventArgs(null, null, true, null);
             }
+
             public TextReader Result { get; private set; }
-            public new bool Cancelled { get; private set; }
-            public new Exception Error { get; private set; }
         }
 
         #endregion

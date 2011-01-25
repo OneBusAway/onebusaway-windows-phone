@@ -82,17 +82,21 @@ namespace OneBusAway.WP7.Model
 
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        string results = (new StreamReader(response.GetResponseStream())).ReadToEnd();
-                        throw new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), results, null);
+                        // Reading the server response will probably fail since the request was unsuccessful
+                        // so just return null as the server response. Also, from my personal testing this
+                        // code is unreachable: if the server returns a 404 request.EndGetResponse() will
+                        // throw an exception.
+                        throw new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), null, null);
                     }
                     else
                     {
-                        ParseResults(new StreamReader(response.GetResponseStream()), null);
+                        XDocument xmlResponse = CheckResponseCode(new StreamReader(response.GetResponseStream()), request.RequestUri.ToString());
+                        ParseResults(xmlResponse, null);
                     }
                 }
                 catch (Exception e)
                 {
-                    ParseResults(new StringReader(""), e);
+                    ParseResults(null, e);
                 }
             }
 
@@ -103,7 +107,63 @@ namespace OneBusAway.WP7.Model
             /// <param name="e"></param>
             public void HttpCache_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
             {
-                ParseResults(e.Result, e.Error);
+                Exception error = e.Error;
+                XDocument xmlDoc = null;
+                
+                if (error == null)
+                {
+                    try
+                    {
+                        string requestUrl = string.Empty;
+                        if (e.UserState is Uri)
+                        {
+                            requestUrl = ((Uri)e.UserState).ToString();
+                        }
+
+                        xmlDoc = CheckResponseCode(e.Result, requestUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        error = ex;
+                    }
+                }
+
+                ParseResults(xmlDoc, error);
+            }
+
+            private static XDocument CheckResponseCode(TextReader xmlResponse, string requestUrl)
+            {
+                XDocument xmlDoc = null;
+                HttpStatusCode code = HttpStatusCode.Unused;
+
+                try
+                {
+                    xmlDoc = XDocument.Load(xmlResponse);
+                    code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+                }
+                catch (Exception e)
+                {
+                    // Any exception thrown in this code means either A) the server response wasn't XML so XDocument.Load() failed or
+                    // B) the code element doesn't exist so the server response is invalid. The known cause for these things to
+                    // fail (besides a server malfunction) is the phone being connected to a WIFI access point which requires
+                    // a login page, so we get the hotspot login page back instead of our web request.
+                    Debug.Assert(false);
+
+                    throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, null, e);
+                }
+                finally
+                {
+                    xmlResponse.Close();
+                }
+
+                if (code != HttpStatusCode.OK)
+                {
+                    Debug.Assert(false);
+
+                    throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
+                }
+
+                return xmlDoc;
             }
 
             /// <summary>
@@ -111,7 +171,7 @@ namespace OneBusAway.WP7.Model
             /// </summary>
             /// <param name="result"></param>
             /// <param name="error"></param>
-            public abstract void ParseResults(TextReader result, Exception error);
+            public abstract void ParseResults(XDocument result, Exception error);
         }
 
         public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
@@ -152,11 +212,10 @@ namespace OneBusAway.WP7.Model
                 this.callback = callback;
             }
 
-            public override void ParseResults(TextReader result, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 List<Route> routes = null;
 
-                XDocument xmlDoc = CheckResponseCode(result, requestUrl);
                 try
                 {
                     routes =
@@ -223,14 +282,13 @@ namespace OneBusAway.WP7.Model
                 this.stopsCache = stopsCache;
             }
 
-            public override void ParseResults(TextReader results, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 List<Stop> stops = null;
                 bool limitExceeded = false;
 
                 if (error == null)
                 {
-                    XDocument xmlDoc = CheckResponseCode(results, requestUrl);
                     try
                     {
 
@@ -310,13 +368,12 @@ namespace OneBusAway.WP7.Model
                 this.directionCache = directionCache;
             }
 
-            public override void ParseResults(TextReader results, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 List<RouteStops> routeStops = null;
 
                 if (error == null)
                 {
-                    XDocument xmlDoc = CheckResponseCode(results, requestUrl);
                     try
                     {
 
@@ -415,13 +472,12 @@ namespace OneBusAway.WP7.Model
                 this.callback = callback;
             }
 
-            public override void ParseResults(TextReader result, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 List<ArrivalAndDeparture> arrivals = null;
 
                 if (error == null)
                 {
-                    XDocument xmlDoc = CheckResponseCode(result, requestUrl);
                     try
                     {
                         arrivals =
@@ -466,13 +522,12 @@ namespace OneBusAway.WP7.Model
                 this.callback = callback;
             }
 
-            public override void ParseResults(TextReader result, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 List<RouteSchedule> schedules = null;
 
                 if (error == null)
                 {
-                    XDocument xmlDoc = CheckResponseCode(result, requestUrl);
                     try
                     {
                         schedules =
@@ -531,13 +586,12 @@ namespace OneBusAway.WP7.Model
                 this.callback = callback;
             }
 
-            public override void ParseResults(TextReader result, Exception error)
+            public override void ParseResults(XDocument xmlDoc, Exception error)
             {
                 TripDetails tripDetail = null;
 
                 if (error == null)
                 {
-                    XDocument xmlDoc = CheckResponseCode(result, requestUrl);
                     try
                     {
 
@@ -664,41 +718,6 @@ namespace OneBusAway.WP7.Model
                 name = SafeGetValue(stop.Element("name")),
                 routes = routes
             };
-        }
-
-        private static XDocument CheckResponseCode(TextReader xmlResponse, string requestUrl)
-        {
-            XDocument xmlDoc = null;
-            HttpStatusCode code = HttpStatusCode.Unused;
-
-            try
-            {
-                xmlDoc = XDocument.Load(xmlResponse);
-                code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
-            }
-            catch (Exception e)
-            {
-                // Any exception thrown in this code means either A) the server response wasn't XML so XDocument.Load() failed or
-                // B) the code element doesn't exist so the server response is invalid. The known cause for these things to
-                // fail (besides a server malfunction) is the phone being connected to a WIFI access point which requires
-                // a login page, so we get the hotspot login page back instead of our web request.
-                Debug.Assert(false);
-
-                throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, null, e);
-            }
-            finally
-            {
-                xmlResponse.Close();
-            }
-
-            if (code != HttpStatusCode.OK)
-            {
-                Debug.Assert(false);
-
-                throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
-            }
-
-            return xmlDoc;
         }
 
         private static string SafeGetValue(XElement element)
