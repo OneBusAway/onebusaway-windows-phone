@@ -27,6 +27,7 @@ namespace OneBusAway.WP7.Model
         private Dictionary<FavoriteType, string> fileNames;
         private Dictionary<FavoriteType, List<FavoriteRouteAndStop>> favorites;
         private bool initialized;
+        private Object initializeLock;
 
         #endregion
 
@@ -45,6 +46,7 @@ namespace OneBusAway.WP7.Model
         public AppDataModel()
         {
             initialized = false;
+            initializeLock = new Object();
 
             fileNames = new Dictionary<FavoriteType, string>(2);
             fileNames.Add(FavoriteType.Favorite, "favorites.xml");
@@ -55,12 +57,15 @@ namespace OneBusAway.WP7.Model
 
         private void Initialize()
         {
-            if (initialized == false)
+            lock (initializeLock)
             {
-                favorites[FavoriteType.Favorite] = ReadFavoritesFromDisk(fileNames[FavoriteType.Favorite]);
-                favorites[FavoriteType.Recent] = ReadFavoritesFromDisk(fileNames[FavoriteType.Recent]);
+                if (initialized == false)
+                {
+                    favorites[FavoriteType.Favorite] = ReadFavoritesFromDisk(fileNames[FavoriteType.Favorite]);
+                    favorites[FavoriteType.Recent] = ReadFavoritesFromDisk(fileNames[FavoriteType.Recent]);
 
-                initialized = true;
+                    initialized = true;
+                }
             }
         }
 
