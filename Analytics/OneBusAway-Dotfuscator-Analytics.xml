@@ -9,7 +9,7 @@
     </loadpaths>
     <asmlist>
       <package refid="86498ca1-6b6f-44d3-87ff-a221ffd4426b">
-        <file dir="E:\Visual Studio Projects\OneBusAway\onebusawaywp7\OneBusAway\OneBusAway\Bin\Release" name="OneBusAway.xap" />
+        <file dir="E:\Visual Studio Projects\OneBusAway\onebusawaywp7\Release\OneBusAway-V2.2\OneBusAway\Bin\Release" name="OneBusAway.xap" />
         <asmlist>
           <inputassembly refid="6e84b030-705d-4859-98b6-545baeccef97">
             <option>honoroas</option>
@@ -61,7 +61,7 @@
     </asmlist>
   </input>
   <output>
-    <file dir="E:\Visual Studio Projects\OneBusAway\onebusawaywp7\OneBusAway\OneBusAway\Bin\Release\Dotfuscated" />
+    <file dir="E:\Visual Studio Projects\OneBusAway\onebusawaywp7\Release\OneBusAway-V2.2\OneBusAway\Bin\Release\Dotfuscated" />
   </output>
   <renaming>
     <option>disable</option>
