@@ -21,6 +21,7 @@ namespace OneBusAway.WP7.ViewModel
         private int maxRoutes = 30;
         private int maxStops = 30;
         private Object displayRouteLock;
+        private Object stopsForLocationLock;
 
         #endregion
 
@@ -41,6 +42,7 @@ namespace OneBusAway.WP7.ViewModel
         private void Initialize()
         {
             displayRouteLock = new Object();
+            stopsForLocationLock = new Object();
             StopsForLocation = new ObservableCollection<Stop>();
             DisplayRouteForLocation = new ObservableCollection<DisplayRoute>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
@@ -115,8 +117,11 @@ namespace OneBusAway.WP7.ViewModel
         /// <param name="invalidateCache">If true, will discard any cached result and requery the server</param>
         public void LoadInfoForLocation(bool invalidateCache)
         {
-            StopsForLocation.Clear();
-            
+            lock (stopsForLocationLock)
+            {
+                StopsForLocation.Clear();
+            }
+
             lock (displayRouteLock)
             {
                 DisplayRouteForLocation.Clear();
@@ -299,13 +304,25 @@ namespace OneBusAway.WP7.ViewModel
                 {
                     e.stops.Sort(new StopDistanceComparer(e.location));
 
-                    viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
+                    viewModel.UIAction(() => 
+                        {
+                            lock (viewModel.stopsForLocationLock)
+                            {
+                                viewModel.StopsForLocation.Clear();
+                            }
+                        });
 
                     int count = 0;
                     foreach (Stop stop in e.stops)
                     {
                         Stop currentStop = stop;
-                        viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
+                        viewModel.UIAction(() =>
+                            {
+                                lock (viewModel.stopsForLocationLock)
+                                {
+                                    viewModel.StopsForLocation.Add(currentStop);
+                                }
+                            });
                         count++;
                     }
                 }
@@ -380,7 +397,13 @@ namespace OneBusAway.WP7.ViewModel
                     }
 
                     Stop currentStop = stop;
-                    UIAction(() => StopsForLocation.Add(currentStop));
+                    UIAction(() =>
+                        {
+                            lock (stopsForLocationLock)
+                            {
+                                StopsForLocation.Add(currentStop);
+                            }
+                        });
                     stopCount++;
                 }
 
