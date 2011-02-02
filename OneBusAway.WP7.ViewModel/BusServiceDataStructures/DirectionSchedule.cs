@@ -12,6 +12,6 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember()]
         public string tripHeadsign { get; set; }
         [DataMember()]
-        public List<TripDetails> trips { get; set; }
+        public List<ScheduleStopTime> trips { get; set; }
     }
 }

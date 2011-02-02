@@ -68,6 +68,7 @@
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
+    <Compile Include="BusServiceDataStructures\ScheduleStopTime.cs" />
     <Compile Include="EventArgs\SearchForStopsEventArgs.cs" />
     <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />
     <Compile Include="BusServiceDataStructures\PolyLine.cs" />

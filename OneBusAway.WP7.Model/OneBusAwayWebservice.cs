@@ -291,16 +291,7 @@ namespace OneBusAway.WP7.Model
                 {
                     try
                     {
-
-                        // parse all the routes
-                        IList<Route> routes =
-                            (from route in xmlDoc.Descendants("route")
-                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
-                        IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
-                        foreach (Route r in routes)
-                        {
-                            routesMap.Add(r.id, r);
-                        }
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
 
                         stops =
                             (from stop in xmlDoc.Descendants("stop")
@@ -376,16 +367,7 @@ namespace OneBusAway.WP7.Model
                 {
                     try
                     {
-
-                        // parse all the routes
-                        IList<Route> routes =
-                            (from route in xmlDoc.Descendants("route")
-                             select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
-                        IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
-                        foreach (Route r in routes)
-                        {
-                            routesMap.Add(r.id, r);
-                        }
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
 
                         // parse all the stops, using previously parsed Route objects
                         IList<Stop> stops =
@@ -530,20 +512,23 @@ namespace OneBusAway.WP7.Model
                 {
                     try
                     {
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
+
                         schedules =
                             (from schedule in xmlDoc.Descendants("stopRouteSchedule")
                              select new RouteSchedule
                              {
-                                 route =
-                                    (from route in xmlDoc.Descendants("route")
-                                     where SafeGetValue(route.Element("id")) == SafeGetValue(schedule.Element("routeId"))
-                                     select ParseRoute(route, xmlDoc.Descendants("agency"))).First(),
+                                 route = routesMap[SafeGetValue(schedule.Element("routeId"))],
 
                                  directions =
                                      (from direction in schedule.Descendants("stopRouteDirectionSchedule")
                                       select new DirectionSchedule
                                       {
-                                          tripHeadsign = SafeGetValue(direction.Element("tripHeadsign"))
+                                          tripHeadsign = SafeGetValue(direction.Element("tripHeadsign")),
+
+                                          trips = 
+                                          (from trip in direction.Descendants("scheduleStopTime")
+                                           select ParseScheduleStopTime(trip)).ToList<ScheduleStopTime>()
                                       }).ToList<DirectionSchedule>()
 
                              }).ToList<RouteSchedule>();
@@ -558,6 +543,7 @@ namespace OneBusAway.WP7.Model
 
                 callback(schedules, error);
             }
+
         }
 
         public void TripDetailsForArrival(ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
@@ -702,6 +688,35 @@ namespace OneBusAway.WP7.Model
                          id = SafeGetValue(agency.Element("id")),
                          name = SafeGetValue(agency.Element("name"))
                      }).First()
+            };
+        }
+
+        /// <summary>
+        /// Parses all the routes in the document.
+        /// </summary>
+        /// <param name="xmlDoc"></param>
+        /// <returns>A map of route id to route object</returns>
+        private static IDictionary<string, Route> ParseAllRoutes(XDocument xmlDoc)
+        {
+            IList<Route> routes =
+                (from route in xmlDoc.Descendants("route")
+                    select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
+            IDictionary<string, Route> routesMap = new Dictionary<string, Route>();
+            foreach (Route r in routes)
+            {
+                routesMap.Add(r.id, r);
+            }
+            return routesMap;
+        }
+
+        private static ScheduleStopTime ParseScheduleStopTime(XElement trip)
+        {
+            return new ScheduleStopTime()
+            {
+                arrivalTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("arrivalTime"), "0"))),
+                departureTime = UnixTimeToDateTime(long.Parse(SafeGetValue(trip.Element("departureTime"), "0"))),
+                serviceId = SafeGetValue(trip.Element("serviceId")),
+                tripId = SafeGetValue(trip.Element("tripId"))
             };
         }
 
