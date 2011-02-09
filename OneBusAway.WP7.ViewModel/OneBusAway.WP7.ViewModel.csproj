@@ -60,6 +60,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
@@ -100,6 +101,8 @@
     <Compile Include="MainPageVM.cs" />
     <Compile Include="RouteDetailsVM.cs" />
     <Compile Include="SettingsVM.cs" />
+    <Compile Include="TripService.cs" />
+    <Compile Include="TripServiceFactory.cs" />
     <Compile Include="ViewState.cs" />
   </ItemGroup>
   <ItemGroup />

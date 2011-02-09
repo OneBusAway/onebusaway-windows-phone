@@ -23,6 +23,7 @@ namespace OneBusAway.WP7.ViewModel
         private Route routeFilter;
         private List<ArrivalAndDeparture> unfilteredArrivals;
         private Object arrivalsLock;
+        private TripService tripService;
 
         #endregion
 
@@ -51,6 +52,7 @@ namespace OneBusAway.WP7.ViewModel
             unfilteredArrivals = new List<ArrivalAndDeparture>();
             routeFilter = null;
             arrivalsLock = new Object();
+            tripService = TripServiceFactory.Singleton.TripService;
         }
 
         #endregion
@@ -62,6 +64,11 @@ namespace OneBusAway.WP7.ViewModel
         #endregion
 
         #region Public Methods
+
+        public void SubscribeToToastNotification(string stopId, string tripId, int minutes)
+        {
+            tripService.StartSubscription(stopId, tripId, minutes);
+        }
 
         public void SwitchToRouteByArrival(ArrivalAndDeparture arrival, Action uiCallback)
         {

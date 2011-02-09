@@ -345,5 +345,15 @@ namespace OneBusAway.WP7.View
                 viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
             }
         }
+
+        private void GestureListener_Hold(object sender, GestureEventArgs e)
+        {
+            ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
+            MessageBoxResult r = MessageBox.Show("Notify me when this bus is 5 minutes away?", "Notify me?", MessageBoxButton.OKCancel);
+            if (r == MessageBoxResult.OK)
+            {
+                this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, 5);
+            }
+        }
     }
 }

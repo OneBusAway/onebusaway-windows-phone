@@ -11,6 +11,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     xmlns:shapes="clr-namespace:System.Windows.Shapes;assembly=System.Windows"
     xmlns:tilt="clr-namespace:ControlTiltEffect"
+    xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.Controls.Toolkit"
     tilt:TiltEffect.IsTiltEnabled="True"
     SupportedOrientations="Portrait"
     mc:Ignorable="d" d:DesignHeight="696" d:DesignWidth="480"
@@ -46,6 +47,10 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
+                
+                <toolkit:GestureService.GestureListener>
+                    <toolkit:GestureListener Hold="GestureListener_Hold"/>
+                </toolkit:GestureService.GestureListener>
 
                 <TextBlock 
                     Grid.Column="0" 
