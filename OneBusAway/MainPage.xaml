@@ -99,7 +99,7 @@
                                              tilt:TiltEffect.IsTiltEnabled="True"
                                              >
                                     <toolkit:GestureService.GestureListener>
-                                        <toolkit:GestureListener Tap="GestureListener_Tap"/>
+                                        <toolkit:GestureListener Tap="RouteDirection_Tap"/>
                                     </toolkit:GestureService.GestureListener>
                                 </ListBoxItem>
                                 

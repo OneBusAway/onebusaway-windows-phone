@@ -29,7 +29,7 @@ namespace OneBusAway.WP7.View
         private bool firstLoad;
         private Popup popup;
         private bool navigatedAway;
-        private Object stopButtonLock;
+        private Object navigationLock;
         private const string searchErrorMessage =
             "Search for a route: 44\r\n" +
             "Search by stop number: 11132\r\n" +
@@ -52,7 +52,7 @@ namespace OneBusAway.WP7.View
             viewModel = aViewModel as MainPageVM;
             firstLoad = true;
             navigatedAway = false;
-            stopButtonLock = new Object();
+            navigationLock = new Object();
 
             this.Loaded += new RoutedEventHandler(MainPage_Loaded);
 
@@ -163,6 +163,8 @@ namespace OneBusAway.WP7.View
             HideLoadingSplash();
         }
 
+        #region Navigation
+
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -191,74 +193,34 @@ namespace OneBusAway.WP7.View
             viewModel.UnregisterEventHandlers();
         }
 
-        private void appbar_refresh_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Helper for the NavigationService.  Debounces navigation calls.
+        /// </summary>
+        /// <param name="target"></param>
+        private void Navigate(Uri target)
         {
-            if (viewModel.operationTracker.Loading == false)
+            lock (navigationLock)
             {
-                viewModel.LoadInfoForLocation(true);
+                if (navigatedAway == false)
+                {
+                    navigatedAway = true;
+                    NavigationService.Navigate(target);
+                }
             }
         }
 
-        private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                FavoriteRouteAndStop favorite = (FavoriteRouteAndStop)e.AddedItems[0];
-                viewModel.CurrentViewState.CurrentRoute = favorite.route;
-                viewModel.CurrentViewState.CurrentStop = favorite.stop;
-                viewModel.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
+        #endregion
 
-                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
-            }
-        }
-
-        private void RecentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            FavoritesListBox_SelectionChanged(sender, e);
-        }
-
-        private void StopsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                viewModel.CurrentViewState.CurrentRoute = null;
-                viewModel.CurrentViewState.CurrentRouteDirection = null;
-                viewModel.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
-
-                NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
-            }
-        }
-
-        private void appbar_search_Click(object sender, EventArgs e)
-        {
-            if (SearchPanel.Opacity == 0)
-            {
-                SearchStoryboard.Begin();
-                SearchInputBox.Focus();
-                SearchInputBox.SelectAll();
-            }
-            else
-            {
-                ProcessSearch(SearchInputBox.Text);
-            }
-        }
-
-
-        private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            SearchStoryboard.Seek(TimeSpan.Zero);
-            SearchStoryboard.Stop();
-            this.Focus();
-        }
+        #region Search callbacks
 
         private void SearchByRouteCallback(List<Route> routes, Exception error)
         {
             Dispatcher.BeginInvoke(() =>
-                {
-                    SearchStoryboard.Seek(TimeSpan.Zero);
-                    SearchStoryboard.Stop();
-                    this.Focus();
-                });
+            {
+                SearchStoryboard.Seek(TimeSpan.Zero);
+                SearchStoryboard.Stop();
+                this.Focus();
+            });
 
             if (error != null)
             {
@@ -271,21 +233,21 @@ namespace OneBusAway.WP7.View
             else
             {
                 Dispatcher.BeginInvoke(() =>
-                    {
-                        viewModel.CurrentViewState.CurrentRoutes = routes;
-                        NavigationService.Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
-                    });
+                {
+                    viewModel.CurrentViewState.CurrentRoutes = routes;
+                    Navigate(new Uri("/BusDirectionPage.xaml", UriKind.Relative));
+                });
             }
         }
 
         private void SearchByStopCallback(List<Stop> stops, Exception error)
         {
             Dispatcher.BeginInvoke(() =>
-                {
-                    SearchStoryboard.Seek(TimeSpan.Zero);
-                    SearchStoryboard.Stop();
-                    this.Focus();
-                });
+            {
+                SearchStoryboard.Seek(TimeSpan.Zero);
+                SearchStoryboard.Stop();
+                this.Focus();
+            });
 
             if (error != null)
             {
@@ -298,14 +260,14 @@ namespace OneBusAway.WP7.View
             else
             {
                 Dispatcher.BeginInvoke(() =>
-                    {
-                        viewModel.CurrentViewState.CurrentRoute = null;
-                        viewModel.CurrentViewState.CurrentRouteDirection = null;
-                        viewModel.CurrentViewState.CurrentStop = stops[0];
-                        viewModel.CurrentViewState.CurrentSearchLocation = null;
+                {
+                    viewModel.CurrentViewState.CurrentRoute = null;
+                    viewModel.CurrentViewState.CurrentRouteDirection = null;
+                    viewModel.CurrentViewState.CurrentStop = stops[0];
+                    viewModel.CurrentViewState.CurrentSearchLocation = null;
 
-                        NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
-                    });
+                    Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+                });
             }
         }
 
@@ -329,15 +291,79 @@ namespace OneBusAway.WP7.View
             else
             {
                 Dispatcher.BeginInvoke(() =>
-                    {
-                        viewModel.CurrentViewState.CurrentRoute = null;
-                        viewModel.CurrentViewState.CurrentRouteDirection = null;
-                        viewModel.CurrentViewState.CurrentStop = null;
-                        viewModel.CurrentViewState.CurrentSearchLocation = location;
+                {
+                    viewModel.CurrentViewState.CurrentRoute = null;
+                    viewModel.CurrentViewState.CurrentRouteDirection = null;
+                    viewModel.CurrentViewState.CurrentStop = null;
+                    viewModel.CurrentViewState.CurrentSearchLocation = location;
 
-                        NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
-                    });
+                    Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
+                });
             }
+        }
+
+        #endregion
+
+        #region UI element event handlers
+
+        private void appbar_refresh_Click(object sender, EventArgs e)
+        {
+            if (viewModel.operationTracker.Loading == false)
+            {
+                viewModel.LoadInfoForLocation(true);
+            }
+        }
+
+        private void FavoritesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                FavoriteRouteAndStop favorite = (FavoriteRouteAndStop)e.AddedItems[0];
+                viewModel.CurrentViewState.CurrentRoute = favorite.route;
+                viewModel.CurrentViewState.CurrentStop = favorite.stop;
+                viewModel.CurrentViewState.CurrentRouteDirection = favorite.routeStops;
+
+                Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            }
+        }
+
+        private void RecentsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FavoritesListBox_SelectionChanged(sender, e);
+        }
+
+        private void StopsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                viewModel.CurrentViewState.CurrentRoute = null;
+                viewModel.CurrentViewState.CurrentRouteDirection = null;
+                viewModel.CurrentViewState.CurrentStop = (Stop)e.AddedItems[0];
+
+                Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            }
+        }
+
+        private void appbar_search_Click(object sender, EventArgs e)
+        {
+            if (SearchPanel.Opacity == 0)
+            {
+                SearchStoryboard.Begin();
+                SearchInputBox.Focus();
+                SearchInputBox.SelectAll();
+            }
+            else
+            {
+                ProcessSearch(SearchInputBox.Text);
+            }
+        }
+
+
+        private void SearchInputBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SearchStoryboard.Seek(TimeSpan.Zero);
+            SearchStoryboard.Stop();
+            this.Focus();
         }
 
         private void SearchInputBox_KeyUp(object sender, KeyEventArgs e)
@@ -379,33 +405,25 @@ namespace OneBusAway.WP7.View
 
         private void appbar_settings_Click(object sender, EventArgs e)
         {
-            NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
+            Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
         }
 
         private void appbar_about_Click(object sender, EventArgs e)
         {
-            NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+            Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
         }
 
         private void stopsMapBtn_Click(object sender, RoutedEventArgs e)
         {
-            lock (stopButtonLock)
-            {
-                if (navigatedAway == false)
-                {
-                    navigatedAway = true;
+            viewModel.CurrentViewState.CurrentRoute = null;
+            viewModel.CurrentViewState.CurrentRouteDirection = null;
+            viewModel.CurrentViewState.CurrentSearchLocation = null;
+            viewModel.CurrentViewState.CurrentStop = null;
 
-                    viewModel.CurrentViewState.CurrentRoute = null;
-                    viewModel.CurrentViewState.CurrentRouteDirection = null;
-                    viewModel.CurrentViewState.CurrentSearchLocation = null;
-                    viewModel.CurrentViewState.CurrentStop = null;
-
-                    NavigationService.Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
-                }
-            }
+            Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 
-        private void GestureListener_Tap(object sender, GestureEventArgs e)
+        private void RouteDirection_Tap(object sender, GestureEventArgs e)
         {
             RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
             viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
@@ -426,7 +444,7 @@ namespace OneBusAway.WP7.View
                 }
             }
 
-            NavigationService.Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
+            Navigate(new Uri("/DetailsPage.xaml", UriKind.Relative));
         }
 
         private void PC_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -435,6 +453,8 @@ namespace OneBusAway.WP7.View
             FrameworkElement selectedElement = ((sender as Pivot).SelectedItem as PivotItem).Content as FrameworkElement;
             selectedElement.DataContext = viewModel;
         }
+
+        #endregion
 
     }
 }
