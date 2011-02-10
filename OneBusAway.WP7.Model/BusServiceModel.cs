@@ -44,11 +44,12 @@ namespace OneBusAway.WP7.Model
 
         #region Constructor/Singleton
 
+        // TODO we really need to get rid of this singleton and move to a better dependency injection model at some point.
+
         public static BusServiceModel Singleton = new BusServiceModel();
 
         private BusServiceModel()
         {
-            webservice = new OneBusAwayWebservice();
         }
 
         #endregion
@@ -81,6 +82,11 @@ namespace OneBusAway.WP7.Model
         }
 
         #region Public Methods
+
+        public void Initialize()
+        {
+            webservice = new OneBusAwayWebservice();
+        }
 
         public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
         {

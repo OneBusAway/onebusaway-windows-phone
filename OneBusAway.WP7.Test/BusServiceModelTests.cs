@@ -33,6 +33,7 @@ namespace OneBusAway.WP7.Test
         public ModelTests()
         {
             model = BusServiceModel.Singleton;
+            model.Initialize();
             fakeData = FakeData.Singleton;
             callback = new Callback();
 

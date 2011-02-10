@@ -45,6 +45,7 @@ namespace OneBusAway.WP7.ViewModel
         event EventHandler<SearchForStopsEventArgs> SearchForStops_Completed;
         void SearchForStops(GeoCoordinate location, string query);
 
+        void Initialize();
         void ClearCache();
     }
 
