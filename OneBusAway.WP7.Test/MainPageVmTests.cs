@@ -14,6 +14,7 @@ using OneBusAway.WP7.ViewModel;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.Collections.Generic;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
+using System.Windows.Threading;
 
 namespace OneBusAway.WP7.Test
 {
@@ -32,7 +33,13 @@ namespace OneBusAway.WP7.Test
         [TestInitialize]
         public void TestInitialize()
         {
+            viewModel.RegisterEventHandlers(this.TestPanel.Dispatcher);
+        }
 
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            viewModel.UnregisterEventHandlers();
         }
 
         [TestMethod]

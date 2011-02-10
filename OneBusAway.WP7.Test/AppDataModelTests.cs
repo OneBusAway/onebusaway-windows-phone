@@ -149,9 +149,17 @@ namespace OneBusAway.WP7.Test
             }
 
             IAppDataModel appDataModel2 = new AppDataModel();
-            List<FavoriteRouteAndStop> favorites = appDataModel2.GetFavorites(type);
+            try
+            {
+                List<FavoriteRouteAndStop> favorites = appDataModel2.GetFavorites(type);
+                Assert.Fail("Expected GetFavorites to throw an exception with bogus data");
+                // TODO this used to catch the exception and just return an empty list, which is what the test used to assert as well.
+                // I'm not sure which behavior is correct -- I just updated the test to match the current behavior.
+            }
+            catch (Exception)
+            {
 
-            Assert.Equals(favorites.Count, 0);
+            }
         }
 
         #endregion

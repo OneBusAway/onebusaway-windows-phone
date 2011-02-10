@@ -76,6 +76,7 @@ namespace OneBusAway.WP7.ViewModel
                         .GetType("OneBusAway.WP7.Model.BusServiceModel")
                         .GetField("Singleton")
                         .GetValue(null);
+                    lazyBusServiceModel.Initialize();
                 }
                 return lazyBusServiceModel;
             }
