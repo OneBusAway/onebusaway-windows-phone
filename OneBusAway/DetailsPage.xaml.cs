@@ -42,7 +42,8 @@ namespace OneBusAway.WP7.View
         private bool isFiltered;
 
         private const double minimumZoomRadius = 100 * 0.009 * 0.001; // 100 meters in degrees
-
+        private const double maximumZoomRadius = 250 * 0.009; // 250 km in degrees
+ 
         private string isFilteredStateId
         {
             get
@@ -190,12 +191,22 @@ namespace OneBusAway.WP7.View
                         //calculate distance to current stop and zoom map
                         if (viewModel.CurrentViewState.CurrentStop != null)
                         {
-                            GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
-                                viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
-                            double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degress and double
-                            radius = Math.Max(radius, minimumZoomRadius);
+                            if (location.IsUnknown ||
+                                location.Latitude < -90.0 || location.Latitude > 90 ||
+                                location.Longitude < -180.0 || location.Longitude > 180)
+                            {
+                                // location is bogus.  don't try to set the map view with it.
+                            }
+                            else
+                            {
+                                GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
+                                    viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
+                                double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
+                                radius = Math.Max(radius, minimumZoomRadius);
+                                radius = Math.Min(radius, maximumZoomRadius);
 
-                            DetailsMap.SetView(new LocationRect(location, radius, radius));
+                                DetailsMap.SetView(new LocationRect(location, radius, radius));
+                            }
                         }
 
                         DetailsMap_MapZoom(this, null);
