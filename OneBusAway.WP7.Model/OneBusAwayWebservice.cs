@@ -628,20 +628,31 @@ namespace OneBusAway.WP7.Model
                 return tripDetails;
             }
 
-            tripDetails.serviceDate = UnixTimeToDateTime(long.Parse(SafeGetValue(statusElement.Element("serviceDate"))));
-            if (string.IsNullOrEmpty(SafeGetValue(statusElement.Element("predicted"))) == false 
-                && bool.Parse(SafeGetValue(statusElement.Element("predicted"))) == true)
+            // TODO: Log a warning for when the serviceDate is invalid. This might be a OBA bug, but I don't
+            // have the debugging info to prove it
+            string serviceDate = SafeGetValue(statusElement.Element("serviceDate"));
+            if (string.IsNullOrEmpty(serviceDate) == false)
             {
-                tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(statusElement.Element("scheduleDeviation")));
-                tripDetails.closestStopId = SafeGetValue(statusElement.Element("closestStop"));
-                tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(statusElement.Element("closestStopTimeOffset")));
-
-                if (statusElement.Element("position") != null)
+                long serviceDateLong;
+                bool success = long.TryParse(serviceDate, out serviceDateLong);
+                if (success)
                 {
-                    tripDetails.location = new GeoCoordinate(
-                        double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
-                        double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
-                        );
+                    tripDetails.serviceDate = UnixTimeToDateTime(serviceDateLong);
+                    if (string.IsNullOrEmpty(SafeGetValue(statusElement.Element("predicted"))) == false
+                        && bool.Parse(SafeGetValue(statusElement.Element("predicted"))) == true)
+                    {
+                        tripDetails.scheduleDeviationInSec = int.Parse(SafeGetValue(statusElement.Element("scheduleDeviation")));
+                        tripDetails.closestStopId = SafeGetValue(statusElement.Element("closestStop"));
+                        tripDetails.closestStopTimeOffset = int.Parse(SafeGetValue(statusElement.Element("closestStopTimeOffset")));
+
+                        if (statusElement.Element("position") != null)
+                        {
+                            tripDetails.location = new GeoCoordinate(
+                                double.Parse(SafeGetValue(statusElement.Element("position").Element("lat")), NumberFormatInfo.InvariantInfo),
+                                double.Parse(SafeGetValue(statusElement.Element("position").Element("lon")), NumberFormatInfo.InvariantInfo)
+                                );
+                        }
+                    }
                 }
             }
 
