@@ -244,6 +244,11 @@ namespace OneBusAway.WP7.ViewModel
                                     {
                                         currentArrival.predictedArrivalTime = newArrivalTime.predictedArrivalTime;
                                         currentArrival.predictedDepartureTime = newArrivalTime.predictedDepartureTime;
+
+                                        currentArrival.tripDetails.scheduleDeviationInSec = newArrivalTime.tripDetails.scheduleDeviationInSec;
+                                        currentArrival.tripDetails.closestStopId = newArrivalTime.tripDetails.closestStopId;
+                                        currentArrival.tripDetails.closestStopTimeOffset = newArrivalTime.tripDetails.closestStopTimeOffset;
+                                        currentArrival.tripDetails.coordinate = newArrivalTime.tripDetails.coordinate;
                                     });
                             }
                             else
