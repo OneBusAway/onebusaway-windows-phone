@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Device.Location;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
 {
     [DataContract()]
-    public class TripDetails
+    public class TripDetails : INotifyPropertyChanged
     {
         [DataMember()]
         public string tripId { get; set; }
@@ -20,8 +21,26 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         public string closestStopId { get; set; }
         [DataMember()]
         public int? closestStopTimeOffset { get; set; }
+
         [DataMember]
-        public Coordinate coordinate { get; set; }
+        private Coordinate coordinatePrivate;
+
+        public Coordinate coordinate 
+        {
+            get
+            {
+                return coordinatePrivate;
+            }
+
+            set
+            {
+                coordinatePrivate = value;
+
+                OnPropertyChanged("coordinate");
+                OnPropertyChanged("locationKnown");
+                OnPropertyChanged("location");
+            }
+        }
 
         public bool locationKnown
         {
@@ -58,6 +77,16 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
                 {
                     coordinate = null;
                 }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
     }
