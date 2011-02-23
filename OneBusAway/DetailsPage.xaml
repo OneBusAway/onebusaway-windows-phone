@@ -76,7 +76,7 @@
                     Grid.Row="1" 
                     Foreground="{StaticResource OBASubtleBrush}" 
                     FontSize="{StaticResource PhoneFontSizeSmall}"
-                    Text="{Binding scheduledArrivalTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" 
+                    Text="{Binding scheduledDepartureTime, Converter={StaticResource DateTimeConverter}, ConverterParameter=Sched:}" 
                     />
                 <TextBlock 
                     Grid.Column="2" 
@@ -95,7 +95,7 @@
                     TextAlignment="Right" 
                     VerticalAlignment="Top" 
                     Margin="0,-3,0,0"
-                    Text="{Binding Path=nextKnownArrival, Converter={StaticResource DateTimeDeltaConverter}}" 
+                    Text="{Binding Path=nextKnownDeparture, Converter={StaticResource DateTimeDeltaConverter}}" 
                     Foreground="{Binding Converter={StaticResource DelayColorConverter}}"
                     />
 
