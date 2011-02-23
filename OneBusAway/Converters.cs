@@ -329,9 +329,9 @@ namespace OneBusAway.WP7.View
             {
                 ArrivalAndDeparture arrival = (ArrivalAndDeparture)value;
 
-                if (arrival.predictedArrivalTime == null)
+                if (arrival.predictedDepartureTime == null)
                 {
-                    // There is no predicted arrival time
+                    // There is no predicted departure time
                     return Application.Current.Resources["OBASubtleBrush"];
                 }
 

@@ -298,7 +298,7 @@ namespace OneBusAway.WP7.ViewModel
             {
                 UIAction(() => ArrivalsForStop.Clear());
 
-                unfilteredArrivals.Sort(new ArrivalTimeComparer());
+                unfilteredArrivals.Sort(new DepartureTimeComparer());
                 foreach (ArrivalAndDeparture arrival in unfilteredArrivals)
                 {
                     if (routeFilter != null && routeFilter.id != arrival.routeId)

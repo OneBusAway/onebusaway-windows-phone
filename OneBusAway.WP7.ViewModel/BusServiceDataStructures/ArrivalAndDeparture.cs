@@ -29,8 +29,6 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             { 
                 privatePredictedArrivalTime = value;
                 OnPropertyChanged("predictedArrivalTime");
-                OnPropertyChanged("nextKnownArrival");
-                OnPropertyChanged("busDelay");
             }
         }
         private DateTime? privatePredictedArrivalTime;
@@ -46,6 +44,8 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
             {
                 privatePredictedDepartureTime = value;
                 OnPropertyChanged("predictedDepartureTime");
+                OnPropertyChanged("nextKnownDeparture");
+                OnPropertyChanged("busDelay");
             }
         }
         private DateTime? privatePredictedDepartureTime;
@@ -54,9 +54,9 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         {
             get
             {
-                if (predictedArrivalTime != null)
+                if (predictedDepartureTime != null)
                 {
-                    return (DateTime)predictedArrivalTime - scheduledArrivalTime;
+                    return (DateTime)predictedDepartureTime - scheduledDepartureTime;
                 }
                 else
                 {
@@ -72,11 +72,11 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         [DataMember()]
         public TripDetails tripDetails { get; set; }
 
-        public DateTime nextKnownArrival
+        public DateTime nextKnownDeparture
         {
             get
             {
-                return predictedArrivalTime != null ? (DateTime)predictedArrivalTime : scheduledArrivalTime;
+                return predictedDepartureTime != null ? (DateTime)predictedDepartureTime : scheduledDepartureTime;
             }
         }
 
@@ -86,7 +86,7 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
                 "Arrival: Route='{0}', Destination='{1}', NextArrival='{2}'",
                 routeShortName,
                 tripHeadsign,
-                nextKnownArrival.ToString("HH:mm")
+                nextKnownDeparture.ToString("HH:mm")
                 );
         }
 
@@ -112,11 +112,11 @@ namespace OneBusAway.WP7.ViewModel.BusServiceDataStructures
         }
     }
 
-    public class ArrivalTimeComparer : IComparer<ArrivalAndDeparture>
+    public class DepartureTimeComparer : IComparer<ArrivalAndDeparture>
     {
         public int Compare(ArrivalAndDeparture x, ArrivalAndDeparture y)
         {
-            return x.nextKnownArrival.CompareTo(y.nextKnownArrival);
+            return x.nextKnownDeparture.CompareTo(y.nextKnownDeparture);
         }
     }
 }

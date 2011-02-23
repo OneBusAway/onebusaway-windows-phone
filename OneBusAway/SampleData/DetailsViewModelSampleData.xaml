@@ -8,10 +8,10 @@
     >
 
     <viewmodel:RouteDetailsVM.ArrivalsForStop>
-        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="12:45" scheduledArrivalTime="12:45"/>
-        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="9:45" scheduledArrivalTime="9:30" />
-        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="3:45" scheduledArrivalTime="3:50" />
-        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedArrivalTime="6:45" scheduledArrivalTime="3:50" />
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedDepartureTime="12:45" scheduledDepartureTime="12:45"/>
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedDepartureTime="9:45" scheduledDepartureTime="9:30" />
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedDepartureTime="3:45" scheduledDepartureTime="3:50" />
+        <data:ArrivalAndDeparture routeShortName="48" tripHeadsign="LOYAL HEIGHTS" predictedDepartureTime="6:45" scheduledDepartureTime="3:50" />
 
     </viewmodel:RouteDetailsVM.ArrivalsForStop>
 
