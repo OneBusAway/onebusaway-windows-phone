@@ -47,11 +47,13 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                
-                <toolkit:GestureService.GestureListener>
-                    <toolkit:GestureListener Hold="GestureListener_Hold"/>
-                </toolkit:GestureService.GestureListener>
 
+                <toolkit:ContextMenuService.ContextMenu>
+                    <toolkit:ContextMenu IsZoomEnabled="False">
+                        <toolkit:MenuItem Header="zoom to here" Click="ZoomToStop_Click" />
+                        <toolkit:MenuItem Header="notify me" Click="NotifyStop_Click" />
+                    </toolkit:ContextMenu>
+                </toolkit:ContextMenuService.ContextMenu>
                 <TextBlock 
                     Grid.Column="0" 
                     Grid.Row="0" 
@@ -121,7 +123,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
     </view:AViewPage.Resources>
 
     <Grid x:Name="LayoutRoot" Background="{StaticResource OBAPrimaryBrush}">
@@ -215,6 +216,7 @@
             </m:Map>
         </Grid>
         <Grid Grid.Row="2" x:Name="StopGrid">
+
             <ListBox 
                 x:Name="ArrivalsListBox" 
                 d:DataContext="{d:DesignData Source=SampleData/DetailsViewModelSampleData.xaml}"

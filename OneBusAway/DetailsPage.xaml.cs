@@ -21,6 +21,7 @@ using Microsoft.Phone.Shell;
 using System.Windows.Navigation;
 using System.Windows.Threading;
 using System.Diagnostics;
+using System.Windows.Controls.Primitives;
 
 namespace OneBusAway.WP7.View
 {
@@ -365,6 +366,28 @@ namespace OneBusAway.WP7.View
             {
                 this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, 5);
             }
+        }
+
+        private void ZoomToStop_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private Popup popup;
+
+        private void NotifyStop_Click(object sender, RoutedEventArgs e)
+        {
+            ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
+
+            this.popup = new Popup();
+
+            NotifyPopup notifyPopup = new NotifyPopup();
+            notifyPopup.Notify_Completed += delegate(object o, NotifyEventArgs args) { 
+                this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, args.minutes); 
+            };
+            this.popup.Child = notifyPopup; 
+
+            this.popup.IsOpen = true;
         }
     }
 }
