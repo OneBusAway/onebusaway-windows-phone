@@ -15,6 +15,7 @@ using OneBusAway.WP7.ViewModel;
 using Microsoft.Phone.Controls.Maps;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 
 namespace OneBusAway.WP7.View
 {
@@ -280,6 +281,47 @@ namespace OneBusAway.WP7.View
             return null;
         }
     }
+
+    /// <summary>   
+    /// A type converter for visibility and boolean values.   
+    /// </summary>   
+    public class IsFavoriteConverter : IValueConverter
+    {
+        public object Convert(
+            object value,
+            Type targetType,
+            object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value is FavoriteRouteAndStop)
+            {
+                FavoriteRouteAndStop fav = value as FavoriteRouteAndStop;
+                return fav.route == null ? Visibility.Visible : Visibility.Collapsed;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(
+            object value,
+            Type targetType,
+            object parameter,
+            System.Globalization.CultureInfo culture)
+        {
+            if (value is Visibility)
+            {
+                Visibility visibility = (Visibility)value;
+                return (visibility == Visibility.Visible);
+            }
+            else
+            {
+                return null;
+            }
+        }
+    }
+
 
     /// <summary>   
     /// A type converter for visibility and boolean values.   
