@@ -74,9 +74,12 @@ namespace OneBusAway.WP7.View
             base.Initialize();
 
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
+            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
+
             busArrivalUpdateTimer = new DispatcherTimer();
             busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
             busArrivalUpdateTimer.Tick += new EventHandler(busArrivalUpdateTimer_Tick);
@@ -388,6 +391,33 @@ namespace OneBusAway.WP7.View
             this.popup.Child = notifyPopup; 
 
             this.popup.IsOpen = true;
+        }
+
+        private void ArrivalsListBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
+        }
+
+        void ArrivalsForStop_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (viewModel.ArrivalsForStop.Count == 0)
+            {
+                NoResultsTextBlock.Visibility = System.Windows.Visibility.Visible;
+            }
+            else if(NoResultsTextBlock.Visibility == System.Windows.Visibility.Visible)
+            {
+                NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+            }
+        }
+
+        private void ArrivalsListBox_LayoutUpdated(object sender, EventArgs e)
+        {
+
+            if((sender != null))
+            {
+                object arrivals = ArrivalsListBox.DataContext;
+            }
+
         }
     }
 }
