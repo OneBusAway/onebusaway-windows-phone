@@ -42,8 +42,8 @@ xmlns:toolkit="clr-namespace:Microsoft.Phone.Controls;assembly=Microsoft.Phone.C
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
-    
-    <Grid x:Name="LayoutRoot" Background="#78AA36" Width="480">
+
+    <Grid x:Name="LayoutRoot" Background="{StaticResource OBABackgroundBrush}" Width="480">
         <Grid.Projection>
             <PlaneProjection RotationX="0" />
         </Grid.Projection>
