@@ -32,6 +32,8 @@
         <view:VisibilityConverter x:Key="VisibilityConverter"></view:VisibilityConverter>
         <view:LowercaseConverter x:Key="LowercaseConverter"></view:LowercaseConverter>
         <view:ShortDistanceConverter x:Key="ShortDistanceConverter"></view:ShortDistanceConverter>
+        <view:IsFavoriteConverter x:Key="IsFavoriteConverter"></view:IsFavoriteConverter>
+
         <view:ColorAlphaConverter x:Key="ColorAlphaConverter"/>
 
         <DataTemplate x:Key="StopTemplate">
@@ -125,6 +127,25 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
+
+                <Polygon Visibility="{Binding Converter={StaticResource IsFavoriteConverter}}" CacheMode="BitmapCache" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,4,0,0" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource OBAForegroundBrush}" Opacity="1.0"/>
+                <Canvas Visibility="{Binding Converter={StaticResource IsFavoriteConverter}}" CacheMode="BitmapCache" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3"  x:Name="BusIcon" Margin="12,8,0,0">
+                    <Canvas.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="0.85" ScaleY="0.85" />
+                        </TransformGroup>
+                    </Canvas.RenderTransform>
+                    <Rectangle Width="26" Height="22" Canvas.Left="1" Canvas.Top="2" Fill="{StaticResource OBABackgroundBrush}" Stroke="{StaticResource OBABackgroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="19" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource OBABackgroundBrush}" Fill="{StaticResource OBABackgroundBrush}"/>
+                    <Ellipse Width="6" Height="6" Canvas.Left="3" Canvas.Top="21" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource OBABackgroundBrush}" Fill="{StaticResource OBABackgroundBrush}"/>
+
+                    <Rectangle Width="22" Height="10" Canvas.Left="3" Canvas.Top="7" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="3" Canvas.Top="19" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="6" Height="3" Canvas.Left="19" Canvas.Top="19" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+                    <Rectangle Width="22" Height="3" Canvas.Left="3" Canvas.Top="3" Fill="{StaticResource OBAForegroundBrush}" Stroke="{StaticResource OBAForegroundBrush}" StrokeLineJoin="Round" RadiusX="1" RadiusY="1"/>
+
+                    <Path Fill="{StaticResource OBABackgroundBrush}" Stretch="Fill" Stroke="{StaticResource OBABackgroundBrush}" StrokeLineJoin="Round" Height="12" Width="1" UseLayoutRounding="False" Canvas.Left="13.5" Canvas.Top="6.5" Data="M16,8 L16,17"/>
+                </Canvas>
 
                 <TextBlock Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" VerticalAlignment="Center" Text="{Binding Path=route.shortName}" FontSize="{StaticResource PhoneFontSizeLarge}" Margin="5"  Foreground="{StaticResource OBAForegroundBrush}" />
                 <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="0" Text="{Binding Path=Title}"  FontSize="{StaticResource PhoneFontSizeNormal}" Foreground="{StaticResource OBAForegroundBrush}" />
