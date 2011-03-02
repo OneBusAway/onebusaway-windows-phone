@@ -388,7 +388,14 @@ namespace OneBusAway.WP7.View
 
         private void ZoomToStop_Click(object sender, RoutedEventArgs e)
         {
+            ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
 
+            if (a.tripDetails != null && a.tripDetails.locationKnown == true && a.tripDetails.coordinate != null)
+            {
+                GeoCoordinate location = new GeoCoordinate(a.tripDetails.coordinate.Latitude, a.tripDetails.coordinate.Longitude);
+                DetailsMap.Center = location;
+                DetailsMap.ZoomLevel = 17;
+            }
         }
 
         private void NotifyStop_Click(object sender, RoutedEventArgs e)
