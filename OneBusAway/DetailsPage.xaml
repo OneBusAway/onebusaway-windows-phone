@@ -50,8 +50,8 @@
 
                 <toolkit:ContextMenuService.ContextMenu>
                     <toolkit:ContextMenu IsZoomEnabled="False">
-                        <toolkit:MenuItem Header="zoom to here" Click="ZoomToStop_Click" />
-                        <toolkit:MenuItem Header="notify me" Click="NotifyStop_Click" />
+                        <toolkit:MenuItem Header="zoom to here" Click="ZoomToBus_Click" />
+                        <toolkit:MenuItem Header="notify me" Click="NotifyArrival_Click" />
                     </toolkit:ContextMenu>
                 </toolkit:ContextMenuService.ContextMenu>
                 <TextBlock 
