@@ -228,8 +228,7 @@
                 ItemsSource="{Binding Path=ArrivalsForStop}" 
                 ItemTemplate="{StaticResource RouteTemplate}" 
                 SelectionChanged="ArrivalsListBox_SelectionChanged"
-                 Loaded="ArrivalsListBox_Loaded"
-                 LayoutUpdated="ArrivalsListBox_LayoutUpdated"
+                LayoutUpdated="ArrivalsListBox_LayoutUpdated"
                  
                 />
             <TextBlock Visibility="Collapsed" x:Name="NoResultsTextBlock" Text="no results" 

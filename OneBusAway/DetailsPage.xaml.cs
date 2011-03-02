@@ -80,7 +80,7 @@ namespace OneBusAway.WP7.View
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
-            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
+            viewModel.LoadArrivalsForStop_Completed += new EventHandler<LoadArrivalsForStopEventArgs>(viewModel_LoadArrivalsForStop_Completed);
 
             busArrivalUpdateTimer = new DispatcherTimer();
             busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
@@ -372,6 +372,7 @@ namespace OneBusAway.WP7.View
         {
             if (viewModel.operationTracker.Loading == false)
             {
+                NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
                 viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
             }
         }
@@ -383,6 +384,24 @@ namespace OneBusAway.WP7.View
             if (r == MessageBoxResult.OK)
             {
                 this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, 5);
+            }
+        }
+
+        void viewModel_LoadArrivalsForStop_Completed(object sender, LoadArrivalsForStopEventArgs e)
+        {
+            if (viewModel.ArrivalsForStop.Count == 0)
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        NoResultsTextBlock.Visibility = System.Windows.Visibility.Visible;
+                    });
+            }
+            else
+            {
+                Dispatcher.BeginInvoke(() =>
+                    {
+                        NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
+                    });
             }
         }
 
@@ -420,26 +439,8 @@ namespace OneBusAway.WP7.View
             this.popup.IsOpen = true;
         }
 
-        private void ArrivalsListBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            viewModel.ArrivalsForStop.CollectionChanged += new NotifyCollectionChangedEventHandler(ArrivalsForStop_CollectionChanged);
-        }
-
-        void ArrivalsForStop_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (viewModel.ArrivalsForStop.Count == 0)
-            {
-                NoResultsTextBlock.Visibility = System.Windows.Visibility.Visible;
-            }
-            else if(NoResultsTextBlock.Visibility == System.Windows.Visibility.Visible)
-            {
-                NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
-            }
-        }
-
         private void ArrivalsListBox_LayoutUpdated(object sender, EventArgs e)
         {
-
             if((sender != null))
             {
                 object arrivals = ArrivalsListBox.DataContext;
