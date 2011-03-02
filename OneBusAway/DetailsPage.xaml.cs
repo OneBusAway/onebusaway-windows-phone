@@ -386,7 +386,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void ZoomToStop_Click(object sender, RoutedEventArgs e)
+        private void ZoomToBus_Click(object sender, RoutedEventArgs e)
         {
             ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
 
@@ -398,7 +398,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void NotifyStop_Click(object sender, RoutedEventArgs e)
+        private void NotifyArrival_Click(object sender, RoutedEventArgs e)
         {
             ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
 
