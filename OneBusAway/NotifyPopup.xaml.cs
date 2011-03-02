@@ -33,16 +33,20 @@ namespace OneBusAway.WP7.View
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Notify_Completed != null)
+            {
+                Notify_Completed(this, new NotifyEventArgs(null, false, 0));
+            }
+
             Dismiss();
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
-
             if (Notify_Completed != null)
             {
                 int numMinutes = TimePicker.SelectedIndex * 5 + 5;
-                Notify_Completed(this, new NotifyEventArgs(null, numMinutes));
+                Notify_Completed(this, new NotifyEventArgs(null, true, numMinutes));
             }
 
             Dismiss();
@@ -63,10 +67,12 @@ namespace OneBusAway.WP7.View
     public class NotifyEventArgs : System.EventArgs
     {
         public int minutes { get; private set; }
+        public bool okSelected { get; private set; }
 
-        public NotifyEventArgs(Exception error, int minutes)
+        public NotifyEventArgs(Exception error, bool okSelected, int minutes)
         {
             this.minutes = minutes;
+            this.okSelected = okSelected;
         }
     }
 }

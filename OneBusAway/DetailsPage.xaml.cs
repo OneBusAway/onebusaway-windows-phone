@@ -41,6 +41,7 @@ namespace OneBusAway.WP7.View
 
         private bool isFavorite;
         private bool isFiltered;
+        private Popup popup;
 
         private const double minimumZoomRadius = 100 * 0.009 * 0.001; // 100 meters in degrees
         private const double maximumZoomRadius = 250 * 0.009; // 250 km in degrees
@@ -74,6 +75,7 @@ namespace OneBusAway.WP7.View
             base.Initialize();
 
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+            this.BackKeyPress += new EventHandler<System.ComponentModel.CancelEventArgs>(DetailsPage_BackKeyPress);
 
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
@@ -241,6 +243,19 @@ namespace OneBusAway.WP7.View
             viewModel.UnregisterEventHandlers();
         }
 
+        void DetailsPage_BackKeyPress(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (popup != null && popup.IsOpen == true)
+            {
+                popup.IsOpen = false;
+                e.Cancel = true;
+            }
+            else
+            {
+                e.Cancel = false;
+            }
+        }
+
         private void appbar_favorite_Click(object sender, EventArgs e)
         {
             FavoriteRouteAndStop favorite = new FavoriteRouteAndStop();
@@ -376,8 +391,6 @@ namespace OneBusAway.WP7.View
 
         }
 
-        private Popup popup;
-
         private void NotifyStop_Click(object sender, RoutedEventArgs e)
         {
             ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
@@ -385,11 +398,18 @@ namespace OneBusAway.WP7.View
             this.popup = new Popup();
 
             NotifyPopup notifyPopup = new NotifyPopup();
-            notifyPopup.Notify_Completed += delegate(object o, NotifyEventArgs args) { 
-                this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, args.minutes); 
-            };
-            this.popup.Child = notifyPopup; 
+            notifyPopup.Notify_Completed += delegate(object o, NotifyEventArgs args) 
+            {
+                if (args.okSelected == true)
+                {
+                    this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, args.minutes);
+                }
 
+                // This is how we track if the popup is visible
+                Dispatcher.BeginInvoke(() => { this.popup.IsOpen = false; });
+            };
+
+            this.popup.Child = notifyPopup; 
             this.popup.IsOpen = true;
         }
 
