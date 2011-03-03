@@ -467,12 +467,15 @@ namespace OneBusAway.WP7.ViewModel
             var Client = new WebClient();
             Client.DownloadStringCompleted += (s, e) =>
             {
-                
                 if (e.Error == null)
+                {
                     UpdateStatus("Registration succeeded");
+                }
                 else
+                {
                     UpdateStatus("Registration failed: " + e.Error.Message);
-                  
+                    throw e.Error;
+                }
             };
 
             Client.DownloadStringAsync(new Uri(baseAddress, CallUri));
