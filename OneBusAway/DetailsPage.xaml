@@ -134,8 +134,7 @@
 
         <Grid Grid.Row="0" x:Name="TitleGrid"
               d:DataContext="{d:DesignData Source=SampleData/DetailsViewModelSampleData.xaml}">
-            <!--<StackPanel Orientation="Horizontal">-->
-                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal">
                 <TextBlock 
                     VerticalAlignment="Top"
                     x:Name="RouteNumber" 
@@ -154,9 +153,6 @@
                     <TextBlock Grid.Row="0" x:Name="RouteName" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentRouteDirection.name}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
                     <TextBlock Grid.Row="1" x:Name="RouteInfo" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentStop.name}" FontSize="{StaticResource PhoneFontSizeMedium}"/>
                 </Grid>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Grid.Row="0" x:Name="StopName" Foreground="{StaticResource OBAForegroundBrush}" Text="{Binding Path=CurrentViewState.CurrentStop.name}" Margin="10"  FontSize="{StaticResource PhoneFontSizeExtraLarge}"/>
             </StackPanel>
 
         </Grid>
