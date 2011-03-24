@@ -452,9 +452,24 @@ namespace OneBusAway.WP7.Model
                 
                 lock (owner.fileAccessSync)
                 {
-                    using (IsolatedStorageFileStream stream = iso.OpenFile(settingsFile, FileMode.Open, FileAccess.Read))
+                    try
                     {
-                        return (Dictionary<string, DateTime>)d.ReadObject(stream);
+                        using (IsolatedStorageFileStream stream = iso.OpenFile(settingsFile, FileMode.Open, FileAccess.Read))
+                        {
+                            return (Dictionary<string, DateTime>)d.ReadObject(stream);
+                        }
+                    }
+                    catch (IsolatedStorageException)
+                    {
+                        // something's wrong with cache data file.  try to clean it up and move on without it
+                        try{ iso.DeleteFile(settingsFile); } catch (Exception) { /* ignore */ }
+                        return new Dictionary<string, DateTime>();
+                    }
+                    catch (SerializationException)
+                    {
+                        // something's wrong with cache data file.  try to clean it up and move on without it
+                        try { iso.DeleteFile(settingsFile); } catch (Exception) { /* ignore */ }
+                        return new Dictionary<string, DateTime>();
                     }
                 }
             }
