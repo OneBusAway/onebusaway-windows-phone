@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Device.Location;
 using System.Diagnostics;
+using System.Threading;
 using System.Windows.Threading;
 using OneBusAway.WP7.ViewModel.AppDataDataStructures;
 using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 using OneBusAway.WP7.ViewModel.EventArgs;
-using System.ComponentModel;
-using System.Threading;
 using OneBusAway.WP7.ViewModel.LocationServiceDataStructures;
 
 namespace OneBusAway.WP7.ViewModel
@@ -42,7 +42,10 @@ namespace OneBusAway.WP7.ViewModel
         {
             displayRouteLock = new Object();
             StopsForLocation = new ObservableCollection<Stop>();
-            DisplayRouteForLocation = new ObservableCollection<DisplayRoute>();
+            DisplayRouteForLocation = new BufferedReference<ObservableCollection<DisplayRoute>>(
+                new ObservableCollection<DisplayRoute>(), 
+                new ObservableCollection<DisplayRoute>());
+            directionHelper = new Dictionary<string, ObservableCollection<RouteStops>>();
             Favorites = new ObservableCollection<FavoriteRouteAndStop>();
             Recents = new ObservableCollection<FavoriteRouteAndStop>();
         }
@@ -63,17 +66,9 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
-        private ObservableCollection<DisplayRoute> displayRouteForLocation;
-        public ObservableCollection<DisplayRoute> DisplayRouteForLocation 
-        {
-            get { return displayRouteForLocation; }
+        private IDictionary<string, ObservableCollection<RouteStops>> directionHelper;
 
-            private set
-            {
-                displayRouteForLocation = value;
-                OnPropertyChanged("DisplayRouteForLocation");
-            }
-        }
+        public BufferedReference<ObservableCollection<DisplayRoute>> DisplayRouteForLocation { get; private set; }
 
         private ObservableCollection<FavoriteRouteAndStop> favorites;
         public ObservableCollection<FavoriteRouteAndStop> Favorites 
@@ -117,10 +112,7 @@ namespace OneBusAway.WP7.ViewModel
         {
             StopsForLocation.Clear();
             
-            lock (displayRouteLock)
-            {
-                DisplayRouteForLocation.Clear();
-            }
+            DisplayRouteForLocation.Working.Clear();
 
             operationTracker.WaitForOperation("CombinedInfoForLocation", "Searching for buses...");
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
@@ -393,36 +385,39 @@ namespace OneBusAway.WP7.ViewModel
                     }
 
                     DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
-                    UIAction(() =>
-                        {
-                            lock (displayRouteLock)
-                            {
-                                DisplayRouteForLocation.Add(currentDisplayRoute);
-                            }
-                        }
-                        );
-
+                    DisplayRouteForLocation.Working.Add(currentDisplayRoute);
                     routeCount++;
                 }
 
-                // Need to kick this off from inside the UI thread, or we might
-                // get the result back before the route has been added to the list
-                UIAction(() =>
+                // Done with work in the background.  Flush the results out to the UI.  This is quick.
+                object testref = null;
+                UIAction(() => 
                     {
-                        new Thread(() =>
-                            {
-                                lock (displayRouteLock)
-                                {
-                                    foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
-                                    {
-                                        operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", displayRoute.Route.id), "Loading route details...");
-                                        busServiceModel.StopsForRoute(displayRoute.Route);
-                                    }
-                                }
-                            }
-                        ).Start();
+                        DisplayRouteForLocation.Toggle();
+                        testref = new object();
                     }
                 );
+
+                // hack to wait for the UI action to complete
+                // note this executes in the background, so it's fine to be slow.
+                int execcount = 0;
+                while (testref == null)
+                {
+                    execcount++;
+                    Thread.Sleep(100);
+                }
+
+                // finally, queue up more work
+                lock (DisplayRouteForLocation.CurrentSyncRoot)
+                {
+                    foreach (DisplayRoute r in DisplayRouteForLocation.Current)
+                    {
+                        directionHelper[r.Route.id] = r.RouteStops;
+
+                        operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
+                        busServiceModel.StopsForRoute(r.Route);
+                    }
+                }
             }
             else
             {
@@ -438,26 +433,10 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                lock (displayRouteLock)
-                {
-                    bool matchFound = false;
-                    foreach (DisplayRoute displayRoute in DisplayRouteForLocation)
-                    {
-                        if (e.route.Equals(displayRoute.Route))
-                        {
-                            matchFound = true;
-                            DisplayRoute currentDisplayRoute = displayRoute;
-                            e.routeStops.ForEach(r => 
-                                UIAction(() =>
-                                {
-                                    currentDisplayRoute.RouteStops.Add(r);
-                                }
-                                ));
-                        }
-                    }
-
-                    Debug.Assert(matchFound == true);
-                 }
+                e.routeStops.ForEach(r => UIAction(() =>
+                    { 
+                        directionHelper[e.route.id].Add(r); 
+                    }));
             }
             else
             {

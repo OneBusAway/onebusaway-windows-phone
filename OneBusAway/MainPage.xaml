@@ -167,7 +167,7 @@
             <pivot:PivotItem Header="routes">
                 <ListBox 
                     x:Name="RoutesListBox" 
-                    ItemsSource="{Binding Path=DisplayRouteForLocation}" 
+                    ItemsSource="{Binding Path=DisplayRouteForLocation.Current}" 
                     ItemTemplate="{StaticResource RouteTemplate}"
                     >
                     <!--Removed DesignData from ListBox because of conflict with GestureListener-->
