@@ -171,7 +171,10 @@ namespace OneBusAway.WP7.View
 
             // We refresh this info every load so clear the lists now
             // to avoid a flicker as the page comes back
-            viewModel.DisplayRouteForLocation.Clear();
+            lock (viewModel.DisplayRouteForLocation.CurrentSyncRoot)
+            {
+                viewModel.DisplayRouteForLocation.Current.Clear();
+            }
             viewModel.StopsForLocation.Clear();
             viewModel.Favorites.Clear();
             viewModel.Recents.Clear();

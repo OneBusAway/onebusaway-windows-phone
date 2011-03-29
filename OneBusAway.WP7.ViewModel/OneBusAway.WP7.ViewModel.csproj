@@ -66,6 +66,7 @@
     <Compile Include="AppDataDataStructures\FavoriteRouteAndStop.cs" />
     <Compile Include="AppDataDataStructures\RecentRouteAndStop.cs" />
     <Compile Include="AsyncOperationTracker.cs" />
+    <Compile Include="BufferedReference.cs" />
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
