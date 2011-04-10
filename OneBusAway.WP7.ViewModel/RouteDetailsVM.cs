@@ -60,6 +60,7 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Properties
 
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
+        public event EventHandler<LoadArrivalsForStopEventArgs> LoadArrivalsForStop_Completed;
  
         #endregion
 
@@ -287,6 +288,17 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
+            if (LoadArrivalsForStop_Completed != null)
+            {
+                // Call this from the UI thread because otherwise the event will
+                // be triggered before ArrivalsForStop is updated since the updates
+                // are performed on the UI thread
+                UIAction(() =>
+                    {
+                        LoadArrivalsForStop_Completed(this, new LoadArrivalsForStopEventArgs());
+                    });
+            }
+
             operationTracker.DoneWithOperation("ArrivalsForStop");
         }
 
@@ -327,5 +339,10 @@ namespace OneBusAway.WP7.ViewModel
 
             this.operationTracker.ClearOperations();
         }
+    }
+
+    public class LoadArrivalsForStopEventArgs : System.EventArgs
+    {
+
     }
 }

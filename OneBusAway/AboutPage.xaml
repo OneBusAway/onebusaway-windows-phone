@@ -54,8 +54,7 @@
                 HorizontalAlignment="Stretch"
                 TextAlignment="Center"
                 Text=
-                "Windows Phone app by 
-Rob Smith, Shawn Henry, and Michael Friedman" 
+                "Windows Phone app by Rob Smith, Shawn Henry, Michael Friedman, and David Robinson" 
                 TextWrapping="Wrap"
                 Margin="10,10,10,0"
                 />
