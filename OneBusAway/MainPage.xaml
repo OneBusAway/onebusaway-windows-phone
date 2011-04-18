@@ -239,6 +239,22 @@
             </pivot:PivotItem>
         </pivot:Pivot>
 
+        <Rectangle
+            Height="32"
+            Fill="{StaticResource OBADarkBrush}"
+            VerticalAlignment="Top"
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            />
+
+        <TextBlock 
+            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
+            Text="{Binding Path=operationTracker.LoadingMessage, Source={StaticResource ViewModel}}"
+            Foreground="{StaticResource OBAForegroundBrush}"
+            VerticalAlignment="Top"
+            FontSize="20"
+            Margin="23,0,0,0"
+            />
+
         <StackPanel 
             x:Name="SearchPanel" 
             Opacity="0" 
@@ -259,22 +275,6 @@
 			</TextBlock.RenderTransform>
             </TextBlock>
         </StackPanel>
-
-        <Rectangle
-            Height="32"
-            Fill="{StaticResource OBADarkBrush}"
-            VerticalAlignment="Top"
-            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            />
-
-        <TextBlock 
-            Visibility="{Binding Path=operationTracker.Loading, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
-            Text="{Binding Path=operationTracker.LoadingMessage, Source={StaticResource ViewModel}}"
-            Foreground="{StaticResource OBAForegroundBrush}"
-            VerticalAlignment="Top"
-            FontSize="20"
-            Margin="23,0,0,0"
-            />
 
         <localControls:PerformanceProgressBar
             VerticalAlignment="Top"
