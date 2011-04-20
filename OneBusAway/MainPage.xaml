@@ -266,7 +266,7 @@
             <StackPanel.RenderTransform>
                 <CompositeTransform TranslateY="-75"/>
             </StackPanel.RenderTransform>
-            <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="Number" />
+            <TextBox x:Name="SearchInputBox" LostFocus="SearchInputBox_LostFocus" KeyUp="SearchInputBox_KeyUp" InputScope="CurrencyAmountAndSymbol" />
             <TextBlock 
 				Text="By route number, stop number, location, or address"  
 				Foreground="{StaticResource OBAForegroundBrush}" FontSize="16" HorizontalAlignment="Center">
