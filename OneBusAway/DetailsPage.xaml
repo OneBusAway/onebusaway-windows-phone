@@ -227,11 +227,13 @@
                 LayoutUpdated="ArrivalsListBox_LayoutUpdated"
                  
                 />
-            <TextBlock Visibility="Collapsed" x:Name="NoResultsTextBlock" Text="no results" 
+            <TextBlock x:Name="NoResultsTextBlock" Text="no results" 
+                       Visibility="{Binding Path=NoResultsAvailable, Source={StaticResource ViewModel}, Converter={StaticResource VisibilityConverter}}"
                        FontSize="{StaticResource PhoneFontSizeLarge}" 
-                        Foreground="{StaticResource OBAForegroundBrush}"
-                        VerticalAlignment="Top"
-                        Margin="12" />
+                       Foreground="{StaticResource OBAForegroundBrush}"
+                       VerticalAlignment="Top"
+                       Margin="12" 
+                       />
         </Grid>
 
         <localControls:PerformanceProgressBar
