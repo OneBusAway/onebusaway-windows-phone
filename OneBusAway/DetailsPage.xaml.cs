@@ -22,6 +22,7 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.Windows.Controls.Primitives;
+using System.ComponentModel;
 
 namespace OneBusAway.WP7.View
 {
@@ -80,7 +81,6 @@ namespace OneBusAway.WP7.View
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
 
             viewModel = Resources["ViewModel"] as RouteDetailsVM;
-            viewModel.LoadArrivalsForStop_Completed += new EventHandler<LoadArrivalsForStopEventArgs>(viewModel_LoadArrivalsForStop_Completed);
 
             busArrivalUpdateTimer = new DispatcherTimer();
             busArrivalUpdateTimer.Interval = new TimeSpan(0, 0, 0, 30, 0); // 30 secs 
@@ -384,24 +384,6 @@ namespace OneBusAway.WP7.View
             if (r == MessageBoxResult.OK)
             {
                 this.viewModel.SubscribeToToastNotification(a.stopId, a.tripId, 5);
-            }
-        }
-
-        void viewModel_LoadArrivalsForStop_Completed(object sender, LoadArrivalsForStopEventArgs e)
-        {
-            if (viewModel.ArrivalsForStop.Count == 0)
-            {
-                Dispatcher.BeginInvoke(() =>
-                    {
-                        NoResultsTextBlock.Visibility = System.Windows.Visibility.Visible;
-                    });
-            }
-            else
-            {
-                Dispatcher.BeginInvoke(() =>
-                    {
-                        NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
-                    });
             }
         }
 

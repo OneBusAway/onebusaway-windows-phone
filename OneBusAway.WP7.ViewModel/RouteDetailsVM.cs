@@ -12,7 +12,6 @@ using System.Linq;
 using System.Windows.Threading;
 using System.Threading;
 
-
 namespace OneBusAway.WP7.ViewModel
 {
     public class RouteDetailsVM : AViewModel
@@ -24,6 +23,7 @@ namespace OneBusAway.WP7.ViewModel
         private List<ArrivalAndDeparture> unfilteredArrivals;
         private Object arrivalsLock;
         private TripService tripService;
+        private bool resultsLoaded;
 
         #endregion
 
@@ -53,6 +53,7 @@ namespace OneBusAway.WP7.ViewModel
             routeFilter = null;
             arrivalsLock = new Object();
             tripService = TripServiceFactory.Singleton.TripService;
+            resultsLoaded = false;
         }
 
         #endregion
@@ -60,7 +61,22 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Properties
 
         public ObservableCollection<ArrivalAndDeparture> ArrivalsForStop { get; private set; }
-        public event EventHandler<LoadArrivalsForStopEventArgs> LoadArrivalsForStop_Completed;
+
+        private bool noResultsAvailable;
+        public bool NoResultsAvailable
+        {
+            get
+            {
+                if (operationTracker.Loading == true || resultsLoaded == false)
+                {
+                    return false;
+                }
+                else
+                {
+                    return ArrivalsForStop.Count == 0;
+                }
+            }
+        }
  
         #endregion
 
@@ -109,6 +125,9 @@ namespace OneBusAway.WP7.ViewModel
 
             this.routeFilter = routeFilter;
             RefreshArrivalsForStop(stop);
+
+            // We've sent our first call off, set resultsLoaded to true
+            resultsLoaded = true;
         }
 
         public void RefreshArrivalsForStop(Stop stop)
@@ -288,18 +307,10 @@ namespace OneBusAway.WP7.ViewModel
                 ErrorOccured(this, e.error);
             }
 
-            if (LoadArrivalsForStop_Completed != null)
-            {
-                // Call this from the UI thread because otherwise the event will
-                // be triggered before ArrivalsForStop is updated since the updates
-                // are performed on the UI thread
-                UIAction(() =>
-                    {
-                        LoadArrivalsForStop_Completed(this, new LoadArrivalsForStopEventArgs());
-                    });
-            }
-
             operationTracker.DoneWithOperation("ArrivalsForStop");
+
+            // Refresh NoResultsAvailable status
+            OnPropertyChanged("NoResultsAvailable");
         }
 
         #endregion
@@ -322,6 +333,9 @@ namespace OneBusAway.WP7.ViewModel
                     UIAction(() => ArrivalsForStop.Add(currentArrival));
                 }
             }
+
+            // Refresh NoResultsAvailable status
+            OnPropertyChanged("NoResultsAvailable");
         }
 
         public override void RegisterEventHandlers(Dispatcher dispatcher)
@@ -338,6 +352,9 @@ namespace OneBusAway.WP7.ViewModel
             this.busServiceModel.ArrivalsForStop_Completed -= new EventHandler<EventArgs.ArrivalsForStopEventArgs>(busServiceModel_ArrivalsForStop_Completed);
 
             this.operationTracker.ClearOperations();
+
+            // Reset resultsLoaded to false when they navigate away from the page
+            resultsLoaded = false;
         }
     }
 
