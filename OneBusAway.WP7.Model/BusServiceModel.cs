@@ -90,7 +90,7 @@ namespace OneBusAway.WP7.Model
 
         public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
         {
-            return webservice.GetRoundedLocation(location1) == webservice.GetRoundedLocation(location2);
+            return OneBusAwayWebservice.GetRoundedLocation(location1) == OneBusAwayWebservice.GetRoundedLocation(location2);
         }
 
         public void CombinedInfoForLocation(GeoCoordinate location, int radiusInMeters)

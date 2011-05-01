@@ -767,7 +767,28 @@ namespace OneBusAway.WP7.Model
 
         #region Internal/Private Methods
 
-        internal GeoCoordinate GetRoundedLocation(GeoCoordinate location)
+        private static DateTime UnixTimeToDateTime(long unixTime)
+        {
+            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
+        }
+
+        internal void ClearCache()
+        {
+            stopsCache.Clear();
+            directionCache.Clear();
+        }
+
+        internal void SaveCache()
+        {
+            stopsCache.Save();
+            directionCache.Save();
+        }
+
+        #endregion
+
+        # region Public static methods
+
+        public static GeoCoordinate GetRoundedLocation(GeoCoordinate location)
         {
             //// Round off coordinates so that we can exploit caching
             double lat = Math.Round(location.Latitude * multiplier, roundingLevel) / multiplier;
@@ -783,23 +804,6 @@ namespace OneBusAway.WP7.Model
             return roundedLocation;
         }
 
-        private static DateTime UnixTimeToDateTime(long unixTime)
-        {
-            return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
-        }
-
         #endregion
-
-        internal void ClearCache()
-        {
-            stopsCache.Clear();
-            directionCache.Clear();
-        }
-
-        internal void SaveCache()
-        {
-            stopsCache.Save();
-            directionCache.Save();
-        }
     }
 }
