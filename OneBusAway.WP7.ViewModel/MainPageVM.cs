@@ -435,7 +435,10 @@ namespace OneBusAway.WP7.ViewModel
             {
                 e.routeStops.ForEach(r => UIAction(() =>
                     { 
-                        directionHelper[e.route.id].Add(r); 
+                        if(directionHelper.ContainsKey(e.route.id))
+                        {
+                            directionHelper[e.route.id].Add(r); 
+                        }
                     }));
             }
             else
