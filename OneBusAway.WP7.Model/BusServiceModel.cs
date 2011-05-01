@@ -435,12 +435,18 @@ namespace OneBusAway.WP7.Model
 
         public void ClearCache()
         {
-            webservice.ClearCache();
+            if (webservice != null)
+            {
+                webservice.ClearCache();
+            }
         }
 
         public void SaveCache()
         {
-            webservice.SaveCache();
+            if (webservice != null)
+            {
+                webservice.SaveCache();
+            }
         }
     }
 }
