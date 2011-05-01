@@ -132,8 +132,11 @@ namespace OneBusAway.WP7.ViewModel
 
         public void RefreshArrivalsForStop(Stop stop)
         {
-            operationTracker.WaitForOperation("ArrivalsForStop", string.Empty);
-            busServiceModel.ArrivalsForStop(stop);
+            if (stop != null)
+            {
+                operationTracker.WaitForOperation("ArrivalsForStop", string.Empty);
+                busServiceModel.ArrivalsForStop(stop);
+            }
         }
 
         public void ChangeFilterForArrivals(Route routeFilter)
