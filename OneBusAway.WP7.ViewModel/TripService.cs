@@ -121,7 +121,7 @@ namespace OneBusAway.WP7.ViewModel
             // Do not allow a Start to occur if there is not an active channel to the notification service
             //
 
-            if (HttpChannel.ChannelUri == null)
+            if (HttpChannel == null || HttpChannel.ChannelUri == null)
             {
                 UpdateStatus("Channel not open!");
                 return;
