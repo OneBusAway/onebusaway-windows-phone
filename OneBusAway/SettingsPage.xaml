@@ -43,14 +43,15 @@
         </StackPanel>
 
         <!--ContentPanel - place additional content here-->
-        <StackPanel x:Name="ContentPanel" Grid.Row="1" Margin="1,0,12,0" Grid.Column="1">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <toolbox:ToggleSwitch
+        <ScrollViewer x:Name="ContentPanel" Grid.Row="1" Margin="1,0,12,0" Grid.Column="1">
+            <StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <toolbox:ToggleSwitch
                     x:Name="ReportUsageTs"
                     Grid.Row="0"
                     IsChecked="{Binding Path=FeedbackEnabled, Source={StaticResource ViewModel}, Mode=TwoWay}"
@@ -58,7 +59,7 @@
                     Header="Send feedback"
                     />
 
-                <TextBlock 
+                    <TextBlock 
                     Grid.Row="1"
                     Margin="10,-20,0,0"
                     Foreground="{StaticResource OBAForegroundBrush}"
@@ -66,33 +67,33 @@
                     Text="Sending anonymous usage data allows us to better improve the OneBusAway app.  We will never report your location or any personally-identifying information. You must restart OneBusAway for any changes to this setting to take effect."
                     TextWrapping="Wrap"
                     />
-            </Grid>
-            
-            <toolbox:ListPicker 
+                </Grid>
+
+                <toolbox:ListPicker 
                 x:Name="DefaultPivotLp"
                 ItemsSource="{Binding Path=MainPagePivotOptions, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}}"
                 SelectedItem="{Binding Path=SelectedMainPagePivot, Source={StaticResource ViewModel}, Converter={StaticResource PivotNameConverter}, Mode=TwoWay}"
                 Header="Default pivot when starting OneBusAway"
                 />
 
-            <TextBlock
+                <TextBlock
                 Text="Clear recents and cache"
                 Foreground="{StaticResource OBAForegroundBrush}"
                 Margin="10,0,0,0"
                 />
-            <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"
+                <Button Content="delete local cache" Name="clear_history_button"  Click="appbar_clear_history_Click"
                     Foreground="{StaticResource OBAForegroundBrush}"
                     BorderBrush="{StaticResource OBAForegroundBrush}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Top"
                     />
-            
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <toolbox:ToggleSwitch
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <toolbox:ToggleSwitch
                     x:Name="ThemeToggle"
                     Grid.Row="0"
                     IsChecked="{Binding Path=UseNativeTheme, Source={StaticResource ViewModel}, Mode=TwoWay}"
@@ -100,7 +101,7 @@
                     Header="Use system theme"
                     />
 
-                <TextBlock 
+                    <TextBlock 
                     Grid.Row="1"
                     Margin="10,-20,0,0"
                     Foreground="{StaticResource OBAForegroundBrush}"
@@ -108,8 +109,33 @@
                     Text="Apply your phone's system theme to the application.  You must restart OneBusAway for any changes to this setting to take effect."
                     TextWrapping="Wrap"
                     />
-            </Grid>
-        </StackPanel>
+                </Grid>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <toolbox:ToggleSwitch
+                    x:Name="UseLocationTs"
+                    Grid.Row="0"
+                    IsChecked="{Binding Path=UseLocation, Source={StaticResource ViewModel}, Mode=TwoWay}"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    Header="Use location"
+                    />
+
+                    <TextBlock 
+                    Grid.Row="1"
+                    Margin="10,-20,0,0"
+                    Foreground="{StaticResource OBAForegroundBrush}"
+                    FontSize="{StaticResource PhoneFontSizeSmall}"
+                    Text="The WP7 OneBusAway app never saves your location information, and only uses the information to find nearby buses and routes using the services provided by OneBusAway.org. For more information please view OneBusAway.org's complete privacy policy: http://onebusaway.org/p/PrivacyPolicy.action"
+                    TextWrapping="Wrap"
+                    />
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 
 </view:AViewPage>
