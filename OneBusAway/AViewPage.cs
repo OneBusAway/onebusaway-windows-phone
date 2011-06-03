@@ -128,9 +128,7 @@ namespace OneBusAway.WP7.View
                 else if (e.error is LocationUnavailableException)
                 {
                     errorTitle = "Location Unavailable";
-                    errorMessage =
-                        "We couldn't find your location, " +
-                        "make sure your location services are turned on in the phone's settings.";
+                    errorMessage = e.error.Message;                        
                     messageBoxType = MessageBoxButton.OK;
                 }
                 else if (e.error is WebserviceParsingException)

@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.Devices;
 using OneBusAway.WP7.ViewModel.EventArgs;
 using System.Diagnostics;
+using System.IO.IsolatedStorage;
 
 
 namespace OneBusAway.WP7.ViewModel 
@@ -35,10 +36,15 @@ namespace OneBusAway.WP7.ViewModel
             locationWatcher.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(LocationWatcher_PositionChanged);
             locationWatcher.StatusChanged += new EventHandler<GeoPositionStatusChangedEventArgs>(locationWatcher_StatusChanged);
 
-            locationWatcher.Start();
+            // Only start the location service if location is enabled
+            if (IsolatedStorageSettings.ApplicationSettings.Contains("UseLocation") == false
+                || (bool)IsolatedStorageSettings.ApplicationSettings["UseLocation"] == true)
+            {
+                locationWatcher.Start();
+            }
         }
 
-        static void  locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
+        static void locationWatcher_StatusChanged(object sender, GeoPositionStatusChangedEventArgs e)
         {
             if (StatusChanged != null)
             {
@@ -135,7 +141,12 @@ namespace OneBusAway.WP7.ViewModel
             {
                 if (LocationTrackerStatic.LocationStatus == GeoPositionStatus.Disabled)
                 {
-                    LocationServiceDisabled();
+                    LocationDisabled(true);
+                }
+                else if (IsolatedStorageSettings.ApplicationSettings.Contains("UseLocation") &&
+                        (bool)IsolatedStorageSettings.ApplicationSettings["UseLocation"] == false)
+                {
+                    LocationDisabled(false);
                 }
                 else
                 {
@@ -237,11 +248,11 @@ namespace OneBusAway.WP7.ViewModel
         {
             if (e.Status == GeoPositionStatus.Disabled)
             {
-                LocationServiceDisabled();
+                LocationDisabled(true);
             }
         }
 
-        private void LocationServiceDisabled()
+        private void LocationDisabled(bool systemServiceDisabled)
         {
             // Status disabled means the user has disabled the location service on their phone
             // and we won't be getting a location.  Go ahead and stop loading the location and
@@ -258,7 +269,22 @@ namespace OneBusAway.WP7.ViewModel
             OnPropertyChanged("LocationKnown");
 
             // Let them know OneBusAway is pretty useless without location
-            ErrorOccured(this, new LocationUnavailableException("The location is currently unavailable: " + LocationTrackerStatic.LocationStatus, LocationTrackerStatic.LocationStatus));
+            string errorMessage;
+            if (systemServiceDisabled == true)
+            {
+                errorMessage = 
+                    "We couldn't find your location, " +
+                    "make sure your location services are turned on in the phone's settings. " +
+                    "OneBusAway will default to downtown Seattle.";
+            }
+            else
+            {
+                errorMessage = 
+                    "We couldn't find your location because you have disabled OneBusAway's location access " +
+                    "in the settings menu. OneBusAway will default to downtown Seattle.";
+            }
+
+            ErrorOccured(this, new LocationUnavailableException(errorMessage, LocationTrackerStatic.LocationStatus));
         }
 
         private void LocationWatcher_LocationKnown(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)

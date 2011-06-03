@@ -61,6 +61,29 @@ namespace OneBusAway.WP7.ViewModel
             }
         }
 
+        public bool UseLocation
+        {
+            get
+            {
+                if (IsolatedStorageSettings.ApplicationSettings.Contains("UseLocation") == true)
+                {
+                    return bool.Parse(IsolatedStorageSettings.ApplicationSettings["UseLocation"].ToString());
+                }
+                else
+                {
+                    // Default to true if no user setting exists
+                    return true;
+                }
+            }
+
+            set
+            {
+                IsolatedStorageSettings.ApplicationSettings["UseLocation"] = value;
+                IsolatedStorageSettings.ApplicationSettings.Save();
+                OnPropertyChanged("UseLocation");
+            }
+        }
+
         public bool UseNativeTheme
         {
             get
