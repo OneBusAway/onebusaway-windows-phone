@@ -48,9 +48,9 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="22" />
+                    <RowDefinition Height="22" />
                 </Grid.RowDefinitions>
 
                 <Polygon CacheMode="BitmapCache" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.RowSpan="3"  Points="0,0 32,0 32,32 0,61" Fill="{StaticResource OBAForegroundBrush}" Opacity="1.0"/>
@@ -122,6 +122,10 @@
                     <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
 
+                <!-- TODO convert to fixed dimensions for better perf.  
+                I'm not sure what a good set of dimensions for this is.
+                Needs some experimenting.
+                -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
