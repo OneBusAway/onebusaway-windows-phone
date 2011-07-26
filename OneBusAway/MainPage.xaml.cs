@@ -110,8 +110,13 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+            viewModel.RegisterEventHandlers(Dispatcher);
+
             if (firstLoad == true)
             {
+                // Since this is the first load, pull down the bus and stop info
+                viewModel.LoadInfoForLocation();
+
                 // In this case, we've been re-created after a tombstone, resume their previous pivot
                 if (PhoneApplicationService.Current.State.ContainsKey("MainPageSelectedPivot") == true)
                 {
@@ -136,9 +141,8 @@ namespace OneBusAway.WP7.View
             }
             firstLoad = false;
 
-            viewModel.RegisterEventHandlers(Dispatcher);
+            // Load favorites every time because they might have changed since the last load
             viewModel.LoadFavorites();
-            viewModel.LoadInfoForLocation();
 
             viewModel.CheckForLocalTransitData(delegate(bool hasData)
             {
@@ -168,16 +172,6 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            // We refresh this info every load so clear the lists now
-            // to avoid a flicker as the page comes back
-            lock (viewModel.DisplayRouteForLocation.CurrentSyncRoot)
-            {
-                viewModel.DisplayRouteForLocation.Current.Clear();
-            }
-            viewModel.StopsForLocation.Clear();
-            viewModel.Favorites.Clear();
-            viewModel.Recents.Clear();
 
             navigatedAway = false;
         }
@@ -426,7 +420,7 @@ namespace OneBusAway.WP7.View
             Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
 
-        private void RouteDirection_Tap(object sender, GestureEventArgs e)
+        private void RouteDirection_Tap(object sender, Microsoft.Phone.Controls.GestureEventArgs e)
         {
             RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
             viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };

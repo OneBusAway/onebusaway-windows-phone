@@ -377,7 +377,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void GestureListener_Hold(object sender, GestureEventArgs e)
+        private void GestureListener_Hold(object sender, Microsoft.Phone.Controls.GestureEventArgs e)
         {
             ArrivalAndDeparture a = (ArrivalAndDeparture)(((FrameworkElement)sender).DataContext);
             MessageBoxResult r = MessageBox.Show("Notify me when this bus is 5 minutes away?", "Notify me?", MessageBoxButton.OKCancel);
