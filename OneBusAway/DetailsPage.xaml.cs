@@ -1,28 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+using System.Device.Location;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
-using Microsoft.Phone.Controls;
-using OneBusAway.WP7.ViewModel;
-using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
-using Microsoft.Phone.Controls.Maps;
-using System.Windows.Data;
-using System.Device.Location;
-using OneBusAway.WP7.ViewModel.AppDataDataStructures;
-using System.Collections.Specialized;
-using Microsoft.Phone.Shell;
 using System.Windows.Navigation;
 using System.Windows.Threading;
-using System.Diagnostics;
-using System.Windows.Controls.Primitives;
-using System.ComponentModel;
+using Microsoft.Phone.Controls.Maps;
+using Microsoft.Phone.Shell;
+using OneBusAway.WP7.ViewModel;
+using OneBusAway.WP7.ViewModel.AppDataDataStructures;
+using OneBusAway.WP7.ViewModel.BusServiceDataStructures;
 
 namespace OneBusAway.WP7.View
 {
@@ -76,6 +65,7 @@ namespace OneBusAway.WP7.View
             base.Initialize();
 
             this.Loaded += new RoutedEventHandler(DetailsPage_Loaded);
+            this.Unloaded += new RoutedEventHandler(DetailsPage_Unloaded);
             this.BackKeyPress += new EventHandler<System.ComponentModel.CancelEventArgs>(DetailsPage_BackKeyPress);
 
             appbar_favorite = ((ApplicationBarIconButton)ApplicationBar.Buttons[0]);
@@ -231,6 +221,18 @@ namespace OneBusAway.WP7.View
             viewModel.AddRecent(recent);
 
             busArrivalUpdateTimer.Start();
+        }
+
+        void DetailsPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            // clear binding references to allow them to get garbage collected.
+            // anything bound to CurrentViewState needs to be cleared.
+            this.RouteInfo.DataContext = null;
+            this.RouteName.DataContext = null;
+            this.RouteNumber.DataContext = null;
+            this.StopPushpin.DataContext = null;
+            this.RouteLineControl.DataContext = null;
+            this.BusStopItemsControl.DataContext = null;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)

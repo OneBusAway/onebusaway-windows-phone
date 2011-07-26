@@ -162,7 +162,7 @@
                    Center="{Binding Path=LocationTracker.CurrentLocationSafe, Source={StaticResource ViewModel}}"  ZoomLevel="10"
                     MapZoom="DetailsMap_MapZoom">
                 <m:MapLayer x:Name="RouteLineLayer">
-                    <m:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Source={StaticResource ViewModel}, Converter={StaticResource PolylineConverter}}">
+                    <m:MapItemsControl x:Name="RouteLineControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection, Converter={StaticResource PolylineConverter}}" DataContext="{StaticResource ViewModel}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <m:MapPolyline 
@@ -189,7 +189,7 @@
                     </m:MapItemsControl>
                 </m:MapLayer>
                 <m:MapLayer x:Name="BusStopsLayer" Visibility="Collapsed">
-                    <m:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops, Source={StaticResource ViewModel}}">
+                    <m:MapItemsControl x:Name="BusStopItemsControl" ItemsSource="{Binding Path=CurrentViewState.CurrentRouteDirection.stops}" DataContext="{StaticResource ViewModel}">
                         <m:MapItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <m:Pushpin 
@@ -207,7 +207,7 @@
                     </m:MapItemsControl>
                 </m:MapLayer>
                 <m:MapLayer x:Name="SelectedStopLayer">
-                    <m:Pushpin Location="{Binding Path=CurrentViewState.CurrentStop.location, Source={StaticResource ViewModel}}" PositionOrigin="BottomLeft">
+                    <m:Pushpin x:Name="StopPushpin" Location="{Binding Path=CurrentViewState.CurrentStop.location}" DataContext="{StaticResource ViewModel}" PositionOrigin="BottomLeft">
                         <Image Source="/Bus_Icon.png" Width="25" Height="25" />
                     </m:Pushpin>
                 </m:MapLayer>
