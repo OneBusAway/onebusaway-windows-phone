@@ -44,8 +44,8 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="26" />
+                    <RowDefinition Height="24" />
                 </Grid.RowDefinitions>
 
                 <toolkit:ContextMenuService.ContextMenu>
