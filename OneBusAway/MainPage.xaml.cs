@@ -110,7 +110,6 @@ namespace OneBusAway.WP7.View
 
         void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.RegisterEventHandlers(Dispatcher);
 
             if (firstLoad == true)
             {
@@ -172,6 +171,8 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            viewModel.RegisterEventHandlers(Dispatcher);
 
             navigatedAway = false;
         }

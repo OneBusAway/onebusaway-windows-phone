@@ -98,7 +98,54 @@ namespace OneBusAway.WP7.View
         {
             base.OnNavigatedTo(e);
 
+            busArrivalUpdateTimer.Start();
+            viewModel.RegisterEventHandlers(Dispatcher);
+
             UpdateAppBar(true);
+
+            if (isFiltered == true)
+            {
+                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
+            }
+            else
+            {
+                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, null);
+            }
+
+            // When we enter this page after tombstoning often the location won't be available when the map
+            // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
+            // so we need to explicitly set the center once the location is known.
+            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
+            {
+                Dispatcher.BeginInvoke(() =>
+                {
+                    DetailsMap.Center = location;
+
+                    //calculate distance to current stop and zoom map
+                    if (viewModel.CurrentViewState.CurrentStop != null)
+                    {
+                        if (location.IsUnknown ||
+                            location.Latitude < -90.0 || location.Latitude > 90 ||
+                            location.Longitude < -180.0 || location.Longitude > 180)
+                        {
+                            // location is bogus.  don't try to set the map view with it.
+                        }
+                        else
+                        {
+                            GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
+                                viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
+                            double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
+                            radius = Math.Max(radius, minimumZoomRadius);
+                            radius = Math.Min(radius, maximumZoomRadius);
+
+                            DetailsMap.SetView(new LocationRect(location, radius, radius));
+                        }
+                    }
+
+                    DetailsMap_MapZoom(this, null);
+                });
+            }
+            );
         }
 
         // Only want to use the state variable on the initial call
@@ -165,51 +212,6 @@ namespace OneBusAway.WP7.View
 
         void DetailsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            viewModel.RegisterEventHandlers(Dispatcher);
-
-            if (isFiltered == true)
-            {
-                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, viewModel.CurrentViewState.CurrentRoute);
-            }
-            else
-            {
-                viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop, null);
-            }
-
-            // When we enter this page after tombstoning often the location won't be available when the map
-            // data binding queries CurrentLocationSafe.  The center doesn't update when the property changes
-            // so we need to explicitly set the center once the location is known.
-            viewModel.LocationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
-                {
-                    Dispatcher.BeginInvoke(() => { 
-                        DetailsMap.Center = location;
- 
-                        //calculate distance to current stop and zoom map
-                        if (viewModel.CurrentViewState.CurrentStop != null)
-                        {
-                            if (location.IsUnknown ||
-                                location.Latitude < -90.0 || location.Latitude > 90 ||
-                                location.Longitude < -180.0 || location.Longitude > 180)
-                            {
-                                // location is bogus.  don't try to set the map view with it.
-                            }
-                            else
-                            {
-                                GeoCoordinate stoplocation = new GeoCoordinate(viewModel.CurrentViewState.CurrentStop.coordinate.Latitude,
-                                    viewModel.CurrentViewState.CurrentStop.coordinate.Longitude);
-                                double radius = 2 * location.GetDistanceTo(stoplocation) * 0.009 * 0.001; // convert metres to degrees and double
-                                radius = Math.Max(radius, minimumZoomRadius);
-                                radius = Math.Min(radius, maximumZoomRadius);
-
-                                DetailsMap.SetView(new LocationRect(location, radius, radius));
-                            }
-                        }
-
-                        DetailsMap_MapZoom(this, null);
-                    });
-                }
-            );
-
             RecentRouteAndStop recent = new RecentRouteAndStop();
             recent.route = viewModel.CurrentViewState.CurrentRoute;
             recent.routeStops = viewModel.CurrentViewState.CurrentRouteDirection;
@@ -219,8 +221,6 @@ namespace OneBusAway.WP7.View
             TitleGrid.DataContext = viewModel;
 
             viewModel.AddRecent(recent);
-
-            busArrivalUpdateTimer.Start();
         }
 
         void DetailsPage_Unloaded(object sender, RoutedEventArgs e)
