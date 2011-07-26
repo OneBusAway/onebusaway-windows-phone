@@ -241,6 +241,8 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State[isFilteredStateId] = isFiltered;
 
             viewModel.UnregisterEventHandlers();
+
+            RouteInfo.DataContext = null;
         }
 
         void DetailsPage_BackKeyPress(object sender, System.ComponentModel.CancelEventArgs e)
