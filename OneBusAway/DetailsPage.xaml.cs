@@ -372,7 +372,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            if (viewModel.operationTracker.Loading == false)
+            if (viewModel.operationTracker.Loading == false && viewModel.CurrentViewState.CurrentStop != null)
             {
                 NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
                 viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
