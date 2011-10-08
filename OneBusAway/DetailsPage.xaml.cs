@@ -243,6 +243,8 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State[isFilteredStateId] = isFiltered;
 
             viewModel.UnregisterEventHandlers();
+
+            RouteInfo.DataContext = null;
         }
 
         void DetailsPage_BackKeyPress(object sender, System.ComponentModel.CancelEventArgs e)
@@ -372,7 +374,7 @@ namespace OneBusAway.WP7.View
 
         private void appbar_refresh_Click(object sender, EventArgs e)
         {
-            if (viewModel.operationTracker.Loading == false)
+            if (viewModel.operationTracker.Loading == false && viewModel.CurrentViewState.CurrentStop != null)
             {
                 NoResultsTextBlock.Visibility = System.Windows.Visibility.Collapsed;
                 viewModel.LoadArrivalsForStop(viewModel.CurrentViewState.CurrentStop);
