@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.1">
-  <App xmlns="" ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" Title="OneBusAway" RuntimeType="Silverlight" Version="3.0.0.1" Genre="apps.normal" Author="http://onebusawaywp7.codeplex.com/" Description="OneBusAway for Windows Phone 7" Publisher="http://onebusaway.org/">
+  <App xmlns="" ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" Title="OneBusAway" RuntimeType="Silverlight" Version="2.7.0.0" Genre="apps.normal" Author="http://onebusawaywp7.codeplex.com/" Description="OneBusAway for Windows Phone 7" Publisher="http://onebusaway.org/">
     <IconPath IsRelative="true" IsResource="false">Bus_Icon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
