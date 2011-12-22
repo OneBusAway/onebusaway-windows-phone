@@ -60,11 +60,14 @@ namespace OneBusAway.WP7.View
         // This code will not execute when the application is first launched
         void Application_Activated(object sender, ActivatedEventArgs e)
         {
-            viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
-            viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
-            viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
-            viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
-            viewState.CurrentSearchLocation = (LocationForQuery)GetStateHelper("CurrentSearchLocation", typeof(LocationForQuery));
+            if (e.IsApplicationInstancePreserved == false)
+            {
+                viewState.CurrentRoute = (Route)GetStateHelper("CurrentRoute", typeof(Route));
+                viewState.CurrentRoutes = (List<Route>)GetStateHelper("CurrentRoutes", typeof(List<Route>));
+                viewState.CurrentRouteDirection = (RouteStops)GetStateHelper("CurrentRouteDirection", typeof(RouteStops));
+                viewState.CurrentStop = (Stop)GetStateHelper("CurrentStop", typeof(Stop));
+                viewState.CurrentSearchLocation = (LocationForQuery)GetStateHelper("CurrentSearchLocation", typeof(LocationForQuery));
+            }
         }
 
         private object GetStateHelper(string key, Type type)
