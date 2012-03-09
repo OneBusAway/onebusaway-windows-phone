@@ -68,35 +68,26 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
-            Debug.Assert(e.error == null);
-
             // If the main page is still loading we might receive callbacks for other
             // routes. This fix isn't perfect, but it should fix us in the vast majority
             // of the cases. It will only cause problems if we get two callsbacks for
             // one of the routes we're searching for.
             if (CurrentViewState.CurrentRoutes.Contains(e.route) == true)
             {
-                if (e.error == null)
+                lock (routeDirectionsLock)
                 {
-                    lock (routeDirectionsLock)
+                    e.routeStops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
+
+                    // Subtract 1 because we haven't decremented the count yet
+                    if (pendingRouteDirectionsCount - 1 == 0)
                     {
-                        e.routeStops.ForEach(routeStop => pendingRouteDirections.Add(routeStop));
-
-                        // Subtract 1 because we haven't decremented the count yet
-                        if (pendingRouteDirectionsCount - 1 == 0)
+                        if (LocationTracker.LocationKnown == true)
                         {
-                            if (LocationTracker.LocationKnown == true)
-                            {
-                                pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
-                            }
-
-                            pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
+                            pendingRouteDirections.Sort(new RouteStopsDistanceComparer(locationTracker.CurrentLocation));
                         }
+
+                        pendingRouteDirections.ForEach(route => UIAction(() => RouteDirections.Add(route)));
                     }
-                }
-                else
-                {
-                    ErrorOccured(this, e.error);
                 }
 
                 pendingRouteDirectionsCount--;

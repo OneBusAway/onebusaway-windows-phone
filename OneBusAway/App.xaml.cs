@@ -93,7 +93,6 @@ namespace OneBusAway.WP7.View
             PhoneApplicationService.Current.State["CurrentSearchLocation"] = Serialize(viewState.CurrentSearchLocation);
 
             IsolatedStorageSettings.ApplicationSettings.Save();
-            BusServiceModel.Singleton.SaveCache();
         }
 
         private string Serialize(Object obj)
@@ -181,7 +180,6 @@ namespace OneBusAway.WP7.View
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
             IsolatedStorageSettings.ApplicationSettings.Save();
-            BusServiceModel.Singleton.SaveCache();
         }
 
         // Code to execute if a navigation fails

@@ -111,27 +111,15 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, bool limitExceeded, Exception e)
+                delegate(List<Stop> stops, bool limitExceeded)
                 {
-                    Exception error = e;
                     List<Route> routes = new List<Route>();
 
-                    try
-                    {
-                        if (error == null)
-                        {
-                            routes = GetRoutesFromStops(stops, location);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Assert(false);
-                        error = ex;
-                    }
+                    routes = GetRoutesFromStops(stops, location);
 
                     if (CombinedInfoForLocation_Completed != null)
                     {
-                        CombinedInfoForLocation_Completed(this, new ViewModel.EventArgs.CombinedInfoForLocationEventArgs(stops, routes, location, error));
+                        CombinedInfoForLocation_Completed(this, new ViewModel.EventArgs.CombinedInfoForLocationEventArgs(stops, routes, location));
                     }
                 }
             );
@@ -155,11 +143,11 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, bool limitExceeded, Exception error)
+                delegate(List<Stop> stops, bool limitExceeded)
                 {
                     if (StopsForLocation_Completed != null)
                     {
-                        StopsForLocation_Completed(this, new ViewModel.EventArgs.StopsForLocationEventArgs(stops, location, limitExceeded, error));
+                        StopsForLocation_Completed(this, new ViewModel.EventArgs.StopsForLocationEventArgs(stops, location, limitExceeded));
                     }
                 }
             );
@@ -183,27 +171,15 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 invalidateCache,
-                delegate(List<Stop> stops, bool limitExceeded, Exception e)
+                delegate(List<Stop> stops, bool limitExceeded)
                 {
-                    Exception error = e;
                     List<Route> routes = new List<Route>();
 
-                    try
-                    {
-                        if (error == null)
-                        {
-                            routes = GetRoutesFromStops(stops, location);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Assert(false);
-                        error = ex;
-                    }
+                    routes = GetRoutesFromStops(stops, location);
 
                     if (RoutesForLocation_Completed != null)
                     {
-                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(routes, location, error));
+                        RoutesForLocation_Completed(this, new ViewModel.EventArgs.RoutesForLocationEventArgs(routes, location));
                     }
                 }
             );
@@ -213,11 +189,11 @@ namespace OneBusAway.WP7.Model
         {
             webservice.StopsForRoute(
                 route,
-                delegate(List<RouteStops> routeStops, Exception error)
+                delegate(List<RouteStops> routeStops)
                 {
                     if (StopsForRoute_Completed != null)
                     {
-                        StopsForRoute_Completed(this, new ViewModel.EventArgs.StopsForRouteEventArgs(route, routeStops, error));
+                        StopsForRoute_Completed(this, new ViewModel.EventArgs.StopsForRouteEventArgs(route, routeStops));
                     }
                 }
             );
@@ -227,11 +203,11 @@ namespace OneBusAway.WP7.Model
         {
             webservice.ArrivalsForStop(
                 stop,
-                delegate(List<ArrivalAndDeparture> arrivals, Exception error)
+                delegate(List<ArrivalAndDeparture> arrivals)
                 {
                     if (ArrivalsForStop_Completed != null)
                     {
-                        ArrivalsForStop_Completed(this, new ViewModel.EventArgs.ArrivalsForStopEventArgs(stop, arrivals, error));
+                        ArrivalsForStop_Completed(this, new ViewModel.EventArgs.ArrivalsForStopEventArgs(stop, arrivals));
                     }
                 }
             );
@@ -241,11 +217,11 @@ namespace OneBusAway.WP7.Model
         {
             webservice.ScheduleForStop(
                 stop,
-                delegate(List<RouteSchedule> schedule, Exception error)
+                delegate(List<RouteSchedule> schedule)
                 {
                     if (ScheduleForStop_Completed != null)
                     {
-                        ScheduleForStop_Completed(this, new ViewModel.EventArgs.ScheduleForStopEventArgs(stop, schedule, error));
+                        ScheduleForStop_Completed(this, new ViewModel.EventArgs.ScheduleForStopEventArgs(stop, schedule));
                     }
                 }
             );
@@ -255,7 +231,6 @@ namespace OneBusAway.WP7.Model
         {
             int count = 0;
             List<TripDetails> tripDetails = new List<TripDetails>(arrivals.Count);
-            Exception overallError = null;
 
             if (arrivals.Count == 0)
             {
@@ -263,7 +238,7 @@ namespace OneBusAway.WP7.Model
                 {
                     TripDetailsForArrival_Completed(
                         this,
-                        new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, overallError)
+                        new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails)
                         );
                 }
             }
@@ -273,22 +248,15 @@ namespace OneBusAway.WP7.Model
                     {
                         webservice.TripDetailsForArrival(
                             arrival,
-                            delegate(TripDetails tripDetail, Exception error)
+                            delegate(TripDetails tripDetail)
                             {
-                                if (error != null)
-                                {
-                                    overallError = error;
-                                }
-                                else
-                                {
-                                    tripDetails.Add(tripDetail);
-                                }
+                                tripDetails.Add(tripDetail);
 
                                 // Is this code thread-safe?
                                 count++;
                                 if (count == arrivals.Count && TripDetailsForArrival_Completed != null)
                                 {
-                                    TripDetailsForArrival_Completed(this, new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails, error));
+                                    TripDetailsForArrival_Completed(this, new ViewModel.EventArgs.TripDetailsForArrivalEventArgs(arrivals, tripDetails));
                                 }
                             }
                         );
@@ -309,11 +277,11 @@ namespace OneBusAway.WP7.Model
                 query,
                 radiusInMeters,
                 maxCount,
-                delegate(List<Route> routes, Exception error)
+                delegate(List<Route> routes)
                 {
                     if (SearchForRoutes_Completed != null)
                     {
-                        SearchForRoutes_Completed(this, new ViewModel.EventArgs.SearchForRoutesEventArgs(routes, location, query, error));
+                        SearchForRoutes_Completed(this, new ViewModel.EventArgs.SearchForRoutesEventArgs(routes, location, query));
                     }
                 }
             );
@@ -332,11 +300,11 @@ namespace OneBusAway.WP7.Model
                 radiusInMeters,
                 maxCount,
                 false,
-                delegate(List<Stop> stops, bool limitExceeded, Exception error)
+                delegate(List<Stop> stops, bool limitExceeded)
                 {
                     if (SearchForStops_Completed != null)
                     {
-                        SearchForStops_Completed(this, new ViewModel.EventArgs.SearchForStopsEventArgs(stops, location, query, error));
+                        SearchForStops_Completed(this, new ViewModel.EventArgs.SearchForStopsEventArgs(stops, location, query));
                     }
                 }
             );
@@ -431,22 +399,12 @@ namespace OneBusAway.WP7.Model
             }
         }
 
-        #endregion
-
         public void ClearCache()
         {
-            if (webservice != null)
-            {
-                webservice.ClearCache();
-            }
+            // TODO
         }
 
-        public void SaveCache()
-        {
-            if (webservice != null)
-            {
-                webservice.SaveCache();
-            }
-        }
+        #endregion
+
     }
 }

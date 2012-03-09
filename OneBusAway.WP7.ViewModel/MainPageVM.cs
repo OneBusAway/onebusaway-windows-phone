@@ -139,7 +139,7 @@ namespace OneBusAway.WP7.ViewModel
             recents.ForEach(recent => Recents.Add(recent));
         }
 
-        public delegate void SearchByRoute_Callback(List<Route> routes, Exception error);
+        public delegate void SearchByRoute_Callback(List<Route> routes);
         public void SearchByRoute(string routeNumber, SearchByRoute_Callback callback)
         {
             operationTracker.WaitForOperation("SearchByRoute", string.Format("Searching for route {0}...", routeNumber));
@@ -151,7 +151,7 @@ namespace OneBusAway.WP7.ViewModel
                 });
         }
 
-        public delegate void SearchByStop_Callback(List<Stop> stops, Exception error);
+        public delegate void SearchByStop_Callback(List<Stop> stops);
         public void SearchByStop(string stopNumber, SearchByStop_Callback callback)
         {
             operationTracker.WaitForOperation("SearchByStop", string.Format("Searching for stop {0}...", stopNumber));
@@ -163,7 +163,7 @@ namespace OneBusAway.WP7.ViewModel
             });
         }
 
-        public delegate void SearchByAddress_Callback(LocationForQuery location, Exception error);
+        public delegate void SearchByAddress_Callback(LocationForQuery location);
         public void SearchByAddress(string addressString, SearchByAddress_Callback callback)
         {
             operationTracker.WaitForOperation("SearchByAddress", string.Format("Searching for location '{0}'...", addressString));
@@ -239,31 +239,21 @@ namespace OneBusAway.WP7.ViewModel
 
             public void SearchByRoute_Completed(object sender, SearchForRoutesEventArgs e)
             {
-                Debug.Assert(e.error == null);
+                e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                if (e.error == null)
+                int count = 0;
+                foreach (Route route in e.routes)
                 {
-                    e.routes.Sort(new RouteDistanceComparer(e.location));
-
-                    int count = 0;
-                    foreach (Route route in e.routes)
+                    if (count > viewModel.maxRoutes)
                     {
-                        if (count > viewModel.maxRoutes)
-                        {
-                            break;
-                        }
-
-                        Route currentRoute = route;
-                        count++;
+                        break;
                     }
-                        
+
+                    Route currentRoute = route;
+                    count++;
                 }
-                else
-                {
-                    viewModel.ErrorOccured(this, e.error);
-                }
-                
-                callback(e.routes, e.error);
+
+                callback(e.routes);
                 busServiceModel.SearchForRoutes_Completed -= new EventHandler<EventArgs.SearchForRoutesEventArgs>(this.SearchByRoute_Completed);
 
                 viewModel.operationTracker.DoneWithOperation("SearchByRoute");
@@ -285,28 +275,19 @@ namespace OneBusAway.WP7.ViewModel
 
             public void SearchByStop_Completed(object sender, SearchForStopsEventArgs e)
             {
-                Debug.Assert(e.error == null);
+                e.stops.Sort(new StopDistanceComparer(e.location));
 
-                if (e.error == null)
+                viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
+
+                int count = 0;
+                foreach (Stop stop in e.stops)
                 {
-                    e.stops.Sort(new StopDistanceComparer(e.location));
-
-                    viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
-
-                    int count = 0;
-                    foreach (Stop stop in e.stops)
-                    {
-                        Stop currentStop = stop;
-                        viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
-                        count++;
-                    }
-                }
-                else
-                {
-                    viewModel.ErrorOccured(this, e.error);
+                    Stop currentStop = stop;
+                    viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
+                    count++;
                 }
 
-                callback(e.stops, e.error);
+                callback(e.stops);
                 busServiceModel.SearchForStops_Completed -= this.SearchByStop_Completed;
 
                 viewModel.operationTracker.DoneWithOperation("SearchByStop");
@@ -315,8 +296,6 @@ namespace OneBusAway.WP7.ViewModel
 
         public void busServiceModel_LocationForAddress_Completed(object sender, EventArgs.LocationForAddressEventArgs e)
         {
-            Debug.Assert(e.error == null);
-
             LocationForQuery location;
             if (e.locations.Count > 1)
             {
@@ -349,79 +328,70 @@ namespace OneBusAway.WP7.ViewModel
             }
 
             SearchByAddress_Callback callback = (SearchByAddress_Callback)e.state;
-            callback(location, e.error);
+            callback(location);
 
             operationTracker.DoneWithOperation("SearchByAddress");
         }
 
         void busServiceModel_CombinedInfoForLocation_Completed(object sender, EventArgs.CombinedInfoForLocationEventArgs e)
         {
-            Debug.Assert(e.error == null);
+            e.stops.Sort(new StopDistanceComparer(e.location));
+            e.routes.Sort(new RouteDistanceComparer(e.location));
 
-            if (e.error == null)
+            int stopCount = 0;
+            foreach (Stop stop in e.stops)
             {
-                e.stops.Sort(new StopDistanceComparer(e.location));
-                e.routes.Sort(new RouteDistanceComparer(e.location));
-
-                int stopCount = 0;
-                foreach (Stop stop in e.stops)
+                if (stopCount > maxStops)
                 {
-                    if (stopCount > maxStops)
-                    {
-                        break;
-                    }
-
-                    Stop currentStop = stop;
-                    UIAction(() => StopsForLocation.Add(currentStop));
-                    stopCount++;
+                    break;
                 }
 
-                int routeCount = 0;
-                foreach (Route route in e.routes)
-                {
-                    if (routeCount > maxRoutes)
-                    {
-                        break;
-                    }
-
-                    DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
-                    DisplayRouteForLocation.Working.Add(currentDisplayRoute);
-                    routeCount++;
-                }
-
-                // Done with work in the background.  Flush the results out to the UI.  This is quick.
-                object testref = null;
-                UIAction(() => 
-                    {
-                        DisplayRouteForLocation.Toggle();
-                        testref = new object();
-                    }
-                );
-
-                // hack to wait for the UI action to complete
-                // note this executes in the background, so it's fine to be slow.
-                int execcount = 0;
-                while (testref == null)
-                {
-                    execcount++;
-                    Thread.Sleep(100);
-                }
-
-                // finally, queue up more work
-                lock (DisplayRouteForLocation.CurrentSyncRoot)
-                {
-                    foreach (DisplayRoute r in DisplayRouteForLocation.Current)
-                    {
-                        directionHelper[r.Route.id] = r.RouteStops;
-
-                        operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
-                        busServiceModel.StopsForRoute(r.Route);
-                    }
-                }
+                Stop currentStop = stop;
+                UIAction(() => StopsForLocation.Add(currentStop));
+                stopCount++;
             }
-            else
+
+            int routeCount = 0;
+            foreach (Route route in e.routes)
             {
-                ErrorOccured(this, e.error);
+                if (routeCount > maxRoutes)
+                {
+                    break;
+                }
+
+                DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
+                DisplayRouteForLocation.Working.Add(currentDisplayRoute);
+                routeCount++;
+            }
+
+            // Done with work in the background.  Flush the results out to the UI.  This is quick.
+            object testref = null;
+            UIAction(() => 
+                {
+                    DisplayRouteForLocation.Toggle();
+                    testref = new object();
+                }
+            );
+
+            // hack to wait for the UI action to complete
+            // note this executes in the background, so it's fine to be slow.
+            int execcount = 0;
+            while (testref == null)
+            {
+                execcount++;
+                Thread.Sleep(100);
+            }
+
+            // finally, queue up more work
+            lock (DisplayRouteForLocation.CurrentSyncRoot)
+            {
+                foreach (DisplayRoute r in DisplayRouteForLocation.Current)
+                {
+                    directionHelper[r.Route.id] = r.RouteStops;
+
+                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
+                    busServiceModel.StopsForRoute(r.Route);
+                }
             }
 
             operationTracker.DoneWithOperation("CombinedInfoForLocation");
@@ -429,61 +399,34 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForRoute_Completed(object sender, EventArgs.StopsForRouteEventArgs e)
         {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
-            {
-                e.routeStops.ForEach(r => UIAction(() =>
-                    { 
-                        if(directionHelper.ContainsKey(e.route.id))
-                        {
-                            directionHelper[e.route.id].Add(r); 
-                        }
-                    }));
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
+            e.routeStops.ForEach(r => UIAction(() =>
+                { 
+                    if(directionHelper.ContainsKey(e.route.id))
+                    {
+                        directionHelper[e.route.id].Add(r); 
+                    }
+                }));
 
             operationTracker.DoneWithOperation(string.Format("StopsForRoute_{0}", e.route.id));
         }
 
         void appDataModel_Favorites_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
         {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
+            if (LocationTracker.LocationKnown == true)
             {
-                if (LocationTracker.LocationKnown == true)
-                {
-                    e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
-                }
+                e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
+            }
 
-                UIAction(() => Favorites.Clear());
-                e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
+            UIAction(() => Favorites.Clear());
+            e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
         }
 
         void appDataModel_Recents_Changed(object sender, EventArgs.FavoritesChangedEventArgs e)
         {
-            Debug.Assert(e.error == null);
+            e.newFavorites.Sort(new RecentLastAccessComparer());
 
-            if (e.error == null)
-            {
-                e.newFavorites.Sort(new RecentLastAccessComparer());
-
-                UIAction(() => Recents.Clear());
-                e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
-            }
+            UIAction(() => Recents.Clear());
+            e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
         }
 
         #endregion

@@ -18,8 +18,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public List<TripDetails> tripDetails { get; private set; }
         public ArrivalAndDeparture arrival { get; private set; }
 
-        public TripDetailsForArrivalEventArgs(List<ArrivalAndDeparture> arrivals, List<TripDetails> tripDetails, Exception error)
-            : base(error)
+        public TripDetailsForArrivalEventArgs(List<ArrivalAndDeparture> arrivals, List<TripDetails> tripDetails)
+            : base()
         {
             this.tripDetails = tripDetails;
             this.arrival = arrival;

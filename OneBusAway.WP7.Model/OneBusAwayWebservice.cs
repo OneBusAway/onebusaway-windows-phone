@@ -29,19 +29,16 @@ namespace OneBusAway.WP7.Model
         // Ex: multipler = 3, we round to the nearest 0.33
         private const int multiplier = 3;
 
-        private HttpCache stopsCache;
-        private HttpCache directionCache;
-
         #endregion
 
         #region Delegates
 
-        public delegate void StopsForLocation_Callback(List<Stop> stops, bool limitExceeded, Exception error);
-        public delegate void RoutesForLocation_Callback(List<Route> routes, Exception error);
-        public delegate void StopsForRoute_Callback(List<RouteStops> routeStops, Exception error);
-        public delegate void ArrivalsForStop_Callback(List<ArrivalAndDeparture> arrivals, Exception error);
-        public delegate void ScheduleForStop_Callback(List<RouteSchedule> schedules, Exception error);
-        public delegate void TripDetailsForArrival_Callback(TripDetails tripDetail, Exception error);
+        public delegate void StopsForLocation_Callback(List<Stop> stops, bool limitExceeded);
+        public delegate void RoutesForLocation_Callback(List<Route> routes);
+        public delegate void StopsForRoute_Callback(List<RouteStops> routeStops);
+        public delegate void ArrivalsForStop_Callback(List<ArrivalAndDeparture> arrivals);
+        public delegate void ScheduleForStop_Callback(List<RouteSchedule> schedules);
+        public delegate void TripDetailsForArrival_Callback(TripDetails tripDetail);
 
         #endregion
 
@@ -49,130 +46,12 @@ namespace OneBusAway.WP7.Model
 
         public OneBusAwayWebservice()
         {
-            stopsCache =  new HttpCache("StopsForLocation", (int)TimeSpan.FromDays(15).TotalSeconds, 300);
-            directionCache = new HttpCache("StopsForRoute", (int)TimeSpan.FromDays(15).TotalSeconds, 100);
+
         }
 
         #endregion
 
         #region OneBusAway service calls
-
-        /// <summary>
-        /// Base class for callbacks on service call completion.
-        /// </summary>
-        private abstract class ACallCompleted
-        {
-            protected string requestUrl;
-
-            public ACallCompleted(string requestUrl)
-            {
-                this.requestUrl = requestUrl;
-            }
-
-            /// <summary>
-            /// Callback entry point for calls based on HttpWebRequest
-            /// </summary>
-            /// <param name="asyncResult"></param>
-            public void HttpWebRequest_Completed(IAsyncResult asyncResult)
-            {
-                try
-                {
-                    HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
-                    HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
-
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        // Reading the server response will probably fail since the request was unsuccessful
-                        // so just return null as the server response. Also, from my personal testing this
-                        // code is unreachable: if the server returns a 404 request.EndGetResponse() will
-                        // throw an exception.
-                        throw new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), null, null);
-                    }
-                    else
-                    {
-                        XDocument xmlResponse = CheckResponseCode(new StreamReader(response.GetResponseStream()), request.RequestUri.ToString());
-                        ParseResults(xmlResponse, null);
-                    }
-                }
-                catch (Exception e)
-                {
-                    ParseResults(null, e);
-                }
-            }
-
-            /// <summary>
-            /// Callback entry point for calls based on HttpCache
-            /// </summary>
-            /// <param name="sender"></param>
-            /// <param name="e"></param>
-            public void HttpCache_Completed(object sender, HttpCache.CacheDownloadStringCompletedEventArgs e)
-            {
-                Exception error = e.Error;
-                XDocument xmlDoc = null;
-                
-                if (error == null)
-                {
-                    try
-                    {
-                        string requestUrl = string.Empty;
-                        if (e.UserState is Uri)
-                        {
-                            requestUrl = ((Uri)e.UserState).ToString();
-                        }
-
-                        xmlDoc = CheckResponseCode(e.Result, requestUrl);
-                    }
-                    catch (Exception ex)
-                    {
-                        error = ex;
-                    }
-                }
-
-                ParseResults(xmlDoc, error);
-            }
-
-            private static XDocument CheckResponseCode(TextReader xmlResponse, string requestUrl)
-            {
-                XDocument xmlDoc = null;
-                HttpStatusCode code = HttpStatusCode.Unused;
-
-                try
-                {
-                    xmlDoc = XDocument.Load(xmlResponse);
-                    code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
-                }
-                catch (Exception e)
-                {
-                    // Any exception thrown in this code means either A) the server response wasn't XML so XDocument.Load() failed or
-                    // B) the code element doesn't exist so the server response is invalid. The known cause for these things to
-                    // fail (besides a server malfunction) is the phone being connected to a WIFI access point which requires
-                    // a login page, so we get the hotspot login page back instead of our web request.
-                    Debug.Assert(false);
-
-                    throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, xmlResponse.ReadToEnd(), e);
-                }
-                finally
-                {
-                    xmlResponse.Close();
-                }
-
-                if (code != HttpStatusCode.OK)
-                {
-                    Debug.Assert(false);
-
-                    throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
-                }
-
-                return xmlDoc;
-            }
-
-            /// <summary>
-            /// Subclasses should implement this by pulling data out of the specified reader, parsing it, and invoking the desired callback.
-            /// </summary>
-            /// <param name="result"></param>
-            /// <param name="error"></param>
-            public abstract void ParseResults(XDocument result, Exception error);
-        }
 
         public void RoutesForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, RoutesForLocation_Callback callback)
         {
@@ -199,40 +78,27 @@ namespace OneBusAway.WP7.Model
 
             HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
             requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetRoutesForLocationCompleted(requestUrl, callback).HttpWebRequest_Completed),
+                delegate(IAsyncResult asyncResult)
+                {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);;
+                    List<Route> routes = null;
+
+                    try
+                    {
+                        routes =
+                            (from route in xmlResponse.Descendants("route")
+                             select ParseRoute(route, xmlResponse.Descendants("agency"))).ToList<Route>();
+                    }
+                    catch (Exception ex)
+                    {
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
+                    }
+
+                    callback(routes);
+                },
                 requestGetter);
         }
-
-        private class GetRoutesForLocationCompleted : ACallCompleted
-        {
-            private RoutesForLocation_Callback callback;
-
-            public GetRoutesForLocationCompleted(string requestUrl, RoutesForLocation_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<Route> routes = null;
-
-                try
-                {
-                    routes =
-                        (from route in xmlDoc.Descendants("route")
-                         select ParseRoute(route, xmlDoc.Descendants("agency"))).ToList<Route>();
-                }
-                catch (Exception ex)
-                {
-                    error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
-                }
-
-                Debug.Assert(error == null);
-
-                callback(routes, error);
-            }
-        }
-
 
         public void StopsForLocation(GeoCoordinate location, string query, int radiusInMeters, int maxCount, bool invalidateCache, StopsForLocation_Callback callback)
         {
@@ -241,7 +107,7 @@ namespace OneBusAway.WP7.Model
             // ditto for the search radius -- nearest 50 meters for caching
             int roundedRadius = (int)(Math.Round(radiusInMeters / 50.0) * 50);
 
-            string requestString = string.Format(
+            string requestUrl = string.Format(
                 "{0}/{1}.xml?key={2}&lat={3}&lon={4}&radius={5}&version={6}",
                 WEBSERVICE,
                 "stops-for-location",
@@ -254,55 +120,37 @@ namespace OneBusAway.WP7.Model
 
             if (string.IsNullOrEmpty(query) == false)
             {
-                requestString += string.Format("&query={0}", query);
+                requestUrl += string.Format("&query={0}", query);
             }
 
             if (maxCount > 0)
             {
-                requestString += string.Format("&maxCount={0}", maxCount);
+                requestUrl += string.Format("&maxCount={0}", maxCount);
             }
 
-            Uri requestUri = new Uri(requestString);
-            if (invalidateCache)
-            {
-                stopsCache.Invalidate(requestUri);
-            }
-
-            stopsCache.DownloadStringAsync(requestUri, new GetStopsForLocationCompleted(requestString, stopsCache, callback).HttpCache_Completed);
-        }
-
-        private class GetStopsForLocationCompleted : ACallCompleted
-        {
-            private StopsForLocation_Callback callback;
-            private HttpCache stopsCache;
-
-            public GetStopsForLocationCompleted(string requestUrl, HttpCache stopsCache, StopsForLocation_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-                this.stopsCache = stopsCache;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<Stop> stops = null;
-                bool limitExceeded = false;
-
-                if (error == null)
+            Uri requestUri = new Uri(requestUrl);
+            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUri);
+            requestGetter.BeginGetResponse(
+                delegate(IAsyncResult asyncResult)
                 {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);
+                    List<Stop> stops = null;
+                    bool limitExceeded = false;
+
                     try
                     {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlResponse);
 
                         stops =
-                            (from stop in xmlDoc.Descendants("stop")
-                             select ParseStop
+                            (from stop in xmlResponse.Descendants("stop")
+                                select ParseStop
                                 (
                                     stop,
                                     (from routeId in stop.Element("routeIds").Descendants("string")
-                                     select routesMap[SafeGetValue(routeId)]).ToList<Route>()
+                                        select routesMap[SafeGetValue(routeId)]).ToList<Route>()
                                 )).ToList<Stop>();
 
-                        IEnumerable<XElement> descendants = xmlDoc.Descendants("data");
+                        IEnumerable<XElement> descendants = xmlResponse.Descendants("data");
                         if (descendants.Count() != 0)
                         {
                             limitExceeded = bool.Parse(SafeGetValue(descendants.First().Element("limitExceeded")));
@@ -310,27 +158,15 @@ namespace OneBusAway.WP7.Model
 
                         Debug.Assert(limitExceeded == false);
                     }
-                    catch (WebserviceResponseException ex)
-                    {
-                        error = ex;
-                    }
                     catch (Exception ex)
                     {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
                     }
-                }
 
-                Debug.Assert(error == null);
-
-                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
-                // invalid server data in the cache
-                if (error != null)
-                {
-                    stopsCache.Invalidate(new Uri(requestUrl));
-                }
-
-                callback(stops, limitExceeded, error);
-            }
+                    callback(stops, limitExceeded);
+                },
+                requestGetter);
         }
 
         public void StopsForRoute(Route route, StopsForRoute_Callback callback)
@@ -343,35 +179,20 @@ namespace OneBusAway.WP7.Model
                 KEY,
                 APIVERSION
                 );
-            directionCache.DownloadStringAsync(new Uri(requestUrl), new GetDirectionsForRouteCompleted(requestUrl, route.id, directionCache, callback).HttpCache_Completed);
-        }
 
-        private class GetDirectionsForRouteCompleted : ACallCompleted
-        {
-            private StopsForRoute_Callback callback;
-            private string routeId;
-            private HttpCache directionCache;
-
-            public GetDirectionsForRouteCompleted(string requestUrl, string routeId, HttpCache directionCache, StopsForRoute_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-                this.routeId = routeId;
-                this.directionCache = directionCache;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<RouteStops> routeStops = null;
-
-                if (error == null)
+            HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
+            requestGetter.BeginGetResponse(delegate(IAsyncResult asyncResult)
                 {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);
+                    List<RouteStops> routeStops = null;
+
                     try
                     {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlResponse);
 
                         // parse all the stops, using previously parsed Route objects
                         IList<Stop> stops =
-                            (from stop in xmlDoc.Descendants("stop")
+                            (from stop in xmlResponse.Descendants("stop")
                              select ParseStop(stop,
                                  (from routeId in stop.Element("routeIds").Descendants("string")
                                   select routesMap[SafeGetValue(routeId)]
@@ -386,7 +207,7 @@ namespace OneBusAway.WP7.Model
 
                         // and put it all together
                         routeStops =
-                            (from stopGroup in xmlDoc.Descendants("stopGroup")
+                            (from stopGroup in xmlResponse.Descendants("stopGroup")
                              where SafeGetValue(stopGroup.Element("name").Element("type")) == "destination"
                              select new RouteStops
                              {
@@ -401,30 +222,19 @@ namespace OneBusAway.WP7.Model
                                      (from stopId in stopGroup.Descendants("stopIds").First().Descendants("string")
                                       select stopsMap[SafeGetValue(stopId)]).ToList<Stop>(),
 
-                                 route = routesMap[routeId]
+                                 route = routesMap[route.id]
 
                              }).ToList<RouteStops>();
                     }
-                    catch (WebserviceResponseException ex)
-                    {
-                        error = ex;
-                    }
                     catch (Exception ex)
                     {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
                     }
-                }
-                Debug.Assert(error == null);
 
-                // Remove a page from the cache if we hit a parsing error.  This way we won't keep
-                // invalid server data in the cache
-                if (error != null)
-                {
-                    directionCache.Invalidate(new Uri(requestUrl));
-                }
-
-                callback(routeStops, error);
-            }
+                    callback(routeStops);
+                },
+                requestGetter);
         }
 
         public void ArrivalsForStop(Stop stop, ArrivalsForStop_Callback callback)
@@ -440,42 +250,26 @@ namespace OneBusAway.WP7.Model
                 );
 
             HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetArrivalsForStopCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
-        }
-
-        private class GetArrivalsForStopCompleted : ACallCompleted
-        {
-            private ArrivalsForStop_Callback callback;
-
-            public GetArrivalsForStopCompleted(string requestUrl, ArrivalsForStop_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<ArrivalAndDeparture> arrivals = null;
-
-                if (error == null)
+            requestGetter.BeginGetResponse(delegate(IAsyncResult asyncResult)
                 {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);
+                    List<ArrivalAndDeparture> arrivals = null;
+
                     try
                     {
                         arrivals =
-                            (from arrival in xmlDoc.Descendants("arrivalAndDeparture")
-                             select ParseArrivalAndDeparture(arrival)).ToList<ArrivalAndDeparture>();
+                            (from arrival in xmlResponse.Descendants("arrivalAndDeparture")
+                                select ParseArrivalAndDeparture(arrival)).ToList<ArrivalAndDeparture>();
                     }
                     catch (Exception ex)
                     {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
                     }
-                }
 
-                Debug.Assert(error == null);
-
-                callback(arrivals, error);
-            }
+                    callback(arrivals);
+                },
+                requestGetter);
         }
 
         public void ScheduleForStop(Stop stop, ScheduleForStop_Callback callback)
@@ -490,32 +284,17 @@ namespace OneBusAway.WP7.Model
                 );
 
             HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new GetScheduleForStopCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
-        }
-
-        private class GetScheduleForStopCompleted : ACallCompleted
-        {
-            private ScheduleForStop_Callback callback;
-
-            public GetScheduleForStopCompleted(string requestUrl, ScheduleForStop_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                List<RouteSchedule> schedules = null;
-
-                if (error == null)
+            requestGetter.BeginGetResponse(delegate(IAsyncResult asyncResult)
                 {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);
+                    List<RouteSchedule> schedules = null;
+
                     try
                     {
-                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlDoc);
+                        IDictionary<string, Route> routesMap = ParseAllRoutes(xmlResponse);
 
                         schedules =
-                            (from schedule in xmlDoc.Descendants("stopRouteSchedule")
+                            (from schedule in xmlResponse.Descendants("stopRouteSchedule")
                              select new RouteSchedule
                              {
                                  route = routesMap[SafeGetValue(schedule.Element("routeId"))],
@@ -526,7 +305,7 @@ namespace OneBusAway.WP7.Model
                                       {
                                           tripHeadsign = SafeGetValue(direction.Element("tripHeadsign")),
 
-                                          trips = 
+                                          trips =
                                           (from trip in direction.Descendants("scheduleStopTime")
                                            select ParseScheduleStopTime(trip)).ToList<ScheduleStopTime>()
                                       }).ToList<DirectionSchedule>()
@@ -535,15 +314,13 @@ namespace OneBusAway.WP7.Model
                     }
                     catch (Exception ex)
                     {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
                     }
-                }
 
-                Debug.Assert(error == null);
-
-                callback(schedules, error);
-            }
-
+                    callback(schedules);
+                },
+                requestGetter);
         }
 
         public void TripDetailsForArrival(ArrivalAndDeparture arrival, TripDetailsForArrival_Callback callback)
@@ -558,47 +335,26 @@ namespace OneBusAway.WP7.Model
                 );
 
             HttpWebRequest requestGetter = (HttpWebRequest)HttpWebRequest.Create(requestUrl);
-            requestGetter.BeginGetResponse(
-                new AsyncCallback(new TripDetailsForArrivalCompleted(requestUrl, callback).HttpWebRequest_Completed),
-                requestGetter);
-        }
-
-        private class TripDetailsForArrivalCompleted : ACallCompleted
-        {
-            private TripDetailsForArrival_Callback callback;
-
-            public TripDetailsForArrivalCompleted(string requestUrl, TripDetailsForArrival_Callback callback) : base(requestUrl)
-            {
-                this.callback = callback;
-            }
-
-            public override void ParseResults(XDocument xmlDoc, Exception error)
-            {
-                TripDetails tripDetail = null;
-
-                if (error == null)
+            requestGetter.BeginGetResponse(delegate(IAsyncResult asyncResult)
                 {
+                    XDocument xmlResponse = ValidateWebCallback(asyncResult);
+                    TripDetails tripDetail = null;
+
                     try
                     {
-
                         tripDetail =
-                            (from trip in xmlDoc.Descendants("entry")
+                            (from trip in xmlResponse.Descendants("entry")
                              select ParseTripDetails(trip)).First();
-                    }
-                    catch (WebserviceResponseException ex)
-                    {
-                        error = ex;
                     }
                     catch (Exception ex)
                     {
-                        error = new WebserviceParsingException(requestUrl, xmlDoc.ToString(), ex);
+                        Exception error = new WebserviceParsingException(requestUrl, xmlResponse.ToString(), ex);
+                        throw error;
                     }
-                }
 
-                Debug.Assert(error == null);
-
-                callback(tripDetail, error);
-            }
+                    callback(tripDetail);
+                },
+                requestGetter);
         }
 
         #endregion
@@ -772,16 +528,55 @@ namespace OneBusAway.WP7.Model
             return new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(unixTime);
         }
 
-        internal void ClearCache()
+        private XDocument ValidateWebCallback(IAsyncResult asyncResult)
         {
-            stopsCache.Clear();
-            directionCache.Clear();
-        }
+            HttpWebRequest request = (HttpWebRequest)asyncResult.AsyncState;
+            HttpWebResponse response = (HttpWebResponse)request.EndGetResponse(asyncResult);
 
-        internal void SaveCache()
-        {
-            stopsCache.Save();
-            directionCache.Save();
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                // Reading the server response will probably fail since the request was unsuccessful
+                // so just return null as the server response. Also, from my personal testing this
+                // code is unreachable: if the server returns a 404 request.EndGetResponse() will
+                // throw an exception.
+                throw new WebserviceResponseException(response.StatusCode, request.RequestUri.ToString(), null, null);
+            }
+            else
+            {
+                TextReader xmlResponse = new StreamReader(response.GetResponseStream());
+                string requestUrl = request.RequestUri.ToString();
+                XDocument xmlDoc = null;
+                HttpStatusCode code = HttpStatusCode.Unused;
+
+                try
+                {
+                    xmlDoc = XDocument.Load(xmlResponse);
+                    code = (HttpStatusCode)int.Parse(xmlDoc.Element("response").Element("code").Value);
+                }
+                catch (Exception e)
+                {
+                    // Any exception thrown in this code means either A) the server response wasn't XML so XDocument.Load() failed or
+                    // B) the code element doesn't exist so the server response is invalid. The known cause for these things to
+                    // fail (besides a server malfunction) is the phone being connected to a WIFI access point which requires
+                    // a login page, so we get the hotspot login page back instead of our web request.
+                    Debug.Assert(false);
+
+                    throw new WebserviceResponseException(HttpStatusCode.Unused, requestUrl, xmlResponse.ReadToEnd(), e);
+                }
+                finally
+                {
+                    xmlResponse.Close();
+                }
+
+                if (code != HttpStatusCode.OK)
+                {
+                    Debug.Assert(false);
+
+                    throw new WebserviceResponseException(code, requestUrl, xmlDoc.ToString(), null);
+                }
+
+                return xmlDoc;
+            }
         }
 
         #endregion

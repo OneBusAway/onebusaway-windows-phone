@@ -13,8 +13,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public GeoCoordinate location { get; private set; }
         public bool limitExceeded { get; private set; }
 
-        public StopsForLocationEventArgs(List<Stop> stops, GeoCoordinate searchLocation, bool limitExceeded, Exception error)
-            : base(error)
+        public StopsForLocationEventArgs(List<Stop> stops, GeoCoordinate searchLocation, bool limitExceeded)
+            : base()
         {
             this.stops = stops;
             this.location = searchLocation;

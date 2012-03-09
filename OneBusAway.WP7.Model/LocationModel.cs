@@ -102,55 +102,46 @@ namespace OneBusAway.WP7.Model
 
         void geocodeService_GeocodeCompleted(object sender, GeocodeCompletedEventArgs e)
         {
-            Exception error = e.Error;
             List<LocationForQuery> locations = new List<LocationForQuery>();
 
-            if (error == null)
+            if (e.Error != null)
             {
-                try
-                {
-                    GeocodeResult[] results = e.Result.Results;
-                    
-                    foreach (GeocodeResult result in results)
-                    {
-                        LocationForQuery location = new LocationForQuery()
-                        {
-                            name = result.DisplayName,
-                            boundingBox = new LocationRect()
-                            {
-                                Northeast = new GeoCoordinate(result.BestView.Northeast.Latitude, result.BestView.Northeast.Longitude),
-                                Southwest = new GeoCoordinate(result.BestView.Southwest.Latitude, result.BestView.Southwest.Longitude)
-                            },
-                            confidence = (ViewModel.LocationServiceDataStructures.Confidence)(int)result.Confidence
-                        };
-
-                        location.location = new GeoCoordinate()
-                        {
-                            Latitude = result.Locations[0].Latitude,
-                            Longitude = result.Locations[0].Longitude,
-                            Altitude = result.Locations[0].Altitude
-                        };
-
-                        locations.Add(location);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    error = ex;
-                }
+                throw e.Error;
             }
 
-            Debug.Assert(error == null);
+            GeocodeResult[] results = e.Result.Results;
+
+            foreach (GeocodeResult result in results)
+            {
+                LocationForQuery location = new LocationForQuery()
+                {
+                    name = result.DisplayName,
+                    boundingBox = new LocationRect()
+                    {
+                        Northeast = new GeoCoordinate(result.BestView.Northeast.Latitude, result.BestView.Northeast.Longitude),
+                        Southwest = new GeoCoordinate(result.BestView.Southwest.Latitude, result.BestView.Southwest.Longitude)
+                    },
+                    confidence = (ViewModel.LocationServiceDataStructures.Confidence)(int)result.Confidence
+                };
+
+                location.location = new GeoCoordinate()
+                {
+                    Latitude = result.Locations[0].Latitude,
+                    Longitude = result.Locations[0].Longitude,
+                    Altitude = result.Locations[0].Altitude
+                };
+
+                locations.Add(location);
+            }
 
             if (LocationForAddress_Completed != null)
             {
                 GeocodeState state = (GeocodeState)e.UserState;
-                LocationForAddress_Completed(this, 
+                LocationForAddress_Completed(this,
                     new LocationForAddressEventArgs(
-                        locations, 
-                        state.Query, 
-                        state.SearchNearLocation, 
-                        error, 
+                        locations,
+                        state.Query,
+                        state.SearchNearLocation,
                         state.CallerState
                         ));
             }

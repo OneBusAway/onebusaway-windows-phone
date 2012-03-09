@@ -167,7 +167,6 @@ namespace OneBusAway.WP7.Test
 
             public void callback_Completed(object sender, AModelEventArgs e)
             {
-                Assert.AreEqual(e.error, null);
                 finished = true;
             }
         }
