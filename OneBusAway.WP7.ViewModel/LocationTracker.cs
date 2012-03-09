@@ -174,7 +174,6 @@ namespace OneBusAway.WP7.ViewModel
         #region Public Members
 
         public Action<Action> UIAction { get; set; }
-        public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
         public GeoCoordinate CurrentLocation
         {
@@ -284,7 +283,7 @@ namespace OneBusAway.WP7.ViewModel
                     "in the settings menu. OneBusAway will default to downtown Seattle.";
             }
 
-            ErrorOccured(this, new LocationUnavailableException(errorMessage, LocationTrackerStatic.LocationStatus));
+            throw new LocationUnavailableException(errorMessage, LocationTrackerStatic.LocationStatus);
         }
 
         private void LocationWatcher_LocationKnown(object sender, GeoPositionChangedEventArgs<GeoCoordinate> e)
@@ -328,19 +327,6 @@ namespace OneBusAway.WP7.ViewModel
                     }
                 }
                 );
-            }
-        }
-
-        protected void ErrorOccured(object sender, Exception e)
-        {
-            Debug.Assert(false);
-
-            // The VM should always be subscribed to the ErrorHandler event
-            Debug.Assert(ErrorHandler != null);
-
-            if (ErrorHandler != null)
-            {
-                ErrorHandler(sender, new ErrorHandlerEventArgs(e));
             }
         }
 

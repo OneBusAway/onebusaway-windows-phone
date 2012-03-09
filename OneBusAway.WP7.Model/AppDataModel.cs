@@ -77,40 +77,30 @@ namespace OneBusAway.WP7.Model
 
         public void AddFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
         {
-            Exception error = null;
+            Initialize();
 
-            try
+            // If the recent already exists delete the old instance.
+            // This way the new one will be added with the new LastAccessed time.
+            if (type == FavoriteType.Recent && IsFavorite(favorite, type))
             {
-                Initialize();
-
-                // If the recent already exists delete the old instance.
-                // This way the new one will be added with the new LastAccessed time.
-                if (type == FavoriteType.Recent && IsFavorite(favorite, type))
-                {
-                    // The comparison doesn't compare the LastAccessed times so
-                    // it will remove the other copy
-                    favorites[type].Remove(favorite);
-                }
-
-                // Remove the oldest favorite if 15 entires already exist
-                if (type == FavoriteType.Recent && favorites[type].Count >= 15)
-                {
-                    favorites[type].Sort(new RecentLastAccessComparer());
-                    favorites[type].RemoveAt(favorites[type].Count - 1);
-                }
-
-                favorites[type].Add(favorite);
-                WriteFavoritesToDisk(favorites[type], fileNames[type]);
+                // The comparison doesn't compare the LastAccessed times so
+                // it will remove the other copy
+                favorites[type].Remove(favorite);
             }
-            catch (Exception e)
+
+            // Remove the oldest favorite if 15 entires already exist
+            if (type == FavoriteType.Recent && favorites[type].Count >= 15)
             {
-                Debug.Assert(false);
-                error = e;
+                favorites[type].Sort(new RecentLastAccessComparer());
+                favorites[type].RemoveAt(favorites[type].Count - 1);
             }
+
+            favorites[type].Add(favorite);
+            WriteFavoritesToDisk(favorites[type], fileNames[type]);
 
             if (Favorites_Changed != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type]));
             }
         }
 
@@ -123,47 +113,27 @@ namespace OneBusAway.WP7.Model
 
         public void DeleteFavorite(FavoriteRouteAndStop favorite, FavoriteType type)
         {
-            Exception error = null;
+            Initialize();
 
-            try
-            {
-                Initialize();
-
-                favorites[type].Remove(favorite);
-                WriteFavoritesToDisk(favorites[type], fileNames[type]);
-            }
-            catch (Exception e)
-            {
-                Debug.Assert(false);
-                error = e;
-            }
+            favorites[type].Remove(favorite);
+            WriteFavoritesToDisk(favorites[type], fileNames[type]);
 
             if (Favorites_Changed != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type]));
             }
         }
 
         public void DeleteAllFavorites(FavoriteType type)
         {
-            Exception error = null;
+            Initialize();
 
-            try
-            {
-                Initialize();
-
-                favorites[type].Clear();
-                WriteFavoritesToDisk(favorites[type], fileNames[type]);
-            }
-            catch (Exception e)
-            {
-                Debug.Assert(false);
-                error = e;
-            }
+            favorites[type].Clear();
+            WriteFavoritesToDisk(favorites[type], fileNames[type]);
 
             if (Favorites_Changed != null)
             {
-                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type], error));
+                Favorites_Changed(this, new FavoritesChangedEventArgs(favorites[type]));
             }
         }
 

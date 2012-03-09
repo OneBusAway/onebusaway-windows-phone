@@ -77,7 +77,6 @@
     <Compile Include="EventArgs\CombinedInfoForLocationEventArgs.cs" />
     <Compile Include="EventArgs\AModelEventArgs.cs" />
     <Compile Include="EventArgs\ArrivalsForStopEventArgs.cs" />
-    <Compile Include="EventArgs\ErrorHandlerEventArgs.cs" />
     <Compile Include="EventArgs\FavoritesChangedEventArgs.cs" />
     <Compile Include="EventArgs\LocationForAddressEventArgs.cs" />
     <Compile Include="EventArgs\ScheduleForStopEventArgs.cs" />

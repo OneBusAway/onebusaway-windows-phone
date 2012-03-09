@@ -127,19 +127,6 @@ namespace OneBusAway.WP7.ViewModel
 
         #region Private/Protected Methods
 
-        protected void ErrorOccured(object sender, Exception e)
-        {
-            Debug.Assert(false);
-
-            // The VM should always be subscribed to the ErrorHandler event
-            Debug.Assert(ErrorHandler != null);
-
-            if (ErrorHandler != null)
-            {
-                ErrorHandler(sender, new ErrorHandlerEventArgs(e));
-            }
-        }
-
         protected void OnPropertyChanged(string propertyName)
         {
             if (PropertyChanged != null)
@@ -154,11 +141,6 @@ namespace OneBusAway.WP7.ViewModel
                 }
                 );
             }
-        }
-
-        void locationTracker_ErrorHandler(object sender, ErrorHandlerEventArgs e)
-        {
-            ErrorOccured(this, e.error);
         }
 
         #endregion
@@ -180,8 +162,6 @@ namespace OneBusAway.WP7.ViewModel
                 operationTracker.UIAction = uiAction;
             }
         }
-
-        public event EventHandler<ErrorHandlerEventArgs> ErrorHandler;
 
         public const string FeedbackEmailAddress = "wp7@onebusaway.org";
 
@@ -212,7 +192,6 @@ namespace OneBusAway.WP7.ViewModel
             // Set the UI Actions to occur on the UI thread
             UIAction = (uiAction => dispatcher.BeginInvoke(() => uiAction()));
 
-            locationTracker.ErrorHandler += new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
             locationTracker.Initialize(operationTracker);
 
             Debug.Assert(eventsRegistered == false);
@@ -226,7 +205,6 @@ namespace OneBusAway.WP7.ViewModel
         public virtual void UnregisterEventHandlers()
         {
             locationTracker.Uninitialize();
-            locationTracker.ErrorHandler -= new EventHandler<ErrorHandlerEventArgs>(locationTracker_ErrorHandler);
 
             Debug.Assert(eventsRegistered == true);
             eventsRegistered = false;

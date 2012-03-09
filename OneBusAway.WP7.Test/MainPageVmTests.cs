@@ -50,9 +50,8 @@ namespace OneBusAway.WP7.Test
 
             viewModel.SearchByRoute(
                 "48",
-                delegate(List<Route> routes, Exception error)
+                delegate(List<Route> routes)
                 {
-                    Assert.Equals(error, null);
                     Assert.Equals(routes.Count, 1);
                     Assert.Equals(viewModel.operationTracker.Loading, false);
 
@@ -71,9 +70,8 @@ namespace OneBusAway.WP7.Test
 
             viewModel.SearchByRoute(
                 "BusDoesNotExist",
-                delegate(List<Route> routes, Exception error)
+                delegate(List<Route> routes)
                 {
-                    Assert.Equals(error, null);
                     Assert.Equals(routes.Count, 0);
                     Assert.Equals(viewModel.operationTracker.Loading, false);
 
@@ -100,7 +98,6 @@ namespace OneBusAway.WP7.Test
 
             public void callback_Completed(object sender, AModelEventArgs e)
             {
-                Assert.AreEqual(e.error, null);
                 finished = true;
             }
         }

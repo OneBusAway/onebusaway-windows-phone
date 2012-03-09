@@ -165,25 +165,16 @@ namespace OneBusAway.WP7.ViewModel
 
         void busServiceModel_StopsForLocation_Completed(object sender, EventArgs.StopsForLocationEventArgs e)
         {
-            Debug.Assert(e.error == null);
-
-            if (e.error == null)
+            // this lock simply prevents multiple instances of this handler from running simultaneously
+            lock (stopsForLocationCompletedLock)
             {
-                // this lock simply prevents multiple instances of this handler from running simultaneously
-                lock (stopsForLocationCompletedLock)
+                IDictionary<string, Stop> newStops = new Dictionary<string, Stop>();
+                foreach (Stop s in e.stops)
                 {
-                    IDictionary<string, Stop> newStops = new Dictionary<string, Stop>();
-                    foreach (Stop s in e.stops)
-                    {
-                        newStops.Add(s.id, s);
-                    }
-
-                    SetStopsForLocation(newStops);
+                    newStops.Add(s.id, s);
                 }
-            }
-            else
-            {
-                ErrorOccured(this, e.error);
+
+                SetStopsForLocation(newStops);
             }
 
             operationTracker.DoneWithOperation("StopsForLocation");

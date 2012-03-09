@@ -211,7 +211,7 @@ namespace OneBusAway.WP7.View
 
         #region Search callbacks
 
-        private void SearchByRouteCallback(List<Route> routes, Exception error)
+        private void SearchByRouteCallback(List<Route> routes)
         {
             Dispatcher.BeginInvoke(() =>
             {
@@ -220,11 +220,7 @@ namespace OneBusAway.WP7.View
                 this.Focus();
             });
 
-            if (error != null)
-            {
-                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-            }
-            else if (routes.Count == 0)
+            if (routes.Count == 0)
             {
                 Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }
@@ -238,7 +234,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void SearchByStopCallback(List<Stop> stops, Exception error)
+        private void SearchByStopCallback(List<Stop> stops)
         {
             Dispatcher.BeginInvoke(() =>
             {
@@ -247,11 +243,7 @@ namespace OneBusAway.WP7.View
                 this.Focus();
             });
 
-            if (error != null)
-            {
-                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-            }
-            else if (stops.Count == 0)
+            if (stops.Count == 0)
             {
                 Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }
@@ -269,7 +261,7 @@ namespace OneBusAway.WP7.View
             }
         }
 
-        private void SearchByLocationCallback(LocationForQuery location, Exception error)
+        private void SearchByLocationCallback(LocationForQuery location)
         {
             Dispatcher.BeginInvoke(() =>
             {
@@ -278,11 +270,7 @@ namespace OneBusAway.WP7.View
                 this.Focus();
             });
 
-            if (error != null)
-            {
-                viewModel_ErrorHandler(this, new ViewModel.EventArgs.ErrorHandlerEventArgs(error));
-            }
-            else if (location == null)
+            if (location == null)
             {
                 Dispatcher.BeginInvoke(() => MessageBox.Show(searchErrorMessage, "No results found", MessageBoxButton.OK));
             }

@@ -17,8 +17,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
     {
         public List<FavoriteRouteAndStop> newFavorites { get; private set; }
 
-        public FavoritesChangedEventArgs(List<FavoriteRouteAndStop> newFavorites, Exception error)
-            : base(error)
+        public FavoritesChangedEventArgs(List<FavoriteRouteAndStop> newFavorites)
+            : base()
         {
             this.newFavorites = newFavorites;
         }

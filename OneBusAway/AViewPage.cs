@@ -57,33 +57,17 @@ namespace OneBusAway.WP7.View
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
-            if (aViewModel != null)
-            {
-                aViewModel.ErrorHandler += new EventHandler<ViewModel.EventArgs.ErrorHandlerEventArgs>(viewModel_ErrorHandler);
-            }
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
-            if (aViewModel != null)
-            {
-                aViewModel.ErrorHandler -= new EventHandler<ViewModel.EventArgs.ErrorHandlerEventArgs>(viewModel_ErrorHandler);
-            }
         }
 
         internal static void unhandledException_ErrorHandler(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
             Debug.Assert(false);
 
-            viewModel_ErrorHandler(sender, new ViewModel.EventArgs.ErrorHandlerEventArgs(e.ExceptionObject));
-            e.Handled = true;
-        }
-
-        internal static void viewModel_ErrorHandler(object sender, ViewModel.EventArgs.ErrorHandlerEventArgs e)
-        {
             // If we're already showing an error to the user don't bother and queue up some more.  They are probably
             // the same issue since connectivity problems will cause 4+ error messages in a row
             lock (reportingErrorLock)
@@ -100,14 +84,16 @@ namespace OneBusAway.WP7.View
                         reportingError = true;
 
                         IDictionary<string, string> exceptionReport = new Dictionary<string, string>();
-                        exceptionReport.Add(e.error.GetType().ToString(), e.error.ToString());
-                        dispatcher.BeginInvoke(() => viewModel_ErrorHandlerThread(sender, e, exceptionReport));
+                        exceptionReport.Add(e.ExceptionObject.GetType().ToString(), e.ExceptionObject.ToString());
+                        dispatcher.BeginInvoke(() => viewModel_ErrorHandlerThread(sender, e.ExceptionObject, exceptionReport));
                     }
                 }
             }
+
+            e.Handled = true;
         }
 
-        private static void viewModel_ErrorHandlerThread(object sender, ViewModel.EventArgs.ErrorHandlerEventArgs e, IDictionary<string, string> exceptionReport)
+        private static void viewModel_ErrorHandlerThread(object sender, Exception e, IDictionary<string, string> exceptionReport)
         {
             // Ensure that we never process more than one error at a time
             lock (errorProcessingLock)
@@ -116,7 +102,7 @@ namespace OneBusAway.WP7.View
                 string errorMessage;
                 MessageBoxButton messageBoxType = MessageBoxButton.OK;
 
-                if (e.error is WebException)
+                if (e is WebException)
                 {
                     errorTitle = "Internet Unavailable";
                     errorMessage =
@@ -125,24 +111,24 @@ namespace OneBusAway.WP7.View
                         "or the OneBusAway service might be unavailable right now.";
                     messageBoxType = MessageBoxButton.OK;
                 } 
-                else if (e.error is LocationUnavailableException)
+                else if (e is LocationUnavailableException)
                 {
                     errorTitle = "Location Unavailable";
-                    errorMessage = e.error.Message;                        
+                    errorMessage = e.Message;                        
                     messageBoxType = MessageBoxButton.OK;
                 }
-                else if (e.error is WebserviceParsingException)
+                else if (e is WebserviceParsingException)
                 {
                     errorMessage =
                         "Something went wrong decyphering the bus status, " +
                         "would you like to report this error to us so we can try and fix it?";
                     messageBoxType = MessageBoxButton.OKCancel;
                 }
-                else if (e.error is WebserviceResponseException)
+                else if (e is WebserviceResponseException)
                 {
                     // If the error code is set to "unused" then we couldn't even parse the return code
                     // from the OBA resopnse
-                    if (((WebserviceResponseException)e.error).ServerStatusCode == HttpStatusCode.Unused)
+                    if (((WebserviceResponseException)e).ServerStatusCode == HttpStatusCode.Unused)
                     {
                         errorTitle = "Internet Unavailable";
                         errorMessage =
@@ -185,7 +171,7 @@ namespace OneBusAway.WP7.View
                         "OneBusAway Version: {0} \r\n" +
                         "{1}",
                         version,
-                        e.error
+                        e
                         );
 
                     // The email task will crash if the message is longer than 32k characters
@@ -194,7 +180,7 @@ namespace OneBusAway.WP7.View
                         emailComposeTask.Body = emailComposeTask.Body.Remove(30000);
                     }
 
-                    emailComposeTask.Subject = string.Format("OneBusAway Error: {0}", e.error.GetType());
+                    emailComposeTask.Subject = string.Format("OneBusAway Error: {0}", e.GetType());
                     emailComposeTask.Show();
                 }
                 else

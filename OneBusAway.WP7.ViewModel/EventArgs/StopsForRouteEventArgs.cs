@@ -10,8 +10,8 @@ namespace OneBusAway.WP7.ViewModel.EventArgs
         public List<RouteStops> routeStops { get; private set; }
         public Route route { get; private set; }
 
-        public StopsForRouteEventArgs(Route route, List<RouteStops> routeStops, Exception error)
-            : base(error)
+        public StopsForRouteEventArgs(Route route, List<RouteStops> routeStops)
+            : base()
         {
             this.routeStops = routeStops;
             this.route = route;
