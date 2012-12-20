@@ -10,7 +10,7 @@
     xmlns:shell="clr-namespace:Microsoft.Phone.Shell;assembly=Microsoft.Phone"
     >
 
-    <m:ApplicationIdCredentialsProvider ApplicationId="ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm" x:Key="MapCredentials" />
+    <m:ApplicationIdCredentialsProvider ApplicationId="AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz" x:Key="MapCredentials" />
     
     <Style x:Name="PerformanceProgressBarStyle" TargetType="local:PerformanceProgressBar">
         <!-- This control only benefits indeterminate situations so it is only
