@@ -177,8 +177,8 @@ namespace OneBusAway.WP7.ViewModel
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
                 bool hasData;
-                // Ensure that their current location is within ~150 miles of Seattle
-                if (location.GetDistanceTo(LocationTracker.DefaultLocation) > 250000)
+                // Ensure that their current location is within ~150km of a supported region
+                if (busServiceModel.DistanceFromClosestSupportedRegion(LocationTracker.CurrentLocation) > 150000)
                 {
                     hasData = false;
                 }
@@ -390,7 +390,7 @@ namespace OneBusAway.WP7.ViewModel
                     directionHelper[r.Route.id] = r.RouteStops;
 
                     operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
-                    busServiceModel.StopsForRoute(r.Route);
+                    busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, r.Route);
                 }
             }
 

@@ -9,6 +9,7 @@ namespace OneBusAway.WP7.ViewModel
 {
     public interface IBusServiceModel
     {
+        double DistanceFromClosestSupportedRegion(GeoCoordinate location);
         bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2);
 
         event EventHandler<CombinedInfoForLocationEventArgs> CombinedInfoForLocation_Completed;
@@ -27,16 +28,16 @@ namespace OneBusAway.WP7.ViewModel
         void RoutesForLocation(GeoCoordinate location, int radiusInMeters, int maxCount, bool invalidateCache);
 
         event EventHandler<StopsForRouteEventArgs> StopsForRoute_Completed;
-        void StopsForRoute(Route route);
+        void StopsForRoute(GeoCoordinate location, Route route);
 
         event EventHandler<ArrivalsForStopEventArgs> ArrivalsForStop_Completed;
-        void ArrivalsForStop(Stop stop);
+        void ArrivalsForStop(GeoCoordinate location, Stop stop);
 
         event EventHandler<ScheduleForStopEventArgs> ScheduleForStop_Completed;
-        void ScheduleForStop(Stop stop);
+        void ScheduleForStop(GeoCoordinate location, Stop stop);
 
         event EventHandler<TripDetailsForArrivalEventArgs> TripDetailsForArrival_Completed;
-        void TripDetailsForArrivals(List<ArrivalAndDeparture> arrivals);
+        void TripDetailsForArrivals(GeoCoordinate location, List<ArrivalAndDeparture> arrivals);
 
         event EventHandler<SearchForRoutesEventArgs> SearchForRoutes_Completed;
         void SearchForRoutes(GeoCoordinate location, string query);

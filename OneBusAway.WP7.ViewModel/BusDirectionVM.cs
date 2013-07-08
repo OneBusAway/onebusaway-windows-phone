@@ -62,7 +62,7 @@ namespace OneBusAway.WP7.ViewModel
             foreach(Route route in routes)
             {
                 operationTracker.WaitForOperation("StopsForRoute_" + route.id, string.Format("Looking up details for bus {0}...", route.shortName));
-                busServiceModel.StopsForRoute(route);
+                busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, route);
             }
         }
 

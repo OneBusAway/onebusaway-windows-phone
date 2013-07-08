@@ -88,6 +88,11 @@ namespace OneBusAway.WP7.Model
             webservice = new OneBusAwayWebservice();
         }
 
+        public double DistanceFromClosestSupportedRegion(GeoCoordinate location)
+        {
+            return OneBusAwayWebservice.ClosestRegion(location).DistanceFrom(location.Latitude, location.Longitude);
+        }
+
         public bool AreLocationsEquivalent(GeoCoordinate location1, GeoCoordinate location2)
         {
             return OneBusAwayWebservice.GetRoundedLocation(location1) == OneBusAwayWebservice.GetRoundedLocation(location2);
@@ -185,9 +190,10 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void StopsForRoute(Route route)
+        public void StopsForRoute(GeoCoordinate location, Route route)
         {
             webservice.StopsForRoute(
+                location,
                 route,
                 delegate(List<RouteStops> routeStops)
                 {
@@ -199,9 +205,10 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void ArrivalsForStop(Stop stop)
+        public void ArrivalsForStop(GeoCoordinate location, Stop stop)
         {
             webservice.ArrivalsForStop(
+                location,
                 stop,
                 delegate(List<ArrivalAndDeparture> arrivals)
                 {
@@ -213,9 +220,10 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void ScheduleForStop(Stop stop)
+        public void ScheduleForStop(GeoCoordinate location, Stop stop)
         {
             webservice.ScheduleForStop(
+                location,
                 stop,
                 delegate(List<RouteSchedule> schedule)
                 {
@@ -227,7 +235,7 @@ namespace OneBusAway.WP7.Model
             );
         }
 
-        public void TripDetailsForArrivals(List<ArrivalAndDeparture> arrivals)
+        public void TripDetailsForArrivals(GeoCoordinate location, List<ArrivalAndDeparture> arrivals)
         {
             int count = 0;
             List<TripDetails> tripDetails = new List<TripDetails>(arrivals.Count);
@@ -247,6 +255,7 @@ namespace OneBusAway.WP7.Model
                 arrivals.ForEach(arrival =>
                     {
                         webservice.TripDetailsForArrival(
+                            location,
                             arrival,
                             delegate(TripDetails tripDetail)
                             {
