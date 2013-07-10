@@ -69,7 +69,6 @@
     <Compile Include="OneBusAwayWebservice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VirtualEarthWebServices.cs" />
-    <Compile Include="WebRequestQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OneBusAway.WP7.ViewModel\OneBusAway.WP7.ViewModel.csproj">
