@@ -95,6 +95,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="OneBusAway.WP7.Model.licenseheader" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
   </ItemGroup>

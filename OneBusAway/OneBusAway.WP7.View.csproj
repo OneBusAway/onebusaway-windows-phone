@@ -197,6 +197,7 @@
     <None Include="Assets\OBASquare.design" />
     <None Include="Assets\SplashScreenImage.design" />
     <None Include="packages.config" />
+    <None Include="OneBusAway.WP7.Model.licenseheader" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
   </ItemGroup>
