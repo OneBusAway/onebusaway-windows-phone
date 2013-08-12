@@ -70,6 +70,10 @@
     <Compile Include="BusDirectionVM.cs" />
     <Compile Include="BusServiceDataStructures\Agency.cs" />
     <Compile Include="BusServiceDataStructures\ArrivalAndDeparture.cs" />
+    <Compile Include="BusServiceDataStructures\BindableBase.cs" />
+    <Compile Include="BusServiceDataStructures\ExtensionMethods.cs" />
+    <Compile Include="BusServiceDataStructures\Region.cs" />
+    <Compile Include="BusServiceDataStructures\RegionBounds.cs" />
     <Compile Include="BusServiceDataStructures\ScheduleStopTime.cs" />
     <Compile Include="EventArgs\SearchForStopsEventArgs.cs" />
     <Compile Include="LocationServiceDataStructures\LocationForQuery.cs" />

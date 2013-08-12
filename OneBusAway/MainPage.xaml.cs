@@ -150,8 +150,8 @@ namespace OneBusAway.WP7.View
                         if (hasData == false)
                         {
                             MessageBox.Show(
-                                "Currently the OneBusAway service only supports Seattle and the surrounding counties. " +
-                                "Many functions of this app will not work in your current location."
+                                "Currently the OneBusAway service does not support your location." +
+                                "Many functions of this app will not work."
                                 );
                         }
                     });

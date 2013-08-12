@@ -108,32 +108,32 @@ namespace OneBusAway.WP7.ViewModel
         {
             this.operationTracker = operationTracker;
 
-#if DEBUG
-            if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
-            {
-                LocationTrackerStatic.LastKnownLocation = null;
-                Random random = new Random();
-                int timeoutMs = random.Next(0, 5000);
-                timer = new Timer(param =>
-                {
-                    UIAction(() =>
-                    {
-                        LocationTrackerStatic.LastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
-                        GeoPositionChangedEventArgs<GeoCoordinate> args =
-                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, LocationTrackerStatic.LastKnownLocation));
-                        LocationWatcher_LocationKnown(
-                            this,
-                            args
-                            );
-                        locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
-                    });
-                },
-                    null,
-                    timeoutMs,
-                    Timeout.Infinite
-                    );
-            }
-#endif
+//#if DEBUG
+//            if (Microsoft.Devices.Environment.DeviceType == DeviceType.Emulator)
+//            {
+//                //LocationTrackerStatic.LastKnownLocation = null;
+//                Random random = new Random();
+//                int timeoutMs = random.Next(0, 5000);
+//                timer = new Timer(param =>
+//                {
+//                    UIAction(() =>
+//                    {
+//                        LocationTrackerStatic.LastKnownLocation = new GeoCoordinate(47.675888, -122.320763);
+//                        GeoPositionChangedEventArgs<GeoCoordinate> args =
+//                            new GeoPositionChangedEventArgs<GeoCoordinate>(new GeoPosition<GeoCoordinate>(DateTime.Now, LocationTrackerStatic.LastKnownLocation));
+//                        LocationWatcher_LocationKnown(
+//                            this,
+//                            args
+//                            );
+//                        locationWatcher_PositionChanged_NotifyPropertyChanged(this, args);
+//                    });
+//                },
+//                    null,
+//                    timeoutMs,
+//                    Timeout.Infinite
+//                    );
+//            }
+//#endif
 
             LocationTrackerStatic.PositionChanged += new EventHandler<GeoPositionChangedEventArgs<GeoCoordinate>>(locationWatcher_PositionChanged_NotifyPropertyChanged);
 
