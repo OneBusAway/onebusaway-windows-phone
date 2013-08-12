@@ -177,8 +177,8 @@ namespace OneBusAway.WP7.ViewModel
             locationTracker.RunWhenLocationKnown(delegate(GeoCoordinate location)
             {
                 bool hasData;
-                // Ensure that their current location is within ~150 miles of Seattle
-                if (location.GetDistanceTo(LocationTracker.DefaultLocation) > 250000)
+                // Ensure that their current location is within ~150km of a supported region
+                if (busServiceModel.DistanceFromClosestSupportedRegion(LocationTracker.CurrentLocation) > 150000)
                 {
                     hasData = false;
                 }
@@ -243,20 +243,20 @@ namespace OneBusAway.WP7.ViewModel
 
                 if (e.error == null)
                 {
-                    e.routes.Sort(new RouteDistanceComparer(e.location));
+                e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                    int count = 0;
-                    foreach (Route route in e.routes)
+                int count = 0;
+                foreach (Route route in e.routes)
+                {
+                    if (count > viewModel.maxRoutes)
                     {
-                        if (count > viewModel.maxRoutes)
-                        {
-                            break;
-                        }
-
-                        Route currentRoute = route;
-                        count++;
+                        break;
                     }
-                        
+
+                    Route currentRoute = route;
+                    count++;
+                }
+
                 }
                 else
                 {
@@ -289,17 +289,17 @@ namespace OneBusAway.WP7.ViewModel
 
                 if (e.error == null)
                 {
-                    e.stops.Sort(new StopDistanceComparer(e.location));
+                e.stops.Sort(new StopDistanceComparer(e.location));
 
-                    viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
+                viewModel.UIAction(() => viewModel.StopsForLocation.Clear());
 
-                    int count = 0;
-                    foreach (Stop stop in e.stops)
-                    {
-                        Stop currentStop = stop;
-                        viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
-                        count++;
-                    }
+                int count = 0;
+                foreach (Stop stop in e.stops)
+                {
+                    Stop currentStop = stop;
+                    viewModel.UIAction(() => viewModel.StopsForLocation.Add(currentStop));
+                    count++;
+                }
                 }
                 else
                 {
@@ -360,64 +360,64 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                e.stops.Sort(new StopDistanceComparer(e.location));
-                e.routes.Sort(new RouteDistanceComparer(e.location));
+            e.stops.Sort(new StopDistanceComparer(e.location));
+            e.routes.Sort(new RouteDistanceComparer(e.location));
 
-                int stopCount = 0;
-                foreach (Stop stop in e.stops)
+            int stopCount = 0;
+            foreach (Stop stop in e.stops)
+            {
+                if (stopCount > maxStops)
                 {
-                    if (stopCount > maxStops)
-                    {
-                        break;
-                    }
-
-                    Stop currentStop = stop;
-                    UIAction(() => StopsForLocation.Add(currentStop));
-                    stopCount++;
+                    break;
                 }
 
-                int routeCount = 0;
-                foreach (Route route in e.routes)
-                {
-                    if (routeCount > maxRoutes)
-                    {
-                        break;
-                    }
+                Stop currentStop = stop;
+                UIAction(() => StopsForLocation.Add(currentStop));
+                stopCount++;
+            }
 
-                    DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
-                    DisplayRouteForLocation.Working.Add(currentDisplayRoute);
-                    routeCount++;
+            int routeCount = 0;
+            foreach (Route route in e.routes)
+            {
+                if (routeCount > maxRoutes)
+                {
+                    break;
                 }
 
-                // Done with work in the background.  Flush the results out to the UI.  This is quick.
-                object testref = null;
-                UIAction(() => 
-                    {
-                        DisplayRouteForLocation.Toggle();
-                        testref = new object();
-                    }
-                );
+                DisplayRoute currentDisplayRoute = new DisplayRoute() { Route = route };
+                DisplayRouteForLocation.Working.Add(currentDisplayRoute);
+                routeCount++;
+            }
 
-                // hack to wait for the UI action to complete
-                // note this executes in the background, so it's fine to be slow.
-                int execcount = 0;
-                while (testref == null)
+            // Done with work in the background.  Flush the results out to the UI.  This is quick.
+            object testref = null;
+            UIAction(() => 
                 {
-                    execcount++;
-                    Thread.Sleep(100);
+                    DisplayRouteForLocation.Toggle();
+                    testref = new object();
                 }
+            );
 
-                // finally, queue up more work
-                lock (DisplayRouteForLocation.CurrentSyncRoot)
+            // hack to wait for the UI action to complete
+            // note this executes in the background, so it's fine to be slow.
+            int execcount = 0;
+            while (testref == null)
+            {
+                execcount++;
+                Thread.Sleep(100);
+            }
+
+            // finally, queue up more work
+            lock (DisplayRouteForLocation.CurrentSyncRoot)
+            {
+                foreach (DisplayRoute r in DisplayRouteForLocation.Current)
                 {
-                    foreach (DisplayRoute r in DisplayRouteForLocation.Current)
-                    {
-                        directionHelper[r.Route.id] = r.RouteStops;
+                    directionHelper[r.Route.id] = r.RouteStops;
 
-                        operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
-                        busServiceModel.StopsForRoute(r.Route);
-                    }
+                    operationTracker.WaitForOperation(string.Format("StopsForRoute_{0}", r.Route.id), "Loading route details...");
+                    busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, r.Route);
                 }
+            }
             }
             else
             {
@@ -433,13 +433,13 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                e.routeStops.ForEach(r => UIAction(() =>
-                    { 
-                        if(directionHelper.ContainsKey(e.route.id))
-                        {
-                            directionHelper[e.route.id].Add(r); 
-                        }
-                    }));
+            e.routeStops.ForEach(r => UIAction(() =>
+                { 
+                    if(directionHelper.ContainsKey(e.route.id))
+                    {
+                        directionHelper[e.route.id].Add(r); 
+                    }
+                }));
             }
             else
             {
@@ -455,14 +455,14 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                if (LocationTracker.LocationKnown == true)
-                {
-                    e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
-                }
-
-                UIAction(() => Favorites.Clear());
-                e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
+            if (LocationTracker.LocationKnown == true)
+            {
+                e.newFavorites.Sort(new FavoriteDistanceComparer(locationTracker.CurrentLocation));
             }
+
+            UIAction(() => Favorites.Clear());
+            e.newFavorites.ForEach(favorite => UIAction(() => Favorites.Add(favorite)));
+        }
             else
             {
                 ErrorOccured(this, e.error);
@@ -475,11 +475,11 @@ namespace OneBusAway.WP7.ViewModel
 
             if (e.error == null)
             {
-                e.newFavorites.Sort(new RecentLastAccessComparer());
+            e.newFavorites.Sort(new RecentLastAccessComparer());
 
-                UIAction(() => Recents.Clear());
-                e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
-            }
+            UIAction(() => Recents.Clear());
+            e.newFavorites.ForEach(recent => UIAction(() => Recents.Add(recent)));
+        }
             else
             {
                 ErrorOccured(this, e.error);

@@ -99,7 +99,7 @@ namespace OneBusAway.WP7.ViewModel
             CurrentViewState.CurrentRoute = placeholder;
             CurrentViewState.CurrentRouteDirection = new RouteStops();
 
-            busServiceModel.StopsForRoute(placeholder);
+            busServiceModel.StopsForRoute(LocationTracker.CurrentLocation, placeholder);
 
             ChangeFilterForArrivals(placeholder);
         }
@@ -135,7 +135,7 @@ namespace OneBusAway.WP7.ViewModel
             if (stop != null)
             {
                 operationTracker.WaitForOperation("ArrivalsForStop", string.Empty);
-                busServiceModel.ArrivalsForStop(stop);
+                busServiceModel.ArrivalsForStop(LocationTracker.CurrentLocation, stop);
             }
         }
 

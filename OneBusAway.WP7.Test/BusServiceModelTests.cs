@@ -57,7 +57,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void ArrivalsForStop()
         {
-            ModelTest(() => model.ArrivalsForStop(fakeData.STOP_RAVENNA));
+            ModelTest(() => model.ArrivalsForStop(new GeoCoordinate(47.60621, -122.332071), fakeData.STOP_RAVENNA));
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void ScheduleForStop()
         {
-            ModelTest(() => model.ScheduleForStop(fakeData.STOP_RAVENNA));
+            ModelTest(() => model.ScheduleForStop(new GeoCoordinate(47.60621, -122.332071), fakeData.STOP_RAVENNA));
         }
 
         [TestMethod]
@@ -85,7 +85,7 @@ namespace OneBusAway.WP7.Test
         [Asynchronous]
         public void StopsForRoute()
         {
-            ModelTest(() => model.StopsForRoute(fakeData.ROUTE_30));
+            ModelTest(() => model.StopsForRoute(new GeoCoordinate(47.60621, -122.332071), fakeData.ROUTE_30));
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ namespace OneBusAway.WP7.Test
                     model.ArrivalsForStop_Completed +=
                         (caller, args) => { arrivalsArgs = args; };
 
-                    model.ArrivalsForStop(fakeData.STOP_UDIST);
+                    model.ArrivalsForStop(new GeoCoordinate(47.60621, -122.332071), fakeData.STOP_UDIST);
 
                     // Wait for ArrivalsForStop to finish both callbacks
                     EnqueueConditional(() => arrivalsArgs != null && callback.finished);
@@ -124,7 +124,7 @@ namespace OneBusAway.WP7.Test
 
                     // Now kick off test for TripDetailsForArrivals
                     EnqueueCallback(() =>
-                        model.TripDetailsForArrivals(arrivalsArgs.arrivals));
+                        model.TripDetailsForArrivals(new GeoCoordinate(47.60621, -122.332071), arrivalsArgs.arrivals));
 
                     // Cleanup callback
                     EnqueueCallback(() =>
