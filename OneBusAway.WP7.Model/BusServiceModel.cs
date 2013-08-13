@@ -358,7 +358,7 @@ namespace OneBusAway.WP7.Model
                 "{0}?query={1}&key={2}&o=xml&userLocation={3}",
                 bingMapAPIURL,
                 query.Replace('&', ' '),
-                "ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm",
+                "AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz",
                 string.Format("{0},{1}", searchNearLocation.Latitude, searchNearLocation.Longitude)
             );
 

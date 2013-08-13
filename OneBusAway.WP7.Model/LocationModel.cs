@@ -27,7 +27,7 @@ namespace OneBusAway.WP7.Model
         #region Private Variables
 
         private GeocodeServiceClient geocodeService;
-        private string bingMapsApiKey = "ApSTUUj6aWA3MIgccEpN30BT7T84k1Npvnx5bDOLkFA_OLMxvirZeGLWODPZlqXm";
+        private string bingMapsApiKey = "AtAv-npPzjiTyL6ij1J5cgR7Cxmt6h8e3fHlsTSlfWshc8GQ1jfQB1PnB1VfvBGz";
 
         #endregion
 
