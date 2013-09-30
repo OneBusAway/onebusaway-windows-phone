@@ -9,3 +9,7 @@ The latest stable release is available for download from the [WP Marketplace](ht
 ### Trying to build the OneBusAway source code? 
 
 Our source code has a dependency on the Silverlight Toolkit for WP7. Please install it and the project should build correctly: http://phone.codeplex.com/
+
+### Legacy repository
+
+OneBusAway for Windows Phone was originally hosted on CodePlex using Team Foundation Server.  If you're looking for old material, you can find it [here](https://onebusawaywp7.codeplex.com/).
