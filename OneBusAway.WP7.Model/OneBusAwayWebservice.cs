@@ -118,7 +118,7 @@ namespace OneBusAway.WP7.Model
 
                                 if (regionsDoc == null)
                                 {
-                                    var webRequest = WebRequest.CreateHttp(REGIONS_SERVICE_URI);
+                                    var webRequest = HttpWebRequest.Create(REGIONS_SERVICE_URI);                                    
                                     var asyncResult = webRequest.BeginGetResponse(result => resetEvent.Set(), webRequest);
 
                                     // Not the best wy to handle this...but we shouldn't block for long.
