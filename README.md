@@ -1,8 +1,8 @@
-onebusaway-windows-phone
+OneBusAway for Windows Phone
 ========================
 
 ### Project Description
-OneBusAway Windows Phone is an app for Windows Phone (WP) 7 and 8 with transit information for the Seattle, WA, Tampa, FL, and Atlanta, GA regions.
+OneBusAway for Windows Phone is an app for Windows Phone (WP) 7 and 8 with transit information for the Seattle, WA, Tampa, FL, and Atlanta, GA regions.
 
 The latest stable release is available for download from the [WP Marketplace](http://www.windowsphone.com/en-us/store/app/onebusaway/30dcbcc4-e3d0-df11-9eae-00237de2db9e?type=phoneapp&id=30dcbcc4-e3d0-df11-9eae-00237de2db9e&source=onebusawaysite).
 
