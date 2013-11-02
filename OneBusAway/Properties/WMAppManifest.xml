@@ -1,45 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
-<!--
- Copyright 2013 Shawn Henry, Rob Smith, and Michael Friedman
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
--->
-<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2009/deployment" AppPlatformVersion="7.1">
-  <App xmlns="" ProductID="{ab66ecae-5ca7-48f2-b1a5-a5b464f9aea0}" Title="OneBusAway" RuntimeType="Silverlight" Version="3.0.0.1" Genre="apps.normal" Author="http://onebusawaywp7.codeplex.com/" Description="OneBusAway for Windows Phone 7" Publisher="http://onebusaway.org/">
+<Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
+  <DefaultLanguage xmlns="" code="" />
+  <App xmlns="" ProductID="{ac1623cf-b574-4ac6-b615-61acca704fd7}" Title="OneBusAway" RuntimeType="Silverlight" Version="3.0.0.1" Genre="apps.normal" Author="http://onebusawaywp7.codeplex.com/" Description="OneBusAway for Windows Phone 7" Publisher="http://onebusaway.org/" PublisherID="{b1a50ea7-0fc8-47b6-b365-b98a3eef615a}">
     <IconPath IsRelative="true" IsResource="false">Bus_Icon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />
       <Capability Name="ID_CAP_LOCATION" />
       <Capability Name="ID_CAP_SENSORS" />
       <Capability Name="ID_CAP_MICROPHONE" />
-      <Capability Name="ID_CAP_MEDIALIB" />
       <Capability Name="ID_CAP_GAMERSERVICES" />
       <Capability Name="ID_CAP_PHONEDIALER" />
       <Capability Name="ID_CAP_PUSH_NOTIFICATION" />
       <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
+      <Capability Name="ID_CAP_MEDIALIB_AUDIO" />
+      <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
+      <Capability Name="ID_CAP_MEDIALIB_PLAYBACK" />
     </Capabilities>
     <Tasks>
       <DefaultTask Name="_default" NavigationPage="MainPage.xaml" />
     </Tasks>
     <Tokens>
       <PrimaryToken TokenID="OneBusAwayToken" TaskName="_default">
-        <TemplateType5>
-          <BackgroundImageURI IsRelative="true" IsResource="false">Bus_Token.png</BackgroundImageURI>
+        <TemplateFlip>
+          <SmallImageURI IsResource="false" IsRelative="true">Bus_Token.png</SmallImageURI>
           <Count>0</Count>
+          <BackgroundImageURI IsResource="false" IsRelative="true">Bus_Token.png</BackgroundImageURI>
           <Title>OneBusAway</Title>
-        </TemplateType5>
+          <BackContent></BackContent>
+          <BackBackgroundImageURI></BackBackgroundImageURI>
+          <BackTitle></BackTitle>
+          <DeviceLockImageURI></DeviceLockImageURI>
+          <HasLarge>false</HasLarge>
+        </TemplateFlip>
       </PrimaryToken>
     </Tokens>
+    <ScreenResolutions>
+      <ScreenResolution Name="ID_RESOLUTION_WVGA" />
+      <ScreenResolution Name="ID_RESOLUTION_WXGA" />
+      <ScreenResolution Name="ID_RESOLUTION_HD720P" />
+    </ScreenResolutions>
   </App>
 </Deployment>
