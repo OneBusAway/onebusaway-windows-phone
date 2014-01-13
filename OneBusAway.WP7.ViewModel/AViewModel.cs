@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 using System;
+using System.IO.IsolatedStorage;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
@@ -61,10 +62,13 @@ namespace OneBusAway.WP7.ViewModel
             this.lazyBusServiceModel = busServiceModel;
             this.lazyAppDataModel = appDataModel;
 
-            locationTracker = new LocationTracker();
-            operationTracker = new AsyncOperationTracker();
+	        if (!IsInDesignMode)
+	        {
+		        locationTracker = new LocationTracker();
+		        operationTracker = new AsyncOperationTracker();
+	        }
 
-            // Set up the default action, just execute in the same thread
+	        // Set up the default action, just execute in the same thread
             UIAction = (uiAction => uiAction());
             
             eventsRegistered = false;
@@ -127,6 +131,14 @@ namespace OneBusAway.WP7.ViewModel
                 return lazyLocationModel;
             }
         }
+
+		protected bool IsInDesignMode
+		{
+			get
+			{
+				return IsInDesignModeStatic;
+			}
+		}
   
         /// <summary>
         /// Subclasses should queue and dequeue their async calls onto this object to tie into the Loading property.
@@ -196,6 +208,33 @@ namespace OneBusAway.WP7.ViewModel
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+		private static bool? isInDesignModeStatic = null;
+		public static bool IsInDesignModeStatic // Convenient method that can be accessed out of an inherited class
+		{
+			get
+			{
+				if (isInDesignModeStatic.HasValue)
+				{
+					// only do the check once and use the last value forever
+					return isInDesignModeStatic.Value;
+				}
+				try
+				{
+					var isoStor = IsolatedStorageSettings.ApplicationSettings.Contains("asasdasd");
+					isInDesignModeStatic = false;
+					return isInDesignModeStatic.Value;
+				}
+				catch (Exception ex)
+				{
+					// Toss out any errors we get
+				}
+				// If we get here that means we got an error
+				isInDesignModeStatic = true;
+				return isInDesignModeStatic.Value;
+			}
+		}
+
 
         /// <summary>
         /// Registers all event handlers with the model.  Call this when 

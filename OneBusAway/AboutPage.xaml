@@ -76,7 +76,8 @@
             <TextBlock 
                 Foreground="{StaticResource OBAForegroundBrush}" 
                 HorizontalAlignment="Center" 
-                Text="http://onebusawaywp7.codeplex.com" 
+                Text="https://github.com/OneBusAway/onebusaway-windows-phone" 
+				FontSize="15.5"
                 MouseLeftButtonUp="TextBlock_MouseLeftButtonUp" 
                 Margin="10"
                 />
