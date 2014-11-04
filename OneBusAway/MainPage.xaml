@@ -121,10 +121,8 @@
                                              Width="390"
                                              Height="45"
                                              tilt:TiltEffect.IsTiltEnabled="True"
+                                             Tap="RouteDirection_Tap"
                                              >
-                                    <toolkit:GestureService.GestureListener>
-                                        <toolkit:GestureListener Tap="RouteDirection_Tap"/>
-                                    </toolkit:GestureService.GestureListener>
                                 </ListBoxItem>
                                 
                             </DataTemplate>

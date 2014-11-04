@@ -434,8 +434,8 @@ namespace OneBusAway.WP7.View
 
             Navigate(new Uri("/StopsMapPage.xaml", UriKind.Relative));
         }
-
-        private void RouteDirection_Tap(object sender, Microsoft.Phone.Controls.GestureEventArgs e)
+        
+        private void RouteDirection_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             RouteStops routeStops = (sender as FrameworkElement).DataContext as RouteStops;
             viewModel.CurrentViewState.CurrentRoutes = new List<Route>() { (Route)routeStops.route };
